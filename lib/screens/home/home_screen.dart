@@ -10,21 +10,41 @@ import '../../screens/chat/chat_home.dart';
 import '../../screens/dashboard/dashboard.dart';
 import '../../theme/color.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
+  @override
+  State<Home> createState() => _HomeState();
+}
 
-  static final List<Widget> _widgetOptions = <Widget>[
-    const ChatHome(),
-    const Explore(),
-    EventsScreen(),
-    const Dashboard(),
-  ];
-
+class _HomeState extends State<Home> {
+  late PageController _pageController;
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 1); // Initialize the PageController
+  }
+  @override
+  void dispose() {
+    _pageController.dispose(); // Dispose of the PageController
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeVm>(builder: (context, homeVm, _) {
       return Scaffold(
-        body: _widgetOptions.elementAt(homeVm.selectedIndex),
+        body:PageView(
+          controller: _pageController,
+          onPageChanged: homeVm.onItemTapped,
+          //     (index){
+          //   homeVm.onItemTapped(index);
+          // },
+          children:  <Widget>[
+            const ChatHome(),
+            const Explore(),
+            EventsScreen(),
+            const Dashboard(),
+          ],
+        ),
         extendBody: false,
         backgroundColor: backgroundGrey,
         bottomNavigationBar: Padding(
@@ -122,12 +142,20 @@ class Home extends StatelessWidget {
                 showUnselectedLabels: false,
                 unselectedIconTheme: const IconThemeData(size: 25.0),
                 selectedIconTheme: const IconThemeData(size: 30.0),
-                onTap: homeVm.onItemTapped,
-              ),
-            ),
-          ),
-        ),
+                onTap: (index) {
+                  homeVm.onItemTapped(index);
+                  // _pageController.animateToPage(index, duration: const Duration(milliseconds: 400), curve: Curves.easeInCubic);
+                  _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.decelerate);
+
+
+                }
+                  //homeVm.onItemTapped,
+      ),
+      ),
+      ),
+      ),
       );
-    });
+      }
+    );
   }
 }

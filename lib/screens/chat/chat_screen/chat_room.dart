@@ -37,7 +37,7 @@ class _ChatRoomState extends State<ChatRoom> {
       widget.roomDetail?.id != null
           ? chatRoomView.fetchMessages(widget.roomDetail!.id.toString()!)
           : "";
-      chatRoomView.setRoomId(widget.roomDetail!.id.toString());
+      widget.roomDetail?.id != null ?chatRoomView.setRoomId(widget.roomDetail!.id.toString()): "";
       chatRoomView.getTotalActiveMember(widget.roomDetail!.id.toString());
     });
   }

@@ -64,6 +64,7 @@ class TaskVm extends ChangeNotifier {
 
     try {
       taskInstances = await taskInstanceRepo.getTaskInstances();
+      // print("all task instance${taskInstances.length}");
     } catch (e) {
       _isError = true;
     }

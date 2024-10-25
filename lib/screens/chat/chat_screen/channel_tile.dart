@@ -15,6 +15,7 @@ class Channel extends StatelessWidget {
 
   Channel({super.key, this.roomDetail});
 
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<ChatRoomViewModel, UserProv>(
@@ -26,7 +27,7 @@ class Channel extends StatelessWidget {
         child: GestureDetector(
           onTap: () {
             // chatVm.setRoomId(roomId);
-            Navigator.push(
+            roomDetail!=null? Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => ChatRoom(
@@ -34,7 +35,8 @@ class Channel extends StatelessWidget {
                           // roomId: roomDetail!.id.toString(),
                           email: currUser.email,
                           roomDetail: roomDetail,
-                        )));
+                        )))
+            :Container();
           },
           child: Container(
             decoration: const BoxDecoration(
@@ -65,13 +67,13 @@ class Channel extends StatelessWidget {
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
+                      roomDetail?.name !=null?(Text(
                         roomDetail!.name.toString(),
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                        ),)
+                      ):Text(""),
                     ],
                   ),
 

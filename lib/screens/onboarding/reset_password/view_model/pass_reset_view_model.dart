@@ -29,15 +29,23 @@ class PasswordResetVm extends ChangeNotifier {
 
   Future<void> sendPasswordReset() async {
     setLoading(true);
+    bool showPasswordResetScreen=false;
     try {
-      myRepo.sendResetEmail(_email);
+        showPasswordResetScreen= await myRepo.sendResetEmail(_email);
 
       setLoading(false);
 
-      Navigator.of(NavigationService.navigatorKey.currentContext!)
-          .pushReplacement(MaterialPageRoute(
-              builder: (ctx) => const PasswordResetConfirm()));
-
+        if(showPasswordResetScreen){
+        Navigator.of(NavigationService.navigatorKey.currentContext!)
+            .pushReplacement(MaterialPageRoute(
+                builder: (ctx) => const PasswordResetConfirm()));
+      }else
+        {
+          Fluttertoast.showToast(
+              msg: "Error in verifying Account(Please signup)",
+              toastLength: Toast.LENGTH_LONG,
+              backgroundColor: Colors.red);
+        }
     } on FirebaseAuthException catch (e) {
       setLoading(false);
       Fluttertoast.showToast(

@@ -9,6 +9,7 @@ import 'package:zineapp2023/screens/tasks/view_models/task_vm.dart';
 
 // import '/screens/tasks/problem_statement.dart';
 import '../../theme/color.dart';
+import '../../utilities/string_formatters.dart';
 
 class TaskCard extends StatelessWidget {
   final UserTaskInstance curr;
@@ -31,7 +32,9 @@ class TaskCard extends StatelessWidget {
               horizontal: 18,
               vertical: 5,
             ),
-            child: Card(
+            child:
+
+            Card(
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                   Radius.circular(15.0),
@@ -70,30 +73,37 @@ class TaskCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Card(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(30),
-                            ),
-                          ),
-                          color: iconTile.withOpacity(0.4),
-                          elevation: 0,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 38.0, vertical: 10.0),
-                            child: Text(
-                              // curr.status != null
-                              //     ? curr.status.toString().toUpperCase()
-                              //     : "",
+                            SizedBox(
+                              height: 35,
+                              width: 160,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: iconTile.withOpacity(0.4), // Use your background color
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                  buildProgressBar(
+                                      curr.completionPercentage ?? 10, // Replace with your dynamic value
+                                    Colors.green.withOpacity(0.2),
+                                    iconTile,
+                                  ),
+                                      Positioned.fill(
+                                                    child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                    truncateStatus(curr.status.toString()),
+                                                    style: TextStyle(
+                                                    color: textColor.withOpacity(0.9),
+                                                    fontSize: 15.0,
+                                                    fontWeight: FontWeight.w700),
+                                                    ),))
 
-                              'progress',
-                              style: TextStyle(
-                                  color: textColor.withOpacity(0.9),
-                                  fontSize: 15.0,
-                                  fontWeight: FontWeight.w700),
+                                ],
+                              ),
                             ),
-                          ),
-                        ),
+
                         Text(
                           "${DateFormat(DateFormat.MONTH_DAY).format(curr.task.dueDate!)}\n${DateFormat.y().format(curr.task.dueDate!)}",
                           textAlign: TextAlign.right,
@@ -115,4 +125,29 @@ class TaskCard extends StatelessWidget {
       },
     );
   }
+}
+Widget buildProgressBar(int percentage, Color fillColor, Color backgroundColor) {
+  return Stack(
+    children: [
+      // Background container (empty part)
+      Container(
+        height: 40,
+        decoration: BoxDecoration(
+          color: backgroundColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      // Foreground container (filled part)
+      FractionallySizedBox(
+        widthFactor: percentage / 100, // Percentage fill
+        child: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: fillColor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+      ),
+    ],
+  );
 }

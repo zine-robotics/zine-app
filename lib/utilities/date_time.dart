@@ -17,6 +17,15 @@ List<String> months = [
 ];
 
 //===============================Newer CODE=========================================//
+bool isPastEvent(int timeStamp) {
+  DateTime eventDate = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+  DateTime today = DateTime.now();
+  DateTime eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
+  DateTime todayDate = DateTime(today.year, today.month, today.day);
+
+  return eventDay.isBefore(todayDate);  // Returns true if the event is in the past
+}
+
 DateTime convertTimestamp(int timestamp) {
   if (timestamp > 1000000000) {
     // Convert from milliseconds

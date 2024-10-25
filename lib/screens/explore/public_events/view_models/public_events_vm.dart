@@ -21,7 +21,12 @@ class PublicEventsVM extends ChangeNotifier {
     if (_isLoaded) return;
     try {
       List<Events> tempEvents = await eventsRepo.fetchEvents();
+      tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
       _events = tempEvents;
+      for (var event in _events) {
+        DateTime eventDate = DateTime.fromMillisecondsSinceEpoch(event.startDateTime!);
+        print("Event Date: ${eventDate.toString()}");
+      }
     } catch (e) {
       print("Error $e");
       _isError = true;

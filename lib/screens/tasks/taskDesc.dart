@@ -122,7 +122,7 @@ class _TaskDescState extends State<TaskDesc> {
                               elevation: 0,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 38.0, vertical: 12.0),
+                                    horizontal: 39.0, vertical: 12.0),
                                 child: Text(
                                   curr.task != null ? "Plsad" : "asdasds",
                                   // 'In progress',
@@ -254,7 +254,7 @@ class _TaskDescState extends State<TaskDesc> {
               ),
               child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.8,
-                height: 260,
+                height: 250,
                 //color: Colors.red,
                 //color: Colors.red,
                 child: SingleChildScrollView(
@@ -794,7 +794,7 @@ class _TaskDescState extends State<TaskDesc> {
                   //     : descripWidget(context),
                   descripWidget(context),
                   arr[1]
-                      ? Expanded(child: checkPointWidget(context, checkpoints))
+                      ? Flexible(child: checkPointWidget(context, checkpoints))
                       : checkPointWidget(context, checkpoints),
 
                   arr[2]

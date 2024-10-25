@@ -22,7 +22,7 @@ class TaskInstanceRepo {
     Response res = await http.get(BackendProperties.taskInstanceByIdUri,
         headers: {'Authorization': 'Bearer $_uid'});
     print("Called get Tasks");
-    print(res.body);
+    // print(res.body);
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
@@ -32,6 +32,9 @@ class TaskInstanceRepo {
               instanceId: instance['id'],
               title: instance['name'],
               roomId: 0,
+              completionPercentage: instance['completionPercentage'],
+              roomName: instance['roomName'],
+              status: instance['status'],
               task: UserNewTask.fromJson(
                 instance['task'],
               )))
@@ -61,9 +64,10 @@ class TaskInstanceRepo {
 
   Future<void> addCheckpoints(String message, int instanceId) async {
     try {
+      print("user id:${userProv.getUserInfo.uid}");
       Response res = await http.post(
           BackendProperties.addCheckpointUri(instanceId),
-          body: jsonEncode({"content": message, "remark": "false"}),
+          body: jsonEncode({"content": message, "remark": "false" ,"sentFromId":userProv.getUserInfo.id.toString()}),
           headers: {
             'Authorization': 'Bearer $_uid',
             'Content-Type': 'application/json',
@@ -98,7 +102,7 @@ class TaskInstanceRepo {
       Response res = await http.post(
           BackendProperties.addInstanceLinkUri(instanceId),
           body:
-              jsonEncode({"type": heading, "link": Uri.parse(link).toString()}),
+              jsonEncode({"type": heading, "link": Uri.parse(link).toString(),"sentFromId":userProv.getUserInfo.id.toString()}),
           headers: {
             'Authorization': 'Bearer $_uid',
             'Content-Type': 'application/json',

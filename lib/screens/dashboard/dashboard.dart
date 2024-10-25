@@ -12,8 +12,10 @@ import 'package:zineapp2023/theme/color.dart';
 import 'package:zineapp2023/utilities/string_formatters.dart';
 import 'package:intl/intl.dart';
 import '../../common/routing.dart';
+import '../../models/task_instance.dart';
 import '../../utilities/date_time.dart';
 import '../chat/chat_screen/chat_view.dart';
+import '../tasks/view_models/task_vm.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -29,6 +31,7 @@ class _DashboardState extends State<Dashboard> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<EventsVm>(context, listen: false).tempGetAllEvent();
       Provider.of<ChatRoomViewModel>(context, listen: false).loadRooms();
+      Provider.of<TaskVm>(context, listen: false).getTaskInstances();
     });
   }
 
@@ -36,12 +39,14 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     double availableHeight = MediaQuery.of(context).size.height -
         (kBottomNavigationBarHeight + kToolbarHeight);
-    return Consumer4<DashboardVm, UserProv, EventsVm, ChatRoomViewModel>(
-      builder: (context, dashboardVm, userProv, eventVm, chatVm, _) {
+    return Consumer5<DashboardVm, UserProv, EventsVm, ChatRoomViewModel,TaskVm>(
+      builder: (context, dashboardVm, userProv, eventVm, chatVm, taskVm,_) {
         // dashboardVm.getRecentEvent();
         UserModel currUser = userProv.getUserInfo;
+        List<UserTaskInstance> taskInstancesList=taskVm.taskInstances;
+        int allChatRoom=chatVm.allChatRoom;
         // eventVm.tempGetAllEvent();
-        String month = DateFormat.MMMM().format(DateTime.now());
+
         return Scaffold(
           extendBody: true,
           body: Center(
@@ -438,9 +443,9 @@ class _DashboardState extends State<Dashboard> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    currUser.tasks != null
+                                    taskInstancesList.length!= 0
                                         ? Text(
-                                            currUser.tasks!.length.toString(),
+                                      taskInstancesList.length.toString(),
                                             style: TextStyle(
                                                 height: 0.9,
                                                 letterSpacing: 0.3,
@@ -491,8 +496,8 @@ class _DashboardState extends State<Dashboard> {
                                   children: [
                                     Text(
                                       // userProv.currUser.roomids!.length
-                                      chatVm.allData?.length != null
-                                          ? chatVm.allData!.length.toString()
+                                      allChatRoom != 0
+                                          ? allChatRoom.toString()
                                           : "0",
                                       style: TextStyle(
                                           height: 0.9,

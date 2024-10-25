@@ -10,6 +10,8 @@ import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/screens/tasks/view_models/task_vm.dart';
 import 'package:zineapp2023/utilities/date_time.dart';
 
+import '../../utilities/string_formatters.dart';
+
 class RecentTask extends StatelessWidget {
   RecentTask({super.key});
 
@@ -82,8 +84,8 @@ class RecentTask extends StatelessWidget {
                       child: Text(
                         latest != null
                             //FIXME: GET STATUS
-                            ? "Status Pending"
-                            : "",
+                            ? truncateStatus(latest.status.toString())
+                            : "Status Pending",
                         // 'In progress',
                         style: const TextStyle(
                           color: Color(0xFF268CCB),

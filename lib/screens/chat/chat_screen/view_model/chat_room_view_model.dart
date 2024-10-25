@@ -225,7 +225,8 @@ class ChatRoomViewModel extends ChangeNotifier {
   List<Rooms>? get userWorkshop => _userWorkshop;
   List<Rooms>? get announcement => _announcement;
   bool get isRoomLoading => _isRoomLoading;
-
+  int _allChatRoom=0;
+  get allChatRoom=>_allChatRoom;
   var fMessaging = FirebaseMessaging.instance;
 
   Future<void> loadRooms() async {
@@ -247,15 +248,16 @@ class ChatRoomViewModel extends ChangeNotifier {
         _userProjects = allRooms
             .where((room) => room.type == "group" || room.type == "project")
             .toList();
-        print(_userProjects![0].name);
         _userWorkshop =
             allRooms.where((room) => room.type == "workshop").toList();
         _announcement = allAnnouncment;
+        _allChatRoom= _userWorkshop!.length + _announcement!.length +_userProjects!.length ;
+        // print("announcement:${_announcement}");
       }
 
       // _error =null;
     } catch (e) {
-      print(e);
+      print("load_room:$e");
       // _error ='Failed to load data';
     } finally {
       _isRoomLoading = false;

@@ -90,8 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: chatVm.isRoomLoading
                                 ? Center(child: CircularProgressIndicator())
                                 : ListView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
+
                                     itemCount: projectDetails?.length,
                                     itemBuilder:
                                         (BuildContext context, int index) {

@@ -36,18 +36,29 @@ class UserTaskInstance {
   int? instanceId;
   UserNewTask task;
   int? roomId;
+  String? roomName;
+  String? status;
+  int? completionPercentage;
 
   UserTaskInstance(
       {required this.title,
       required this.instanceId,
       required this.task,
-      this.roomId});
+      this.roomId,
+        this.roomName,
+        this.completionPercentage,
+        this.status,
+
+      });
 
   UserTaskInstance.fromJson(Map<String, dynamic> json)
       : task = UserNewTask.fromJson(json['task']) {
     roomId = json['roomId']['id'];
     instanceId = json['id'];
     title = json['name'];
+    roomName=json['roomName'];
+    status=json['status'];
+    completionPercentage=json['completionPercentage'];
   }
 }
 

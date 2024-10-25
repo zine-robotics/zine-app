@@ -21,7 +21,7 @@ class TaskScreen extends StatefulWidget {
   @override
   State<TaskScreen> createState() => _TaskScreenState();
 }
-
+String _selectedFilter = "All Task";
 class _TaskScreenState extends State<TaskScreen> {
   @override
   void initState() {
@@ -31,6 +31,20 @@ class _TaskScreenState extends State<TaskScreen> {
       var tasksVM = Provider.of<TaskVm>(context, listen: false);
       tasksVM.getTaskInstances();
     });
+  }
+
+  List<UserTaskInstance> _filterTasks(List<UserTaskInstance> tasks) {
+    if (_selectedFilter == "All Task") {
+      return tasks;
+    }
+    List<UserTaskInstance> filter=tasks.where((instance) => instance.status == _selectedFilter).toList();
+    print("filter task instance name:${filter.length}");
+    return tasks.where((instance) => instance.status == _selectedFilter).toList();
+  }
+  @override
+  void dispose() {
+    _selectedFilter = 'All Task';
+    super.dispose();
   }
 
   @override
@@ -45,6 +59,8 @@ class _TaskScreenState extends State<TaskScreen> {
       // taskVm.taskInstances = tasks;
 
       List<UserTaskInstance> tasks = taskVm.taskInstances;
+      List<UserTaskInstance> filteredTasks = _filterTasks(tasks);
+
       if (taskVm.isError) tasks = [];
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,7 +91,7 @@ class _TaskScreenState extends State<TaskScreen> {
                               color: Color(0x69D9D9D9),
                               elevation: 0,
                               child: Center(
-                                child: Text("Firts"),
+                                child: Text(""),
                               ),
                             ),
                           ),
@@ -128,7 +144,7 @@ class _TaskScreenState extends State<TaskScreen> {
             ),
           ),
           DefaultTabController(
-            length: 4,
+            length: 1,
             initialIndex: 0,
             child: Expanded(
               child: Column(
@@ -138,21 +154,69 @@ class _TaskScreenState extends State<TaskScreen> {
                   const SizedBox(
                     height: 15.0,
                   ),
-                  const TabBar(
+                   TabBar(
                       padding: EdgeInsets.all(8.0),
                       indicatorWeight: 0.1,
                       labelColor: blurBlue,
                       labelStyle: TextStyle(
-                          fontSize: 12.5, fontWeight: FontWeight.w800),
+                          fontSize: 14.5, fontWeight: FontWeight.w800),
                       unselectedLabelColor: greyText,
                       unselectedLabelStyle: TextStyle(
-                          fontSize: 12.5, fontWeight: FontWeight.w700),
+                          fontSize: 13, fontWeight: FontWeight.w700),
                       indicatorColor: Colors.transparent,
                       tabs: [
-                        Text("All Task"),
-                        Text("Review"),
-                        Text("In Progress"),
-                        Text("Completed"),
+                        Tab(
+                          child: Stack(
+                            children: [
+                              Align(
+                                alignment: Alignment.center, // Center the text
+                                child: Text("$_selectedFilter"),
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight, // Align the button to the right
+                                child: PopupMenuButton<String>(
+                                  onSelected: (String value) {
+                                    setState(() {
+                                    _selectedFilter = value;
+                                    });
+
+                                    print(value);
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return [
+                                      PopupMenuItem<String>(
+                                        value: 'All Task',
+                                        child: Text('All Task'),
+                                      ),PopupMenuItem<String>(
+                                        value: 'Assigned',
+                                        child: Text('Assigned'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: 'Not Started',
+                                        child: Text('Not Started'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: 'in-review',
+                                        child: Text('in-review'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: 'Completed',
+                                        child: Text('Completed'),
+                                      ),
+                                    ];
+                                  },
+                                  child: Icon(Icons.sort, size: 24.0), // Dropdown button icon
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+
+
+                        // Text("All Task"),
+                        // Text("Review"),
+                        // Text("In Progress"),
+                        // Text("Completed"),
                       ]),
                   Expanded(
                     child: TabBarView(
@@ -161,7 +225,7 @@ class _TaskScreenState extends State<TaskScreen> {
                           child: Column(
                             children: [
                               if (tasks.isEmpty)
-                                const Column(
+                                 Column(
                                   children: [
                                     SizedBox(
                                       height: 130.0,
@@ -175,56 +239,56 @@ class _TaskScreenState extends State<TaskScreen> {
                                     ),
                                   ],
                                 ),
-                              for (int i = 0; i < tasks.length; i++)
+                              for (int i = 0; i < filteredTasks.length; i++)
                                 TaskCard(
-                                  curr: tasks[i],
+                                  curr: filteredTasks[i],
                                   index: i,
                                 ),
                             ],
                           ),
                         ),
-                        const Column(
-                          children: [
-                            SizedBox(
-                              height: 130.0,
-                            ),
-                            Text(
-                              "No Tasks Assigned",
-                              style: TextStyle(
-                                  color: iconTile,
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                        const Column(
-                          children: [
-                            SizedBox(
-                              height: 130.0,
-                            ),
-                            Text(
-                              "No Tasks Assigned",
-                              style: TextStyle(
-                                  color: iconTile,
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                        const Column(
-                          children: [
-                            SizedBox(
-                              height: 130.0,
-                            ),
-                            Text(
-                              "No Tasks Assigned",
-                              style: TextStyle(
-                                  color: iconTile,
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
+                        // const Column(
+                        //   children: [
+                        //     SizedBox(
+                        //       height: 130.0,
+                        //     ),
+                        //     Text(
+                        //       "No Tasks Assigned",
+                        //       style: TextStyle(
+                        //           color: iconTile,
+                        //           fontSize: 30.0,
+                        //           fontWeight: FontWeight.w700),
+                        //     ),
+                        //   ],
+                        // ),
+                        // const Column(
+                        //   children: [
+                        //     SizedBox(
+                        //       height: 130.0,
+                        //     ),
+                        //     Text(
+                        //       "No Tasks Assigned",
+                        //       style: TextStyle(
+                        //           color: iconTile,
+                        //           fontSize: 30.0,
+                        //           fontWeight: FontWeight.w700),
+                        //     ),
+                        //   ],
+                        // ),
+                        // const Column(
+                        //   children: [
+                        //     SizedBox(
+                        //       height: 130.0,
+                        //     ),
+                        //     Text(
+                        //       "No Tasks Assigned",
+                        //       style: TextStyle(
+                        //           color: iconTile,
+                        //           fontSize: 30.0,
+                        //           fontWeight: FontWeight.w700),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   )

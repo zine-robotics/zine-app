@@ -29,6 +29,7 @@ class AuthRepo {
       BackendProperties.resetUri
           .replace(queryParameters: {'email': email.toString()}).toString(),
     );
+    print("res:${res.statusCode}");
     if (res.statusCode == 200) {
       return true;
     } else {
@@ -81,6 +82,7 @@ class AuthRepo {
             throw AuthException(code: 'backend-not-responding');
           } else {
             userToken = (resBody['jwt'] as String);
+            print("userToken:${userToken}");
           }
           break;
 

@@ -14,6 +14,7 @@ class EventsVm extends ChangeNotifier {
     try {
       _tempEvents = await eventRepo.fetchEvents();
       _tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
+      print("sorted Events:${_tempEvents}");
     } catch (e) {
       print('Error fetching events: $e');
     } finally {

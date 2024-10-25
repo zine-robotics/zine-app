@@ -40,8 +40,8 @@ class UserNewTask {
   });
 
   UserNewTask.fromJson(Map<String, dynamic> json) {
-    title = json['title'] ?? "jsonnull";
-    id = json['id'] ?? "jsonnull";
+    title = json['title'] ?? "jsonNull";
+    id = json['id'] ?? "jsonNull";
     subtitle = json['subtitle'] ?? 'jsonNull';
     dateCreated = DateTime.fromMillisecondsSinceEpoch(json['createdDate'] ?? 0);
     dueDate = DateTime.fromMillisecondsSinceEpoch(json['dueDate'] ?? 0);
