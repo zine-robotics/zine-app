@@ -15,7 +15,7 @@ class SplashVM extends ChangeNotifier {
   SplashVM(
       {required this.store, required this.userProv, required this.authRepo});
 
-  Future<String> getData(String param)  async {
+  Future<String> getData(String param) async {
     String? data = await store.getString(param);
     return data.toString();
   }
@@ -25,8 +25,7 @@ class SplashVM extends ChangeNotifier {
     String? uid = await store.getString('uid');
 
     if (uid != null && logged != null && logged.toString() == 'true') {
-
-      UserModel? currUser = await authRepo.getUserbyId(uid.toString());
+      UserModel currUser = await authRepo.getUserbyId(uid.toString());
       print("check currUser$currUser.");
       userProv.updateUserInfo(currUser as UserModel);
       await Navigator.of(NavigationService.navigatorKey.currentContext!,

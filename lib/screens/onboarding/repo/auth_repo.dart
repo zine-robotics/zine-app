@@ -151,13 +151,12 @@ class AuthRepo {
   //   return [];
   // }
 
-  Future<UserModel?> getUserbyId(String uid) async {
+  Future<UserModel> getUserbyId(String uid) async {
     try {
-      Response res = await Requests.get(
-          BackendProperties.userInfoUri.toString(),
+      Response res = await http.get(BackendProperties.userInfoUri,
           headers: {'Authorization': 'Bearer $uid'});
 
-      if (res.statusCode != 200 || res.body.isEmpty) return null;
+      if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
       print('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
 
