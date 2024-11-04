@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:http/http.dart';
-import 'package:requests/requests.dart';
 import 'package:zineapp2023/models/newTask.dart';
 import 'package:zineapp2023/models/task_instance.dart';
 import 'package:zineapp2023/models/tasks.dart';

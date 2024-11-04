@@ -5,7 +5,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:requests/requests.dart';
 import 'package:zineapp2023/models/rooms.dart';
 import 'package:zineapp2023/models/tasks.dart';
 import 'package:http/http.dart' as http;
@@ -25,9 +24,9 @@ class AuthRepo {
   AuthRepo({required this.store});
 
   Future<bool> sendResetEmail(String email) async {
-    Response res = await Requests.post(
+    Response res = await http.post(
       BackendProperties.resetUri
-          .replace(queryParameters: {'email': email.toString()}).toString(),
+          .replace(queryParameters: {'email': email.toString()}),
     );
     print("res:${res.statusCode}");
     if (res.statusCode == 200) {
@@ -105,27 +104,26 @@ class AuthRepo {
     return true;
   }
 
-  dynamic getRoomMap(dynamic listRoomIds) async {
-    dynamic roomDetails = {"group": {}, "project": {}};
-    for (var roomId in listRoomIds) {
-      // print(item);
-      //IM JUST WINGING IT OVER HERE WELL BURN THE BRIDGES WHEN WE GET TO EM
-      Response res = await Requests.get(
-          BackendProperties.roomDataUri.toString(),
-          body: jsonEncode({'roomId': "$roomId"}),
-          headers: {"Content-Type": "application/json"});
+  // dynamic getRoomMap(dynamic listRoomIds) async {
+  //   dynamic roomDetails = {"group": {}, "project": {}};
+  //   for (var roomId in listRoomIds) {
+  //     // print(item);
+  //     //IM JUST WINGING IT OVER HERE WELL BURN THE BRIDGES WHEN WE GET TO EM
+  //     Response res = await http.get(BackendProperties.roomDataUri.toString(),
+  //         body: jsonEncode({'roomId': "$roomId"}),
+  //         headers: {"Content-Type": "application/json"});
 
-      if (res.statusCode != 200) {
-        throw AuthException(code: 'It should probably return 200. Test Throw');
-      }
+  //     if (res.statusCode != 200) {
+  //       throw AuthException(code: 'It should probably return 200. Test Throw');
+  //     }
 
-      Map<String, dynamic> temp = jsonDecode(res.body);
-      // print(temp['type']);
+  //     Map<String, dynamic> temp = jsonDecode(res.body);
+  //     // print(temp['type']);
 
-      roomDetails[temp['type']][roomId] = temp['name'];
-    }
-    return roomDetails;
-  }
+  //     roomDetails[temp['type']][roomId] = temp['name'];
+  //   }
+  //   return roomDetails;
+  // }
 
   // Future<Tasks> getTemp(UserTask e) async {
   //   // We are just Seeing if the given UserTask has any links and if it doesnt
