@@ -1,6 +1,4 @@
 import "package:flutter/material.dart";
-import 'package:zineapp2023/models/events.dart';
-import 'package:zineapp2023/screens/events/repo/events_repo.dart';
 
 class eventContainer extends StatelessWidget {
   final String text1,text2;

@@ -2,9 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:zineapp2023/background/notification_handle.dart';
 import 'package:zineapp2023/models/user.dart';
-import 'package:zineapp2023/screens/onboarding/repo/auth_repo.dart';
 import '../common/data_store.dart';
 
 class UserProv extends ChangeNotifier {

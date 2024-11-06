@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/components/gradient.dart';
 import 'package:zineapp2023/models/user.dart';

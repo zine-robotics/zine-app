@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// This DataStore is created for setting up FlutterSecuredStorage.
 /// The default functions are defined here to use the DataStore

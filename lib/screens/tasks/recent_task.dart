@@ -2,13 +2,10 @@ import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:zineapp2023/models/newTask.dart';
 import 'package:zineapp2023/models/task_instance.dart';
 
-import 'package:zineapp2023/models/userTask.dart';
 
 import 'package:zineapp2023/screens/tasks/view_models/task_vm.dart';
-import 'package:zineapp2023/utilities/date_time.dart';
 
 import '../../utilities/string_formatters.dart';
 

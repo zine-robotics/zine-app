@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 import '../../../../models/rooms.dart';
 import '../../../../theme/color.dart';
 import '../../../../utilities/date_time.dart';

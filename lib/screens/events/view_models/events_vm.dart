@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:zineapp2023/models/events.dart';
 import 'package:zineapp2023/screens/events/repo/events_repo.dart';

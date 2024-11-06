@@ -1,21 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
-import 'package:zineapp2023/utilities/date_time.dart';
 import 'package:zineapp2023/backend_properties.dart';
 
 import '../../../../models/events.dart';
@@ -174,13 +170,6 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
-  Map<String, int> roomNameToId = {
-    "Backend": 302,
-    "real-time-chat": 352,
-    "task instance": 902,
-    "task instance": 652,
-  };
-
   void sendMessage(String user_message, String roomName) async {
     // int? roomId=roomNameToId[roomName];
     if (!_client.connected) {
@@ -215,7 +204,6 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   //-------------------------------------------------it will fetch all room data---------------------------------------------//
 
-  List<Rooms>? _user_rooms;
   List<Rooms>? _userProjects;
   List<Rooms>? _userWorkshop;
   List<Rooms>? _announcement;
@@ -225,8 +213,8 @@ class ChatRoomViewModel extends ChangeNotifier {
   List<Rooms>? get userWorkshop => _userWorkshop;
   List<Rooms>? get announcement => _announcement;
   bool get isRoomLoading => _isRoomLoading;
-  int _allChatRoom=0;
-  get allChatRoom=>_allChatRoom;
+  int _allChatRoom = 0;
+  get allChatRoom => _allChatRoom;
   var fMessaging = FirebaseMessaging.instance;
 
   Future<void> loadRooms() async {
@@ -251,7 +239,9 @@ class ChatRoomViewModel extends ChangeNotifier {
         _userWorkshop =
             allRooms.where((room) => room.type == "workshop").toList();
         _announcement = allAnnouncment;
-        _allChatRoom= _userWorkshop!.length + _announcement!.length +_userProjects!.length ;
+        _allChatRoom = _userWorkshop!.length +
+            _announcement!.length +
+            _userProjects!.length;
         // print("announcement:${_announcement}");
       }
 
@@ -271,7 +261,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
     selectedReplyMessage = message;
     replyTo = message.id;
-    replyUsername = message?.sentFrom.name.toString();
+    replyUsername = message.sentFrom.name.toString();
     print("reply in user Reply:${replyTo.runtimeType}");
 
     replyfocus.requestFocus();
@@ -281,8 +271,6 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   void userCancelReply() {
     replyTo = null;
-    print("repy to cancel replyTo:$replyTo");
-    print(replyTo);
     notifyListeners();
   }
 
@@ -301,6 +289,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   dynamic updateSeen(String email_id, String room_id, int userLastSeen,
       int lastMessageTimestamp, int unreadMessages) async {
     Uri url = BackendProperties.updateLastSeenUri(email_id, room_id);
+    String uid = userProv.getUserInfo.uid!;
     print("inside teh updateSeen for email:$email_id and roomid:$room_id");
     try {
       final Map<String, dynamic> jsonData = {
@@ -313,6 +302,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       final response = await http.put(
         url,
         headers: {
+          'Authorization': 'Bearer $uid',
           'Content-Type': 'application/json',
         },
         body: jsonEncode(jsonData),

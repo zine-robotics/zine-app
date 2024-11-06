@@ -1,17 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/models/task_instance.dart';
-import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 
 import 'package:zineapp2023/screens/tasks/taskCard.dart';
-import 'package:zineapp2023/screens/tasks/taskDesc.dart';
 import 'package:zineapp2023/screens/tasks/view_models/task_vm.dart';
-import 'package:zineapp2023/common/routing.dart';
 import 'dart:math' as math;
-import '../home/home_screen.dart';
 import 'recent_task.dart';
 import '../../theme/color.dart';
 

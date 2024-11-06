@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:timelines/timelines.dart';
 import '../../models/events.dart';
 import '../../theme/color.dart';
-import '../events/view_models/events_vm.dart';
 
 class WorkshopTile extends StatelessWidget {
   List<Events> events;
