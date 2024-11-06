@@ -45,7 +45,7 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Consumer2<UserProv, TaskVm>(builder: (context, userProv, taskVm, _) {
       if (taskVm.isLoading)
-        return Center(
+        return const Center(
           child: CircularProgressIndicator(),
         );
       // List<UserTask>? tasks = userProv.getUserInfo.tasks;
@@ -149,13 +149,13 @@ class _TaskScreenState extends State<TaskScreen> {
                     height: 15.0,
                   ),
                    TabBar(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       indicatorWeight: 0.1,
                       labelColor: blurBlue,
-                      labelStyle: TextStyle(
+                      labelStyle: const TextStyle(
                           fontSize: 14.5, fontWeight: FontWeight.w800),
                       unselectedLabelColor: greyText,
-                      unselectedLabelStyle: TextStyle(
+                      unselectedLabelStyle: const TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w700),
                       indicatorColor: Colors.transparent,
                       tabs: [
@@ -178,28 +178,28 @@ class _TaskScreenState extends State<TaskScreen> {
                                   },
                                   itemBuilder: (BuildContext context) {
                                     return [
-                                      PopupMenuItem<String>(
+                                      const PopupMenuItem<String>(
                                         value: 'All Task',
                                         child: Text('All Task'),
-                                      ),PopupMenuItem<String>(
+                                      ),const PopupMenuItem<String>(
                                         value: 'Assigned',
                                         child: Text('Assigned'),
                                       ),
-                                      PopupMenuItem<String>(
+                                      const PopupMenuItem<String>(
                                         value: 'Not Started',
                                         child: Text('Not Started'),
                                       ),
-                                      PopupMenuItem<String>(
+                                      const PopupMenuItem<String>(
                                         value: 'in-review',
                                         child: Text('in-review'),
                                       ),
-                                      PopupMenuItem<String>(
+                                      const PopupMenuItem<String>(
                                         value: 'Completed',
                                         child: Text('Completed'),
                                       ),
                                     ];
                                   },
-                                  child: Icon(Icons.sort, size: 24.0), // Dropdown button icon
+                                  child: const Icon(Icons.sort, size: 24.0), // Dropdown button icon
                                 ),
                               ),
                             ],
@@ -219,7 +219,7 @@ class _TaskScreenState extends State<TaskScreen> {
                           child: Column(
                             children: [
                               if (tasks.isEmpty)
-                                 Column(
+                                 const Column(
                                   children: [
                                     SizedBox(
                                       height: 130.0,

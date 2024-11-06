@@ -58,7 +58,7 @@ class _TaskDescState extends State<TaskDesc> {
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
           child: Container(
             decoration: BoxDecoration(
-                color: arr[0] ? Colors.white : Color(0xfffafafa),
+                color: arr[0] ? Colors.white : const Color(0xfffafafa),
                 borderRadius: BorderRadius.circular(20.0)),
             // color: Colors.white,
             child: Column(
@@ -97,7 +97,7 @@ class _TaskDescState extends State<TaskDesc> {
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.w400)),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
                         Row(
@@ -110,7 +110,7 @@ class _TaskDescState extends State<TaskDesc> {
                                   Radius.circular(30),
                                 ),
                               ),
-                              color: Color.fromRGBO(255, 255, 255, 1),
+                              color: const Color.fromRGBO(255, 255, 255, 1),
                               // color: Color,
                               // color: Colors.white,
                               // color: Colors.white,
@@ -167,7 +167,7 @@ class _TaskDescState extends State<TaskDesc> {
                     }
                   },
                   elevation: 0,
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
                   key: cardA,
                   title: const Text(
                     'DESCRIPTION',
@@ -185,7 +185,7 @@ class _TaskDescState extends State<TaskDesc> {
                           vertical: 8.0,
                         ),
                         child: Text(
-                          curr.task!.description!,
+                          curr.task.description!,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium!
@@ -234,7 +234,7 @@ class _TaskDescState extends State<TaskDesc> {
             }
           },
           elevation: 0,
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
           // trailing: ,
           key: cardB,
           title: const Text(
@@ -262,7 +262,7 @@ class _TaskDescState extends State<TaskDesc> {
                           children: [
                             Text(
                               '${userName ?? 'Anonymous'}@${DateFormat(DateFormat.HOUR24_MINUTE).format(check.timestamp)} :${DateFormat("dd.MM.yyyy").format(check.timestamp)}',
-                              style: TextStyle(color: Colors.grey, fontSize: 9),
+                              style: const TextStyle(color: Colors.grey, fontSize: 9),
                               textAlign: check.remark
                                   ? TextAlign.left
                                   : TextAlign.right,
@@ -280,14 +280,14 @@ class _TaskDescState extends State<TaskDesc> {
                           ],
                         ),
                       if (tempMessage != null)
-                        for (int i = 0; i < tempMessage!.length; i++)
+                        for (int i = 0; i < tempMessage.length; i++)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 '${dashVm.userProv.getUserInfo.name.toString()}@${DateTime.now().hour},${DateTime.now().minute} :${DateTime.now().day},${DateTime.now().month},${DateTime.now().year}',
                                 style:
-                                    TextStyle(color: Colors.grey, fontSize: 9),
+                                    const TextStyle(color: Colors.grey, fontSize: 9),
                                 textAlign: TextAlign.left,
                               ),
                               Text(
@@ -391,7 +391,7 @@ class _TaskDescState extends State<TaskDesc> {
                                 }
                               },
                               iconSize: 20.0,
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.send,
                                 color: Colors.blue,
                                 size: 30,
@@ -539,7 +539,7 @@ class _TaskDescState extends State<TaskDesc> {
             }
           },
           elevation: 0,
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
           key: cardC,
           title: const Text(
             'LINKS',
@@ -566,7 +566,7 @@ class _TaskDescState extends State<TaskDesc> {
                               // crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Text(link.type,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.grey,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold)),
@@ -576,14 +576,14 @@ class _TaskDescState extends State<TaskDesc> {
                                 ),
                                 Text(
                                     '$userName@${DateFormat(DateFormat.HOUR24_MINUTE).format(link.timestamp)} :${DateFormat("dd.MM.yyyy").format(link.timestamp)}',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.grey, fontSize: 9)),
                               ],
                             ),
                             InkWell(
                                 child: Text(
                                   link.link.toString(),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 13, color: Colors.blue),
                                 ),
                                 onTap: () => launch(link.link.toString())),
@@ -641,7 +641,7 @@ class _TaskDescState extends State<TaskDesc> {
                   Container(
                     width: 350,
                     height: 90,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       borderRadius: BorderRadius.only(
                           topRight: Radius.circular(20.0),
                           topLeft: Radius.circular(20.0)),
@@ -655,7 +655,7 @@ class _TaskDescState extends State<TaskDesc> {
                             const EdgeInsets.only(right: 70, top: 2, left: 2),
                         child: TextField(
                           controller: headingC,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hoverColor: Colors.blue,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.only(
@@ -717,7 +717,7 @@ class _TaskDescState extends State<TaskDesc> {
                                   linkC.clear();
                                 }
                               },
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.send,
                                 color: Colors.blue,
                                 size: 20,

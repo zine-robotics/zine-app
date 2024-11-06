@@ -16,7 +16,7 @@ abstract class DataStore {
 
 class DefaultStore implements DataStore {
   // final SharedPreferences _sharedPreferences;
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   // DefaultStore(this._sharedPreferences);
 

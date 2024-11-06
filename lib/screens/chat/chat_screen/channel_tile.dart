@@ -57,7 +57,7 @@ class Channel extends StatelessWidget {
                               radius: 20,
                               foregroundImage:
                                   NetworkImage(roomDetail!.dpUrl!))
-                          : CircleAvatar(
+                          : const CircleAvatar(
                               backgroundColor: Colors.white,
                               radius: 20,
                               foregroundImage:
@@ -71,7 +71,7 @@ class Channel extends StatelessWidget {
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                         ),)
-                      ):Text(""),
+                      ):const Text(""),
                     ],
                   ),
 
@@ -94,7 +94,7 @@ class Channel extends StatelessWidget {
                                   child: Center(
                                     child: Text(
                                       roomDetail!.unreadMessages.toString(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color:
                                             Color.fromARGB(255, 255, 255, 255),
                                         fontSize: 10,
@@ -125,8 +125,8 @@ class Channel extends StatelessWidget {
                                           ? getLastSeenFormat(
                                               roomDetail!.lastMessageTimestamp!)
                                           : "",
-                                      style: TextStyle(
-                                        color: const Color.fromARGB(
+                                      style: const TextStyle(
+                                        color: Color.fromARGB(
                                             255, 75, 74, 74),
                                         fontSize: 12,
                                       ),

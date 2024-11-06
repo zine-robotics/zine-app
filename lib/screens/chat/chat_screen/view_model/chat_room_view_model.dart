@@ -228,7 +228,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       List<Rooms>? allRooms = await chatP.fetchRooms(email);
       List<Rooms>? allAnnouncment = await chatP.fetchAnnouncement(email);
       if (allRooms != null) {
-        for (Rooms room in allRooms!) {
+        for (Rooms room in allRooms) {
           print('Subscribing to room${room.id}');
           fMessaging.subscribeToTopic("room${room.id}");
         }

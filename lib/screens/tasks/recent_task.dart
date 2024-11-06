@@ -35,7 +35,7 @@ class RecentTask extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Spacer(),
+              const Spacer(),
 
               Text(
                 latest != null ? latest.task.title.toString() : "Testtt",
@@ -60,7 +60,7 @@ class RecentTask extends StatelessWidget {
                         fontWeight: FontWeight.w400)),
               ),
 
-              Spacer(
+              const Spacer(
                 flex: 10,
               ),
               Row(
@@ -106,7 +106,7 @@ class RecentTask extends StatelessWidget {
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               //Text(latest !=null ? latest!.checkpoints.toString() :" ")
             ],
           ),

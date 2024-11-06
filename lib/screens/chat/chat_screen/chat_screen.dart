@@ -88,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             height: MediaQuery.of(context).size.height *
                                 0.5, // You can adjust the height as needed
                             child: chatVm.isRoomLoading
-                                ? Center(child: CircularProgressIndicator())
+                                ? const Center(child: CircularProgressIndicator())
                                 : ListView.builder(
 
                                     itemCount: projectDetails?.length,

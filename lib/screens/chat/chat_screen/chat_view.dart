@@ -25,8 +25,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
     builder: (context, snapshot) {
       print("chat reply to :${chatRoomViewModel.replyTo}");
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return Expanded(
-          child: const Center(
+        return const Expanded(
+          child: Center(
             child: CircularProgressIndicator(),
           ),
         );
@@ -121,16 +121,16 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                               chats[currIndx]
                                                   .sentFrom
                                                   ?.name //currUser.name != chats[currIndx].from
-                                          ? EdgeInsets.symmetric(
+                                          ? const EdgeInsets.symmetric(
                                               horizontal: 35.0)
-                                          : EdgeInsets.all(0),
+                                          : const EdgeInsets.all(0),
                                       child: Text(
                                         "${userVm.getUserInfo.name == chats[currIndx].sentFrom?.name.toString() ? "You" : chats[currIndx].sentFrom?.name.toString()} replied to ${chats[currIndx].replyTo?.sentFrom?.name} ",
                                         textAlign: userVm.getUserInfo.name ==
                                                 chats[currIndx].sentFrom?.name
                                             ? TextAlign.right
                                             : TextAlign.left,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: greyText, fontSize: 11),
                                       ),
                                     ),
@@ -153,12 +153,12 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                       userVm.getUserInfo.name ==
                                               chats[currIndx].sentFrom?.name
                                           ? Container()
-                                          : CircleAvatar(
+                                          : const CircleAvatar(
                                               backgroundColor:
                                                   Colors.transparent,
                                               child: Padding(
                                                 padding:
-                                                    const EdgeInsets.all(3.0),
+                                                    EdgeInsets.all(3.0),
                                                 // child: Image.asset(
                                                 //     "assets/images/zine_logo.png"),
                                               ),
@@ -213,7 +213,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                         // softWrap: true,
                                                         textAlign:
                                                             TextAlign.right,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontSize: 13),
                                                       ),
                                                     ),
@@ -376,7 +376,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                           group
                                       ? CircleAvatar(
                                           backgroundColor:
-                                              Color.fromARGB(15, 255, 255, 255),
+                                              const Color.fromARGB(15, 255, 255, 255),
                                           radius: 20,
                                           child: Padding(
                                               padding:
@@ -563,6 +563,6 @@ Widget buildProfilePicture(var dp, {double size = 20}) {
           )),
     );
   }else{
-    return SizedBox();
+    return const SizedBox();
   }
 }

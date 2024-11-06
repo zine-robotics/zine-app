@@ -35,7 +35,7 @@ class Events extends StatelessWidget {
           ),
           title: Text(
             eventsVm.tempEvents.length != 0 ? "EVENT" : "Past Events",
-            style: TextStyle(
+            style: const TextStyle(
               height: 0.9,
               letterSpacing: 0.3,
               fontSize: 30.0,

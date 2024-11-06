@@ -94,7 +94,7 @@ class TaskVm extends ChangeNotifier {
   UserTaskInstance? findLatest() {
     if (taskInstances.isNotEmpty) {
       taskInstances
-          .sort((a, b) => a.task!.dateCreated!.compareTo(b.task!.dateCreated!));
+          .sort((a, b) => a.task.dateCreated!.compareTo(b.task.dateCreated!));
       return taskInstances.first;
     }
     return null;

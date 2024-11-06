@@ -55,10 +55,10 @@ class TaskCard extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 7,
                     ),
-                    Text(
+                    const Text(
                       "Problem Statement",
                       style: TextStyle(
                           color: textColor,

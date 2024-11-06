@@ -38,7 +38,7 @@ class _TeamTileState extends State<TeamTile> {
     const duration = Duration(milliseconds: 500);
     return Consumer<DashboardVm>(builder: (context, dashboardVm, _) {
       return Card(
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(15))),
         child: Row(
           children: [
@@ -46,7 +46,7 @@ class _TeamTileState extends State<TeamTile> {
               padding: const EdgeInsets.all(16.0),
               child: AnimatedContainer(
                 height: 100,
-                duration: Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 500),
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: ClipRRect(
@@ -60,7 +60,7 @@ class _TeamTileState extends State<TeamTile> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               width: 5,
             ),
             Flexible(
@@ -84,7 +84,7 @@ class _TeamTileState extends State<TeamTile> {
                         color: textColor,
                         fontWeight: FontWeight.w300),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   ),
                 ],

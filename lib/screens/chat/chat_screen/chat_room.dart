@@ -33,7 +33,7 @@ class _ChatRoomState extends State<ChatRoom> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       widget.roomDetail?.id != null
-          ? chatRoomView.fetchMessages(widget.roomDetail!.id.toString()!)
+          ? chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
           : "";
       widget.roomDetail?.id != null ?chatRoomView.setRoomId(widget.roomDetail!.id.toString()): "";
       chatRoomView.getTotalActiveMember(widget.roomDetail!.id.toString());
@@ -171,7 +171,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 1, 0, 2),
                                           child: Padding(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 3),
                                             child: Text(
                                               "Reply To " +
@@ -179,7 +179,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                                       .sentFrom.name
                                                       .toString(),
                                               textAlign: TextAlign.left,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: greyText,
                                                   fontSize: 11),
                                             ),
@@ -209,7 +209,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
                                                 // softWrap: true,
                                                 textAlign: TextAlign.left,
-                                                style: TextStyle(fontSize: 13),
+                                                style: const TextStyle(fontSize: 13),
                                               ),
                                             ),
                                           ),
@@ -219,11 +219,11 @@ class _ChatRoomState extends State<ChatRoom> {
                                             child: IconButton(
                                               iconSize: 20,
                                               onPressed: chatVm.userCancelReply,
-                                              icon: Icon(Icons.cancel_outlined),
+                                              icon: const Icon(Icons.cancel_outlined),
                                             ),
                                           ),
                                         ]),
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 5,
                                         )
                                       ],

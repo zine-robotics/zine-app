@@ -98,6 +98,8 @@ class AuthRepo {
     return true;
   }
 
+  //TODO: REMOVE THIS
+
   // dynamic getRoomMap(dynamic listRoomIds) async {
   //   dynamic roomDetails = {"group": {}, "project": {}};
   //   for (var roomId in listRoomIds) {

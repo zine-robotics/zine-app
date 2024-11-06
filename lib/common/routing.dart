@@ -83,7 +83,7 @@ class Routes {
       cupertinoRoute(RouteName.tasks, (ctx) => const ChatHome());
 
   static Route Event({DateTime? selectedDate}) =>
-      cupertinoRoute(RouteName.eventName, (ctx) => Events());
+      cupertinoRoute(RouteName.eventName, (ctx) => const Events());
 
   static Route publicEvents() {
     print("hi");
@@ -103,7 +103,7 @@ class Routes {
       cupertinoRoute(RouteName.exploreScreen, (ctx) => const Explore());
 
   static Route profileScreen() =>
-      cupertinoRoute(RouteName.profileScreen, (ctx) => ProfileScreen());
+      cupertinoRoute(RouteName.profileScreen, (ctx) => const ProfileScreen());
 
   static Route emailScreen() =>
       cupertinoRoute(RouteName.emailScreen, (ctx) => EmailScreen());

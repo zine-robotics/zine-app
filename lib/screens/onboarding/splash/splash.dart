@@ -17,17 +17,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      var eventsView = Provider.of<EventsVm>(
-        context,
-        listen: false,
-      );
-      // eventsView.getAllEvents();
-    });
     var splashVm = Provider.of<SplashVM>(context, listen: false);
     Timer(const Duration(seconds: 4), () {
       splashVm.isLogged(context);
-      
     });
   }
 

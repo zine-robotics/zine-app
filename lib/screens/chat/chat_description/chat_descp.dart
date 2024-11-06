@@ -170,7 +170,7 @@ class ChatDescription extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             )
           ],

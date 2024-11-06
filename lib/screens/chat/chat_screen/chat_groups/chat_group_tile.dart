@@ -47,7 +47,7 @@ class ChatGroupTile extends StatelessWidget {
                     child: Center(
                       child: Text(
                         roomDetails.unreadMessages.toString(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color.fromARGB(255, 255, 255, 255),
                           fontSize: 10,
                         ),
@@ -106,7 +106,7 @@ class ChatGroupTile extends StatelessWidget {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: greyText.withOpacity(0.6)),
-                    ):Text(""),
+                    ):const Text(""),
                     const SizedBox(
                       height: 10,
                     ),
