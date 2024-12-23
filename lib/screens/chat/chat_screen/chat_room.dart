@@ -82,7 +82,7 @@ class _ChatRoomState extends State<ChatRoom> {
         //
 
         if (currUser.type == 'user' && roomName == 'Announcements') {
-          isNotAllowedTyping = false;
+          isAllowedTyping = false;
         }
         // print("room detila");
         // print(roomDetails);
@@ -155,9 +155,8 @@ class _ChatRoomState extends State<ChatRoom> {
                     chatV(context, chatVm.messageStream, dashVm,
                         chatVm.userReplyText),
 
-                    currUser.type == 'user' && roomName == 'Announcements'
-                        ? Container()
-                        : Column(
+                    if (isAllowedTyping)
+                      Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -174,10 +173,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 3),
                                             child: Text(
-                                              "Reply To " +
-                                                  chatVm.selectedReplyMessage
-                                                      .sentFrom!.name
-                                                      .toString(),
+                                          "Reply To ${chatVm.selectedReplyMessage.sentFrom!.name}",
                                               textAlign: TextAlign.left,
                                               style: const TextStyle(
                                                   color: greyText,
@@ -185,7 +181,6 @@ class _ChatRoomState extends State<ChatRoom> {
                                             ),
                                           ),
                                         ),
-                                        Stack(children: [
                                           Container(
                                             width: double.infinity,
                                             decoration: const BoxDecoration(
@@ -200,29 +195,44 @@ class _ChatRoomState extends State<ChatRoom> {
                                               ),
                                             ),
                                             child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Text(
-                                                chatVm.selectedReplyMessage
-                                                    .content
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 5, 10, 10),
+                                        child: Column(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.topRight,
+                                              // heightFactor: 1,
+                                              // widthFactor: 1,
+                                              child: Container(
+                                                constraints:
+                                                    BoxConstraints.tight(
+                                                        const Size.square(20)),
+                                                child: IconButton(
+                                                  padding: EdgeInsets.zero,
+                                                  iconSize: 20,
+                                                  onPressed:
+                                                      chatVm.userCancelReply,
+                                                  icon: const Icon(
+                                                      Icons.cancel_outlined),
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              chatVm
+                                                  .selectedReplyMessage.content
                                                     .toString(),
 
                                                 // softWrap: true,
                                                 textAlign: TextAlign.left,
-                                                style: const TextStyle(fontSize: 13),
-                                              ),
+                                              style:
+                                                  const TextStyle(fontSize: 13),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
+                                          ],
+                                        ),
+                                      ),
                                           ),
-                                          Positioned(
-                                            top: -7,
-                                            right: 0,
-                                            child: IconButton(
-                                              iconSize: 20,
-                                              onPressed: chatVm.userCancelReply,
-                                              icon: const Icon(Icons.cancel_outlined),
-                                            ),
-                                          ),
-                                        ]),
                                         const SizedBox(
                                           height: 5,
                                         )
@@ -299,7 +309,9 @@ class _ChatRoomState extends State<ChatRoom> {
                                 ),
                               ),
                             ],
-                          ),
+                      )
+                    else
+                      Container()
                   ],
                 ),
               ),
