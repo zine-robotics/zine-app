@@ -261,7 +261,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
     selectedReplyMessage = message;
     replyTo = message.id;
-    replyUsername = message.sentFrom.name.toString();
+    replyUsername = message.sentFrom!.name.toString();
     print("reply in user Reply:${replyTo.runtimeType}");
 
     replyfocus.requestFocus();

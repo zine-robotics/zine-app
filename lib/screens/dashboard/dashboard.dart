@@ -93,7 +93,8 @@ class _DashboardState extends State<Dashboard> {
                                 ],
                               ),
                               const Spacer(),
-                              buildProfilePicture(currUser.dp,size:30),
+                              buildProfilePicture(currUser.dp!, currUser.name!,
+                                  size: 30),
                               // CircleAvatar(
                               //   radius: 30,
                               //   backgroundColor: iconTile,

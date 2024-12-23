@@ -105,8 +105,9 @@ class ProfileScreen extends StatelessWidget {
                                             "assets/images/card_image.png")
                                         : null,
                                   ),
-                                  buildProfilePicture(currUser.dp,size:45),
-
+                                  buildProfilePicture(
+                                      currUser.dp!, currUser.name!,
+                                      size: 45),
                                 ],
                               ),
                               const SizedBox(

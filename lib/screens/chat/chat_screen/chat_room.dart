@@ -176,7 +176,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                             child: Text(
                                               "Reply To " +
                                                   chatVm.selectedReplyMessage
-                                                      .sentFrom.name
+                                                      .sentFrom!.name
                                                       .toString(),
                                               textAlign: TextAlign.left,
                                               style: const TextStyle(

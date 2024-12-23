@@ -311,12 +311,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                                     .toString()
                                                                     .length >
                                                                 20
-                                                            ? repliedMessage
-                                                                    .content
-                                                                    .toString()
-                                                                    .substring(
-                                                                        0, 20) +
-                                                                " . . ."
+                                                            ? "${repliedMessage.content.toString().substring(0, 20)} . . ."
                                                             : repliedMessage
                                                                 .content
                                                                 .toString(),
@@ -384,7 +379,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                               child: Container()),
                                         )
                                       : buildProfilePicture(
-                                          chats[currIndx].sentFrom?.dp),
+                                          chats[currIndx].sentFrom!.dp,
+                                          chats[currIndx].sentFrom!.name),
 
                                   // * Because Priyansh Said So :) *
 
@@ -522,47 +518,24 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
   );
 }
 
-Widget buildProfilePicture(var dp, {double size = 20}) {
-  final random = Random();
-
-  if ((dp is int || dp == null) && size == 20) {
-    final assetIndex = dp ?? (random.nextInt(26) + 1);
-    return CircleAvatar(
-      backgroundColor: const Color(0x0f2F80ED),
-      radius: size,
-      child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Image.asset(
-            "assets/images/dp/$assetIndex.png",
+Widget buildProfilePicture(String dp, String name, {double size = 20}) {
+  double width = size * 2.0;
+  return Container(
+    clipBehavior: Clip.hardEdge,
+    constraints: BoxConstraints(
+        minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
+    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
+    child: CachedNetworkImage(
+      imageUrl: dp,
             fit: BoxFit.cover,
-          )),
-    );
-  } else if (dp is String &&
-      (dp.startsWith('http') || dp.startsWith('https'))) {
-    return CircleAvatar(
-      backgroundColor: const Color(0x0f2F80ED),
-      radius: size,
-      child: Padding(
-        padding: const EdgeInsets.all(3.0),
-        child: Image.network(
-          dp,
-          fit: BoxFit.cover,
+      errorWidget: (_, __, ___) => Center(
+          child: Text(
+        name.substring(0, 1).toUpperCase(),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: size,
         ),
-      ),
-    );
-  } else if (size != 20) {
-    final assetIndex = dp;
-    return CircleAvatar(
-      backgroundColor: const Color(0x0f2F80ED),
-      radius: size,
-      child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Image.asset(
-            "assets/images/dp/$assetIndex.png",
-            fit: BoxFit.cover,
-          )),
-    );
-  }else{
-    return const SizedBox();
-  }
+      )),
+    ),
+  );
 }

@@ -4,7 +4,7 @@ class MessageModel {
   String? content;
   String? contentUrl;
   int? timestamp;
-  dynamic sentFrom;
+  SentFrom? sentFrom;
   dynamic roomId;
   dynamic replyTo;
 
@@ -33,9 +33,11 @@ class MessageModel {
       timestamp = null;
     }
 
-    sentFrom = json['sentFrom'] != null ? SentFrom.fromJson(json['sentFrom']) : null;
+    sentFrom =
+        json['sentFrom'] != null ? SentFrom.fromJson(json['sentFrom']) : null;
     roomId = json['roomId'] != null ? RoomId.fromJson(json['roomId']) : null;
-    replyTo = json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null;
+    replyTo =
+        json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -59,35 +61,36 @@ class MessageModel {
   }
 }
 
+//TODO: LOOK INTO THIS
 class SentFrom {
   int? id;
-  String? name;
+  late String name;
   String? email;
   String? type;
   String? pushToken;
   bool? registered;
-  String? dp;
+  late String dp;
   bool? emailVerified;
 
   SentFrom({
     this.id,
-    this.name,
+    this.name = 'Anonymous',
     this.email,
     this.type,
     this.pushToken,
     this.registered,
-    this.dp,
+    this.dp = '',
     this.emailVerified,
   });
 
   SentFrom.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    name = json['name'];
+    name = json['name'] ?? 'Anonymous';
     email = json['email'];
     type = json['type'];
     pushToken = json['pushToken'];
     registered = json['registered'];
-    dp = json['dp'];
+    dp = json['dp'] ?? ''; //TODO:: THIS SHOUld PROBABLY BE dpUrl !!!!
     emailVerified = json['emailVerified'];
   }
 
@@ -136,7 +139,6 @@ class RoomId {
     } else {
       timestamp = null;
     }
-
   }
 
   Map<String, dynamic> toJson() {
@@ -180,7 +182,7 @@ class ReplyTo {
   String? type;
   String? content;
   String? contentUrl;
-  int? timestamp ;
+  int? timestamp;
   SentFrom? sentFrom;
   RoomId? roomId;
   ReplyTo? replyTo;
@@ -197,7 +199,7 @@ class ReplyTo {
   });
 
   ReplyTo.fromJson(Map<String, dynamic> json) {
-    id = _parseInt( json['id'] );
+    id = _parseInt(json['id']);
     type = json['type'];
     content = json['content'];
     contentUrl = json['contentUrl'];
@@ -210,9 +212,11 @@ class ReplyTo {
       timestamp = null;
     }
 
-    sentFrom = json['sentFrom'] != null ? SentFrom.fromJson(json['sentFrom']) : null;
+    sentFrom =
+        json['sentFrom'] != null ? SentFrom.fromJson(json['sentFrom']) : null;
     roomId = json['roomId'] != null ? RoomId.fromJson(json['roomId']) : null;
-    replyTo = json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null;
+    replyTo =
+        json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null;
   }
 
   Map<String, dynamic> toJson() {

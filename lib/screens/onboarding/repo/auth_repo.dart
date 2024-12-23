@@ -176,7 +176,7 @@ class AuthRepo {
           id: user['id'],
           email: user['email'],
           name: user['name'],
-          dp: int.tryParse(user['dp'] ?? "1"),
+          dp: user['dpUrl'] ?? "1",
           type: user['type'],
           registered:
               user['registered']! ?? false, //SDK CONSTRAINTS MIGHT F WITH THIS
