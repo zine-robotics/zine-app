@@ -25,12 +25,21 @@ class SplashVM extends ChangeNotifier {
     String? uid = await store.getString('uid');
 
     if (uid != null && logged != null && logged.toString() == 'true') {
+      try{
       UserModel currUser = await authRepo.getUserbyId(uid.toString());
       print("check currUser$currUser.");
       userProv.updateUserInfo(currUser as UserModel);
       await Navigator.of(NavigationService.navigatorKey.currentContext!,
               rootNavigator: true)
           .pushReplacement(Routes.homeScreen());
+      }
+      on AuthException
+      {
+
+         await Navigator.of(NavigationService.navigatorKey.currentContext!,
+              rootNavigator: true)
+          .pushReplacement(Routes.landingScreen());
+      }
     } else {
       await Navigator.of(NavigationService.navigatorKey.currentContext!,
               rootNavigator: true)
