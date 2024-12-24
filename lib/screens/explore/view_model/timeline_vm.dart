@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:zineapp2023/models/events.dart';
-import 'package:zineapp2023/screens/dashboard/repo/dash_repo.dart';
 import 'package:zineapp2023/screens/events/repo/events_repo.dart';
 
 import '../../../common/routing.dart';

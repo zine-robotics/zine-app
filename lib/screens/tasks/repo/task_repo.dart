@@ -6,9 +6,7 @@ import 'package:zineapp2023/backend_properties.dart';
 
 import 'package:zineapp2023/models/user.dart';
 
-import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/providers/user_info.dart';
-import '../../../models/tasks.dart';
 
 class TaskRepo {
   final UserProv userProv;

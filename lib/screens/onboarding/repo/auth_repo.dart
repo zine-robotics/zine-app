@@ -1,18 +1,11 @@
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:requests/requests.dart';
-import 'package:zineapp2023/models/rooms.dart';
-import 'package:zineapp2023/models/tasks.dart';
 import 'package:http/http.dart' as http;
-import 'package:zineapp2023/models/userTask.dart';
-import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/backend_properties.dart';
-import '../../../models/task_instance.dart';
 import '/common/data_store.dart';
 import '../../../models/user.dart';
 
@@ -25,9 +18,9 @@ class AuthRepo {
   AuthRepo({required this.store});
 
   Future<bool> sendResetEmail(String email) async {
-    Response res = await Requests.post(
+    Response res = await http.post(
       BackendProperties.resetUri
-          .replace(queryParameters: {'email': email.toString()}).toString(),
+          .replace(queryParameters: {'email': email.toString()}),
     );
     print("res:${res.statusCode}");
     if (res.statusCode == 200) {
@@ -105,27 +98,28 @@ class AuthRepo {
     return true;
   }
 
-  dynamic getRoomMap(dynamic listRoomIds) async {
-    dynamic roomDetails = {"group": {}, "project": {}};
-    for (var roomId in listRoomIds) {
-      // print(item);
-      //IM JUST WINGING IT OVER HERE WELL BURN THE BRIDGES WHEN WE GET TO EM
-      Response res = await Requests.get(
-          BackendProperties.roomDataUri.toString(),
-          body: jsonEncode({'roomId': "$roomId"}),
-          headers: {"Content-Type": "application/json"});
+  //TODO: REMOVE THIS
 
-      if (res.statusCode != 200) {
-        throw AuthException(code: 'It should probably return 200. Test Throw');
-      }
+  // dynamic getRoomMap(dynamic listRoomIds) async {
+  //   dynamic roomDetails = {"group": {}, "project": {}};
+  //   for (var roomId in listRoomIds) {
+  //     // print(item);
+  //     //IM JUST WINGING IT OVER HERE WELL BURN THE BRIDGES WHEN WE GET TO EM
+  //     Response res = await http.get(BackendProperties.roomDataUri.toString(),
+  //         body: jsonEncode({'roomId': "$roomId"}),
+  //         headers: {"Content-Type": "application/json"});
 
-      Map<String, dynamic> temp = jsonDecode(res.body);
-      // print(temp['type']);
+  //     if (res.statusCode != 200) {
+  //       throw AuthException(code: 'It should probably return 200. Test Throw');
+  //     }
 
-      roomDetails[temp['type']][roomId] = temp['name'];
-    }
-    return roomDetails;
-  }
+  //     Map<String, dynamic> temp = jsonDecode(res.body);
+  //     // print(temp['type']);
+
+  //     roomDetails[temp['type']][roomId] = temp['name'];
+  //   }
+  //   return roomDetails;
+  // }
 
   // Future<Tasks> getTemp(UserTask e) async {
   //   // We are just Seeing if the given UserTask has any links and if it doesnt
@@ -151,13 +145,12 @@ class AuthRepo {
   //   return [];
   // }
 
-  Future<UserModel?> getUserbyId(String uid) async {
+  Future<UserModel> getUserbyId(String uid) async {
     try {
-      Response res = await Requests.get(
-          BackendProperties.userInfoUri.toString(),
+      Response res = await http.get(BackendProperties.userInfoUri,
           headers: {'Authorization': 'Bearer $uid'});
 
-      if (res.statusCode != 200 || res.body.isEmpty) return null;
+      if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
       print('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
 
@@ -183,7 +176,7 @@ class AuthRepo {
           id: user['id'],
           email: user['email'],
           name: user['name'],
-          dp: int.tryParse(user['dp'] ?? "1"),
+          dp: user['dpUrl'] ?? "1",
           type: user['type'],
           registered:
               user['registered']! ?? false, //SDK CONSTRAINTS MIGHT F WITH THIS
@@ -196,6 +189,7 @@ class AuthRepo {
     } on TimeoutException {
       throw AuthException(code: 'no-connect');
     } catch (e) {
+      if (kDebugMode) print("Non TimeoutException Error in GetUserByID");
       throw AuthException(code: 'unknown');
     }
   }

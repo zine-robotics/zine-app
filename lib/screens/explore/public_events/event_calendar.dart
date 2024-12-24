@@ -43,7 +43,7 @@ class EventCalendar extends StatelessWidget {
       firstDay: evm.getFirstEventDate(),
       // firstDay: DateTime.now(),
       lastDay: evm.getLastEventDate(),
-      daysOfWeekStyle: DaysOfWeekStyle(
+      daysOfWeekStyle: const DaysOfWeekStyle(
         weekendStyle: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Roboto',color: textColor),
         weekdayStyle: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Verdana',color: textColor),
 
@@ -52,7 +52,7 @@ class EventCalendar extends StatelessWidget {
 
       onDaySelected: evm.selectEvent,
       headerStyle: HeaderStyle(
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
             color: textColor, fontWeight: FontWeight.bold, fontSize: 28),
         rightChevronVisible: true,
         leftChevronVisible: true,
@@ -61,11 +61,11 @@ class EventCalendar extends StatelessWidget {
         leftChevronIcon: Container(decoration: BoxDecoration(color:
         textColor,
         borderRadius: BorderRadius.circular(10)),
-        child: Icon(Icons.chevron_left_rounded,color: Colors.white,),),
+        child: const Icon(Icons.chevron_left_rounded,color: Colors.white,),),
         rightChevronIcon: Container(decoration: BoxDecoration(color:
         textColor,
         borderRadius: BorderRadius.circular(10)),
-        child: Icon(Icons.chevron_right,color: Colors.white,),),
+        child: const Icon(Icons.chevron_right,color: Colors.white,),),
 
       ),
     );

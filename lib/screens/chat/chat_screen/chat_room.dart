@@ -8,11 +8,9 @@ import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
-import 'package:zineapp2023/utilities/string_formatters.dart';
 import '../../../components/gradient.dart';
 import '../../../models/rooms.dart';
 import 'chat_view.dart';
-import 'package:zineapp2023/common/data_store.dart';
 
 class ChatRoom extends StatefulWidget {
   // final dynamic roomName;
@@ -35,9 +33,11 @@ class _ChatRoomState extends State<ChatRoom> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       widget.roomDetail?.id != null
-          ? chatRoomView.fetchMessages(widget.roomDetail!.id.toString()!)
+          ? chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
           : "";
-      widget.roomDetail?.id != null ?chatRoomView.setRoomId(widget.roomDetail!.id.toString()): "";
+      widget.roomDetail?.id != null
+          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString())
+          : "";
       chatRoomView.getTotalActiveMember(widget.roomDetail!.id.toString());
     });
   }
@@ -79,12 +79,12 @@ class _ChatRoomState extends State<ChatRoom> {
         final roomId = widget.roomDetail!.id.toString();
         final roomName = widget.roomDetail!.name.toString();
         UserModel currUser = userProv.getUserInfo;
-        bool isNotAllowedTyping = true;
+        bool isAllowedTyping = true;
         List<ActiveMember> listOfUsers = chatVm.activeMembers;
         //
 
         if (currUser.type == 'user' && roomName == 'Announcements') {
-          isNotAllowedTyping = false;
+          isAllowedTyping = false;
         }
         // print("room detila");
         // print(roomDetails);
@@ -157,151 +157,168 @@ class _ChatRoomState extends State<ChatRoom> {
                     chatV(context, chatVm.messageStream, dashVm,
                         chatVm.userReplyText),
 
-                    currUser.type == 'user' && roomName == 'Announcements'
-                        ? Container()
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              chatVm.replyfocus.hasFocus &&
-                                      chatVm.replyTo != null
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
+                    if (isAllowedTyping)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          chatVm.replyfocus.hasFocus && chatVm.replyTo != null
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(0, 1, 0, 2),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 3),
+                                        child: Text(
+                                          "Reply To ${chatVm.selectedReplyMessage.sentFrom!.name}",
+                                          textAlign: TextAlign.left,
+                                          style: const TextStyle(
+                                              color: greyText, fontSize: 11),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                        width: double.infinity,
+                                        decoration: const BoxDecoration(
+                                          color: backgroundGrey,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10.0),
+                                            topRight: Radius.circular(20.0),
+                                            bottomRight: Radius.circular(20.0),
+                                            bottomLeft: Radius.circular(10.0),
+                                          ),
+                                        ),
+                                        child: Padding(
                                           padding: const EdgeInsets.fromLTRB(
-                                              0, 1, 0, 2),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 3),
-                                            child: Text(
-                                              "Reply To " +
+                                              10, 5, 10, 10),
+                                          child: Column(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.topRight,
+                                                // heightFactor: 1,
+                                                // widthFactor: 1,
+                                                child: Container(
+                                                  constraints:
+                                                      BoxConstraints.tight(
+                                                          const Size.square(
+                                                              20)),
+                                                  child: IconButton(
+                                                    padding: EdgeInsets.zero,
+                                                    iconSize: 20,
+                                                    onPressed:
+                                                        chatVm.userCancelReply,
+                                                    icon: const Icon(
+                                                        Icons.cancel_outlined),
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    border: Border.all(
+                                                        color: Colors.black38)),
+                                                padding: const EdgeInsets.only(
+                                                    left: 5, right: 5),
+                                                width: double.infinity,
+                                                child: Text(
                                                   chatVm.selectedReplyMessage
-                                                      .sentFrom.name
+                                                      .content
                                                       .toString(),
-                                              textAlign: TextAlign.left,
-                                              style: TextStyle(
-                                                  color: greyText,
-                                                  fontSize: 11),
-                                            ),
-                                          ),
-                                        ),
-                                        Stack(children: [
-                                          Container(
-                                            width: double.infinity,
-                                            decoration: const BoxDecoration(
-                                              color: backgroundGrey,
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(10.0),
-                                                topRight: Radius.circular(20.0),
-                                                bottomRight:
-                                                    Radius.circular(20.0),
-                                                bottomLeft:
-                                                    Radius.circular(10.0),
-                                              ),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(10.0),
-                                              child: Text(
-                                                chatVm.selectedReplyMessage
-                                                    .content
-                                                    .toString(),
 
-                                                // softWrap: true,
-                                                textAlign: TextAlign.left,
-                                                style: TextStyle(fontSize: 13),
-                                              ),
-                                            ),
+                                                  // softWrap: true,
+                                                  textAlign: TextAlign.left,
+                                                  style: const TextStyle(
+                                                      fontSize: 13),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                          Positioned(
-                                            top: -7,
-                                            right: 0,
-                                            child: IconButton(
-                                              iconSize: 20,
-                                              onPressed: chatVm.userCancelReply,
-                                              icon: Icon(Icons.cancel_outlined),
-                                            ),
-                                          ),
-                                        ]),
-                                        SizedBox(
-                                          height: 5,
-                                        )
-                                      ],
+                                        )),
+                                    const SizedBox(
+                                      height: 5,
                                     )
-                                  : Container(),
-                              Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(15.0)),
-                                    border:
-                                        Border.all(color: greyText, width: 2.0),
-                                  ),
-                                  child: Row(
-                                    children: <Widget>[
-                                      // IconButton(
-                                      //     onPressed: () =>
-                                      //         {chatVm.pickImage(ImageSource.gallery)},
-                                      //     icon: Icon(Icons.image)),
-                                      const SizedBox(
-                                        width: 10.0,
-                                      ),
-
-                                      Expanded(
-                                        flex: 1,
-                                        child: TextField(
-                                          keyboardType: TextInputType.multiline,
-                                          focusNode: chatVm.replyfocus,
-                                          maxLines: 3,
-                                          minLines: 1,
-                                          controller: messageController,
-                                          onChanged: (value) =>
-                                              chatVm.setText(value),
-                                          decoration: const InputDecoration(
-                                              hintText: "Type Your Message",
-                                              hintStyle: TextStyle(
-                                                  color: Colors.black54),
-                                              border: InputBorder.none),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 15,
-                                      ),
-                                      IconButton(
-                                        splashRadius: 30.0,
-                                        visualDensity: const VisualDensity(
-                                            horizontal: 4.0, vertical: 1.0),
-                                        padding: EdgeInsets.zero,
-                                        onPressed: () {
-                                          chatVm.sendMessage(
-                                              messageController.text, roomName);
-                                          messageController.text = "";
-
-                                          // chatVm.send(
-                                          //     from: userProv.currUser.name,
-                                          //     roomId: roomName);
-                                          //
-                                          chatVm.replyTo = null;
-                                        },
-                                        iconSize: 20.0,
-                                        icon: const ImageIcon(
-                                          AssetImage("assets/images/send.png"),
-                                          color: greyText,
-                                          size: 30,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                  ],
+                                )
+                              : Container(),
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(15.0)),
+                                border: Border.all(color: greyText, width: 2.0),
                               ),
-                            ],
+                              child: Row(
+                                children: <Widget>[
+                                  // IconButton(
+                                  //     onPressed: () =>
+                                  //         {chatVm.pickImage(ImageSource.gallery)},
+                                  //     icon: Icon(Icons.image)),
+                                  const SizedBox(
+                                    width: 10.0,
+                                  ),
+
+                                  Expanded(
+                                    flex: 1,
+                                    child: TextField(
+                                      keyboardType: TextInputType.multiline,
+                                      focusNode: chatVm.replyfocus,
+                                      maxLines: 3,
+                                      minLines: 1,
+                                      controller: messageController,
+                                      onChanged: (value) =>
+                                          chatVm.setText(value),
+                                      decoration: const InputDecoration(
+                                          hintText: "Type Your Message",
+                                          hintStyle:
+                                              TextStyle(color: Colors.black54),
+                                          border: InputBorder.none),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 15,
+                                  ),
+                                  IconButton(
+                                    splashRadius: 30.0,
+                                    visualDensity: const VisualDensity(
+                                        horizontal: 4.0, vertical: 1.0),
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      chatVm.sendMessage(
+                                          messageController.text, roomName);
+                                      messageController.text = "";
+
+                                      // chatVm.send(
+                                      //     from: userProv.currUser.name,
+                                      //     roomId: roomName);
+                                      //
+                                      chatVm.replyTo = null;
+                                    },
+                                    iconSize: 20.0,
+                                    icon: const ImageIcon(
+                                      AssetImage("assets/images/send.png"),
+                                      color: greyText,
+                                      size: 30,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
+                        ],
+                      )
+                    else
+                      Container()
                   ],
                 ),
               ),

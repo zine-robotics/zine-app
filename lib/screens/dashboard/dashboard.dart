@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_file.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
@@ -94,7 +93,8 @@ class _DashboardState extends State<Dashboard> {
                                 ],
                               ),
                               const Spacer(),
-                              buildProfilePicture(currUser.dp,size:30),
+                              buildProfilePicture(currUser.dp!, currUser.name!,
+                                  size: 30),
                               // CircleAvatar(
                               //   radius: 30,
                               //   backgroundColor: iconTile,
@@ -269,7 +269,7 @@ class _DashboardState extends State<Dashboard> {
                                       ),
                                       eventVm.tempEvents.length != 0
                                           ? Text(
-                                              eventVm.tempEvents[0]!.name
+                                              eventVm.tempEvents[0].name
                                                   .toString(),
                                               style: const TextStyle(
                                                   fontSize: 16.0,
@@ -310,7 +310,7 @@ class _DashboardState extends State<Dashboard> {
                                                             0
                                                         ? DateFormat.MMMMd().format(
                                                             convertTimestamp(eventVm
-                                                                .tempEvents[0]!
+                                                                .tempEvents[0]
                                                                 .startDateTime!))
                                                         : "Date",
                                                     style: const TextStyle(
@@ -331,11 +331,11 @@ class _DashboardState extends State<Dashboard> {
                                                     eventVm.tempEvents[0]
                                                                 .startDateTime !=
                                                             null
-                                                        ? '${DateFormat.jm().format(convertTimestamp(eventVm.tempEvents[0]!.startDateTime!))} \n ${eventVm.tempEvents[0]!.venue.toString()}'
+                                                        ? '${DateFormat.jm().format(convertTimestamp(eventVm.tempEvents[0].startDateTime!))} \n ${eventVm.tempEvents[0].venue.toString()}'
                                                         : '',
                                                     maxFontSize: 18,
                                                     minFontSize: 10,
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                         // fontSize: 18,
                                                         fontWeight:
                                                             FontWeight.w700,
@@ -446,7 +446,7 @@ class _DashboardState extends State<Dashboard> {
                                     taskInstancesList.length!= 0
                                         ? Text(
                                       taskInstancesList.length.toString(),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 height: 0.9,
                                                 letterSpacing: 0.3,
                                                 fontSize: 30.0,
@@ -464,10 +464,10 @@ class _DashboardState extends State<Dashboard> {
                                                 color: greyText),
                                             textAlign: TextAlign.center,
                                           ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 15,
                                     ),
-                                    Text("Tasks",
+                                    const Text("Tasks",
                                         style: TextStyle(
                                             height: 0.9,
                                             letterSpacing: 0.3,
@@ -499,7 +499,7 @@ class _DashboardState extends State<Dashboard> {
                                       allChatRoom != 0
                                           ? allChatRoom.toString()
                                           : "0",
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           height: 0.9,
                                           letterSpacing: 0.3,
                                           fontSize: 30.0,
@@ -507,10 +507,10 @@ class _DashboardState extends State<Dashboard> {
                                           color: textColor),
                                       textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 15,
                                     ),
-                                    Text("Chats",
+                                    const Text("Chats",
                                         style: TextStyle(
                                             height: 0.9,
                                             letterSpacing: 0.3,

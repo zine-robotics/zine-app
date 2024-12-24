@@ -42,7 +42,7 @@ class EmailScreen extends StatelessWidget {
                     BorderRadius.vertical(bottom: Radius.circular(25.0)),
                 gradient: mainGrad //need to replace with made component
                 ),
-            child: Row(
+            child: const Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 //White Circle Size

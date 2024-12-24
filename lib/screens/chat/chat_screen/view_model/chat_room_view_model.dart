@@ -1,21 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
-import 'package:zineapp2023/utilities/date_time.dart';
 import 'package:zineapp2023/backend_properties.dart';
 
 import '../../../../models/events.dart';
@@ -53,24 +49,20 @@ class ChatRoomViewModel extends ChangeNotifier {
   //-------------------------------------------------message fetching using http--------------------//
   List<MessageModel> _messages = [];
   List<MessageModel> _tempMessages = [];
-  bool _isLoading = false;
+  bool _isLoaded = false; //It should be true at
   bool _isError = false;
   final StreamController<List<MessageModel>> _messageStreamController =
       StreamController<List<MessageModel>>.broadcast();
   List<MessageModel> get messages => _messages;
   Set<String> activeRoomSubscriptions = {};
 
-  bool get isLoading => _isLoading;
+  bool get isLoaded => _isLoaded;
   bool get isError => _isError;
   Stream<List<MessageModel>> get messageStream =>
       _messageStreamController.stream;
   Future<void> fetchMessages(String TemproomId) async {
-    _isLoading = true;
-    // notifyListeners();
-
     try {
       _messages = await chatP.getChatMessages(TemproomId);
-      // _error =null;
       _messageStreamController.add(_messages);
     } catch (e) {
       print(e);
@@ -78,7 +70,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       _isError = true;
       // _error ='Failed to load data';
     } finally {
-      _isLoading = false;
+      _isLoaded = true;
       notifyListeners();
     }
   }
@@ -174,13 +166,6 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
-  Map<String, int> roomNameToId = {
-    "Backend": 302,
-    "real-time-chat": 352,
-    "task instance": 902,
-    "task instance": 652,
-  };
-
   void sendMessage(String user_message, String roomName) async {
     // int? roomId=roomNameToId[roomName];
     if (!_client.connected) {
@@ -215,18 +200,17 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   //-------------------------------------------------it will fetch all room data---------------------------------------------//
 
-  List<Rooms>? _user_rooms;
   List<Rooms>? _userProjects;
   List<Rooms>? _userWorkshop;
   List<Rooms>? _announcement;
-  bool _isRoomLoading = false;
+  bool _isRoomLoaded = false;
 
   List<Rooms>? get userProjects => _userProjects;
   List<Rooms>? get userWorkshop => _userWorkshop;
   List<Rooms>? get announcement => _announcement;
-  bool get isRoomLoading => _isRoomLoading;
-  int _allChatRoom=0;
-  get allChatRoom=>_allChatRoom;
+  bool get isRoomLoaded => _isRoomLoaded;
+  int _allChatRoom = 0;
+  get allChatRoom => _allChatRoom;
   var fMessaging = FirebaseMessaging.instance;
 
   Future<void> loadRooms() async {
@@ -234,13 +218,11 @@ class ChatRoomViewModel extends ChangeNotifier {
     String email = currUser.email
         .toString(); //currUser.email.toString();  //FIXME : Fix this
 
-    _isRoomLoading = true;
-
     try {
       List<Rooms>? allRooms = await chatP.fetchRooms(email);
       List<Rooms>? allAnnouncment = await chatP.fetchAnnouncement(email);
       if (allRooms != null) {
-        for (Rooms room in allRooms!) {
+        for (Rooms room in allRooms) {
           print('Subscribing to room${room.id}');
           fMessaging.subscribeToTopic("room${room.id}");
         }
@@ -251,16 +233,17 @@ class ChatRoomViewModel extends ChangeNotifier {
         _userWorkshop =
             allRooms.where((room) => room.type == "workshop").toList();
         _announcement = allAnnouncment;
-        _allChatRoom= _userWorkshop!.length + _announcement!.length +_userProjects!.length ;
+        _allChatRoom = _userWorkshop!.length +
+            _announcement!.length +
+            _userProjects!.length;
         // print("announcement:${_announcement}");
       }
 
-      // _error =null;
+      _isRoomLoaded = true;
     } catch (e) {
       print("load_room:$e");
       // _error ='Failed to load data';
     } finally {
-      _isRoomLoading = false;
       notifyListeners();
     }
   }
@@ -271,7 +254,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
     selectedReplyMessage = message;
     replyTo = message.id;
-    replyUsername = message?.sentFrom.name.toString();
+    replyUsername = message.sentFrom!.name.toString();
     print("reply in user Reply:${replyTo.runtimeType}");
 
     replyfocus.requestFocus();
@@ -281,8 +264,6 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   void userCancelReply() {
     replyTo = null;
-    print("repy to cancel replyTo:$replyTo");
-    print(replyTo);
     notifyListeners();
   }
 
@@ -301,6 +282,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   dynamic updateSeen(String email_id, String room_id, int userLastSeen,
       int lastMessageTimestamp, int unreadMessages) async {
     Uri url = BackendProperties.updateLastSeenUri(email_id, room_id);
+    String uid = userProv.getUserInfo.uid!;
     print("inside teh updateSeen for email:$email_id and roomid:$room_id");
     try {
       final Map<String, dynamic> jsonData = {
@@ -313,6 +295,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       final response = await http.put(
         url,
         headers: {
+          'Authorization': 'Bearer $uid',
           'Content-Type': 'application/json',
         },
         body: jsonEncode(jsonData),

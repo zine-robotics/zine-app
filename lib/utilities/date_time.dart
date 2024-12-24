@@ -59,7 +59,7 @@ String getLastSeenFormat(int timeStamp) {
     DateTime now = DateTime.now();
 
     DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime yesterday = today.subtract(Duration(days: 1));
+    DateTime yesterday = today.subtract(const Duration(days: 1));
 
     if (dateTime.isAfter(today)) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';

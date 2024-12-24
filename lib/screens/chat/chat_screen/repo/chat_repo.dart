@@ -8,7 +8,6 @@ import '../../../../models/rooms.dart';
 import '../../../../models/user.dart';
 
 class ChatRepo {
-
 //=====================================================NEWER CODE================================================================//
 
 //------------------------------------Fetching_all_messages_through_RoomId-------------------------------------------//
@@ -23,9 +22,8 @@ class ChatRepo {
       // print("checking :${jsonDecode(response.body)}");
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = jsonDecode(response.body);
-        List<MessageModel> messages = jsonResponse
-            .map((json) => MessageModel.fromJson(json))
-            .toList();
+        List<MessageModel> messages =
+            jsonResponse.map((json) => MessageModel.fromJson(json)).toList();
         // print("inside the chat_repo and message:${messages.toList()}");
         return messages;
       } else {
@@ -56,32 +54,28 @@ class ChatRepo {
   }
 
   //---------------------------------Announcement_details----------------------------//
-  Future<List<Rooms>> fetchAnnouncement(String emailId)async
-  {
+  Future<List<Rooms>> fetchAnnouncement(String emailId) async {
     print("inside Announcement");
     List<Rooms> announcements = [];
-    try
-        {
-          Uri url =BackendProperties.announcementUri(emailId);
-          final response=await http.get(url);
+    try {
+      Uri url = BackendProperties.announcementUri(emailId);
+      final response = await http.get(url);
 
-          if(response.statusCode==200)
-            {
-              final Map<String, dynamic> responseData = json.decode(response.body);
-              if(responseData.containsKey('announcementRoom'))
-              {
-                final Map<String, dynamic> announcement = responseData['announcementRoom'];
-                Rooms announcement1=Rooms.fromJson(announcement);
-                announcements.add(announcement1);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData.containsKey('announcementRoom')) {
+          final Map<String, dynamic> announcement =
+              responseData['announcementRoom'];
+          Rooms announcement1 = Rooms.fromJson(announcement);
+          announcements.add(announcement1);
         }
       }
-        }
-    catch(e)
-    {
+    } catch (e) {
       print("An error occurred while fetching announcement: $e");
     }
     return announcements;
   }
+
   //--------------------------------check LastSeen----------------------------------//
   Future<LastSeen?> fetchLastSeen(String emailId, String roomId) async {
     print("inside fetchLastSeen");
@@ -114,12 +108,13 @@ class ChatRepo {
 //-------------------------------total activememeber subscribe to same room---------------------//
   Future<List<ActiveMember>> fetchTotalActiveMember(String roomId) async {
     try {
-      final String baseUrl = "http://ec2-18-116-38-241.us-east-2.compute.amazonaws.com/members/get";
-      Uri url = Uri.parse('$baseUrl?roomId=$roomId');
+      Uri url = BackendProperties.activeMemberUri(roomId);
       final response = await http.get(url);
+
       if (response.statusCode == 200) {
         List<dynamic> users = jsonDecode(response.body);
-        List<ActiveMember> members = users.map((json) => ActiveMember.fromJson(json)).toList();
+        List<ActiveMember> members =
+            users.map((json) => ActiveMember.fromJson(json)).toList();
         return members;
       } else {
         print("Failed to load users, status code: ${response.statusCode}");

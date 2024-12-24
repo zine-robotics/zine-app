@@ -1,7 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:zineapp2023/models/events.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
@@ -11,10 +11,9 @@ import '../../../utilities/date_time.dart';
 import 'chat_room.dart';
 
 class Channel extends StatelessWidget {
-  Rooms? roomDetail;
+  final Rooms roomDetail;
 
-  Channel({super.key, this.roomDetail});
-
+  const Channel({super.key, required this.roomDetail});
 
   @override
   Widget build(BuildContext context) {
@@ -26,17 +25,15 @@ class Channel extends StatelessWidget {
         padding: const EdgeInsets.all(5.0),
         child: GestureDetector(
           onTap: () {
-            // chatVm.setRoomId(roomId);
-            roomDetail!=null? Navigator.push(
+            Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => ChatRoom(
                           // roomName: roomDetail?.name,
-                          // roomId: roomDetail!.id.toString(),
+                          // roomId: roomDetail.id.toString(),
                           email: currUser.email,
                           roomDetail: roomDetail,
-                        )))
-            :Container();
+                        )));
           },
           child: Container(
             decoration: const BoxDecoration(
@@ -53,27 +50,33 @@ class Channel extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      roomDetail?.dpUrl != null
-                          ? CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 20,
-                              foregroundImage:
-                                  NetworkImage(roomDetail!.dpUrl!))
-                          : CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 20,
-                              foregroundImage:
-                                  AssetImage("assets/images/zine_logo.png")),
+                      CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 20,
+                        foregroundImage: CachedNetworkImageProvider(
+                          roomDetail.dpUrl,
+                          errorListener: (p0) {
+                            // Handle Errors Gracefully and dont dump on the debug console
+                            if (kDebugMode) {
+                              print("Error in loading Image : $p0");
+                            }
+                          },
+                        ),
+                        backgroundImage:
+                            const AssetImage("assets/images/zine_logo.png"),
+                      ),
                       const SizedBox(
                         width: 10,
                       ),
-                      roomDetail?.name !=null?(Text(
-                        roomDetail!.name.toString(),
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),)
-                      ):Text(""),
+                      roomDetail.name != null
+                          ? (Text(
+                              roomDetail.name.toString(),
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ))
+                          : const Text(""),
                     ],
                   ),
 
@@ -83,8 +86,8 @@ class Channel extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          roomDetail?.unreadMessages != null &&
-                                  roomDetail!.unreadMessages! > 0
+                          roomDetail.unreadMessages != null &&
+                                  roomDetail.unreadMessages! > 0
                               ? Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
@@ -95,8 +98,8 @@ class Channel extends StatelessWidget {
                                   width: 20,
                                   child: Center(
                                     child: Text(
-                                      roomDetail!.unreadMessages.toString(),
-                                      style: TextStyle(
+                                      roomDetail.unreadMessages.toString(),
+                                      style: const TextStyle(
                                         color:
                                             Color.fromARGB(255, 255, 255, 255),
                                         fontSize: 10,
@@ -111,7 +114,7 @@ class Channel extends StatelessWidget {
                         ],
                       ),
                       roomDetail?.unreadMessages != null
-                          ? roomDetail!.unreadMessages! == 0
+                          ? roomDetail.unreadMessages! == 0
                               ? Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
@@ -125,11 +128,10 @@ class Channel extends StatelessWidget {
                                     child: Text(
                                       roomDetail?.lastMessageTimestamp != null
                                           ? getLastSeenFormat(
-                                              roomDetail!.lastMessageTimestamp!)
+                                              roomDetail.lastMessageTimestamp!)
                                           : "",
-                                      style: TextStyle(
-                                        color: const Color.fromARGB(
-                                            255, 75, 74, 74),
+                                      style: const TextStyle(
+                                        color: Color.fromARGB(255, 75, 74, 74),
                                         fontSize: 12,
                                       ),
                                     ),
