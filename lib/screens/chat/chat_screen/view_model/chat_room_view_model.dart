@@ -49,24 +49,20 @@ class ChatRoomViewModel extends ChangeNotifier {
   //-------------------------------------------------message fetching using http--------------------//
   List<MessageModel> _messages = [];
   List<MessageModel> _tempMessages = [];
-  bool _isLoading = false;
+  bool _isLoaded = false; //It should be true at
   bool _isError = false;
   final StreamController<List<MessageModel>> _messageStreamController =
       StreamController<List<MessageModel>>.broadcast();
   List<MessageModel> get messages => _messages;
   Set<String> activeRoomSubscriptions = {};
 
-  bool get isLoading => _isLoading;
+  bool get isLoaded => _isLoaded;
   bool get isError => _isError;
   Stream<List<MessageModel>> get messageStream =>
       _messageStreamController.stream;
   Future<void> fetchMessages(String TemproomId) async {
-    _isLoading = true;
-    // notifyListeners();
-
     try {
       _messages = await chatP.getChatMessages(TemproomId);
-      // _error =null;
       _messageStreamController.add(_messages);
     } catch (e) {
       print(e);
@@ -74,7 +70,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       _isError = true;
       // _error ='Failed to load data';
     } finally {
-      _isLoading = false;
+      _isLoaded = true;
       notifyListeners();
     }
   }
@@ -207,12 +203,12 @@ class ChatRoomViewModel extends ChangeNotifier {
   List<Rooms>? _userProjects;
   List<Rooms>? _userWorkshop;
   List<Rooms>? _announcement;
-  bool _isRoomLoading = false;
+  bool _isRoomLoaded = false;
 
   List<Rooms>? get userProjects => _userProjects;
   List<Rooms>? get userWorkshop => _userWorkshop;
   List<Rooms>? get announcement => _announcement;
-  bool get isRoomLoading => _isRoomLoading;
+  bool get isRoomLoaded => _isRoomLoaded;
   int _allChatRoom = 0;
   get allChatRoom => _allChatRoom;
   var fMessaging = FirebaseMessaging.instance;
@@ -221,8 +217,6 @@ class ChatRoomViewModel extends ChangeNotifier {
     UserModel currUser = userProv.getUserInfo;
     String email = currUser.email
         .toString(); //currUser.email.toString();  //FIXME : Fix this
-
-    _isRoomLoading = true;
 
     try {
       List<Rooms>? allRooms = await chatP.fetchRooms(email);
@@ -245,12 +239,11 @@ class ChatRoomViewModel extends ChangeNotifier {
         // print("announcement:${_announcement}");
       }
 
-      // _error =null;
+      _isRoomLoaded = true;
     } catch (e) {
       print("load_room:$e");
       // _error ='Failed to load data';
     } finally {
-      _isRoomLoading = false;
       notifyListeners();
     }
   }

@@ -9,10 +9,9 @@ import '../../../utilities/date_time.dart';
 import 'chat_room.dart';
 
 class Channel extends StatelessWidget {
-  Rooms? roomDetail;
+  final Rooms roomDetail;
 
-  Channel({super.key, this.roomDetail});
-
+  const Channel({super.key, required this.roomDetail});
 
   @override
   Widget build(BuildContext context) {
@@ -25,16 +24,17 @@ class Channel extends StatelessWidget {
         child: GestureDetector(
           onTap: () {
             // chatVm.setRoomId(roomId);
-            roomDetail!=null? Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ChatRoom(
-                          // roomName: roomDetail?.name,
-                          // roomId: roomDetail!.id.toString(),
-                          email: currUser.email,
-                          roomDetail: roomDetail,
-                        )))
-            :Container();
+            roomDetail != null
+                ? Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChatRoom(
+                              // roomName: roomDetail?.name,
+                              // roomId: roomDetail!.id.toString(),
+                              email: currUser.email,
+                              roomDetail: roomDetail,
+                            )))
+                : Container();
           },
           child: Container(
             decoration: const BoxDecoration(
@@ -51,27 +51,25 @@ class Channel extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      roomDetail?.dpUrl != null
-                          ? CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 20,
-                              foregroundImage:
-                                  NetworkImage(roomDetail!.dpUrl!))
-                          : const CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 20,
-                              foregroundImage:
-                                  AssetImage("assets/images/zine_logo.png")),
+                      CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 20,
+                        foregroundImage: NetworkImage(roomDetail!.dpUrl),
+                        backgroundImage:
+                            const AssetImage("assets/images/zine_logo.png"),
+                      ),
                       const SizedBox(
                         width: 10,
                       ),
-                      roomDetail?.name !=null?(Text(
-                        roomDetail!.name.toString(),
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),)
-                      ):const Text(""),
+                      roomDetail?.name != null
+                          ? (Text(
+                              roomDetail!.name.toString(),
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ))
+                          : const Text(""),
                     ],
                   ),
 
@@ -126,8 +124,7 @@ class Channel extends StatelessWidget {
                                               roomDetail!.lastMessageTimestamp!)
                                           : "",
                                       style: const TextStyle(
-                                        color: Color.fromARGB(
-                                            255, 75, 74, 74),
+                                        color: Color.fromARGB(255, 75, 74, 74),
                                         fontSize: 12,
                                       ),
                                     ),
