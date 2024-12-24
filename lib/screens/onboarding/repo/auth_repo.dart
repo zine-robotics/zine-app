@@ -189,6 +189,7 @@ class AuthRepo {
     } on TimeoutException {
       throw AuthException(code: 'no-connect');
     } catch (e) {
+      if (kDebugMode) print("Non TimeoutException Error in GetUserByID");
       throw AuthException(code: 'unknown');
     }
   }
