@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -38,12 +39,13 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     double availableHeight = MediaQuery.of(context).size.height -
         (kBottomNavigationBarHeight + kToolbarHeight);
-    return Consumer5<DashboardVm, UserProv, EventsVm, ChatRoomViewModel,TaskVm>(
-      builder: (context, dashboardVm, userProv, eventVm, chatVm, taskVm,_) {
+    return Consumer5<DashboardVm, UserProv, EventsVm, ChatRoomViewModel,
+        TaskVm>(
+      builder: (context, dashboardVm, userProv, eventVm, chatVm, taskVm, _) {
         // dashboardVm.getRecentEvent();
         UserModel currUser = userProv.getUserInfo;
-        List<UserTaskInstance> taskInstancesList=taskVm.taskInstances;
-        int allChatRoom=chatVm.allChatRoom;
+        List<UserTaskInstance> taskInstancesList = taskVm.taskInstances;
+        int allChatRoom = chatVm.allChatRoom;
         // eventVm.tempGetAllEvent();
 
         return Scaffold(
@@ -93,7 +95,9 @@ class _DashboardState extends State<Dashboard> {
                                 ],
                               ),
                               const Spacer(),
-                              buildProfilePicture(currUser.dp!, currUser.name!,
+                              ProfilePicture(
+                                  dp: currUser.dp!,
+                                  name: currUser.name!,
                                   size: 30),
                               // CircleAvatar(
                               //   radius: 30,
@@ -443,9 +447,9 @@ class _DashboardState extends State<Dashboard> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    taskInstancesList.length!= 0
+                                    taskInstancesList.length != 0
                                         ? Text(
-                                      taskInstancesList.length.toString(),
+                                            taskInstancesList.length.toString(),
                                             style: const TextStyle(
                                                 height: 0.9,
                                                 letterSpacing: 0.3,

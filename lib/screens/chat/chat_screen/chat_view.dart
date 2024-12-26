@@ -7,6 +7,7 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
@@ -370,9 +371,9 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                   const EdgeInsets.all(3.0),
                                               child: Container()),
                                         )
-                                      : buildProfilePicture(
-                                          chats[currIndx].sentFrom!.dp,
-                                          chats[currIndx].sentFrom!.name),
+                                      : ProfilePicture(
+                                          dp: chats[currIndx].sentFrom!.dp,
+                                          name: chats[currIndx].sentFrom!.name),
 
                                   // * Because Priyansh Said So :) *
 
@@ -506,27 +507,5 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
       // print(chats);
       // print(MessageModel.store());
     },
-  );
-}
-
-Widget buildProfilePicture(String dp, String name, {double size = 20}) {
-  double width = size * 2.0;
-  return Container(
-    clipBehavior: Clip.hardEdge,
-    constraints: BoxConstraints(
-        minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
-    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
-    child: CachedNetworkImage(
-      imageUrl: dp,
-      fit: BoxFit.cover,
-      errorWidget: (_, __, ___) => Center(
-          child: Text(
-        name.substring(0, 1).toUpperCase(),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: size,
-        ),
-      )),
-    ),
   );
 }

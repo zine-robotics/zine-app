@@ -1,13 +1,11 @@
-import 'dart:math';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/chat_view.dart';
 import 'package:zineapp2023/theme/color.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/chat_room.dart';
 
 class ChatDescription extends StatelessWidget {
-  ChatDescription({
+  const ChatDescription({
     required this.roomName,
     required this.data,
     required this.image,
@@ -15,13 +13,11 @@ class ChatDescription extends StatelessWidget {
   });
 
   final String roomName;
-  final dynamic image;
-  List<ActiveMember> data;
+  final String image;
+  final List<ActiveMember> data;
 
   @override
   Widget build(BuildContext context) {
-    print(data);
-
     return Scaffold(
       backgroundColor: backgroundGrey,
       appBar: AppBar(
@@ -47,23 +43,16 @@ class ChatDescription extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
+                    // padding: EdgeInsets.all(5),
+                    height: 100,
+                    width: 100,
                     color: Colors.white,
-                    padding: const EdgeInsets.all(30.0),
-                    child: image != null
-                        ? Image.network(
-                            image['dpUrl'],
-                            height: 50,
-                            width: 50,
-                            fit: BoxFit.cover,
-                            color: textColor.withOpacity(0.9),
-                          )
-                        : Image.asset(
-                            "assets/images/zine_logo.png",
-                            height: 50,
-                            width: 50,
-                            fit: BoxFit.cover,
-                            color: textColor.withOpacity(0.9),
-                          )),
+                    child: CachedNetworkImage(
+                      fit: BoxFit.cover,
+                      imageUrl: image,
+                      placeholder: (_, __) => const FallbackIconImage(),
+                      errorWidget: (_, __, ___) => const FallbackIconImage(),
+                    )),
               ),
             ),
             Padding(
@@ -112,10 +101,10 @@ class ChatDescription extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: Container(
-                                    color: Colors.grey,
                                     padding: const EdgeInsets.all(5.0),
-                                    child: buildProfilePicture(
-                                        data[index].dpUrl, data[index].name,
+                                    child: ProfilePicture(
+                                        dp: data[index].dpUrl,
+                                        name: data[index].name,
                                         size: 22.5)),
                               ),
                             ),
@@ -173,6 +162,19 @@ class ChatDescription extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class FallbackIconImage extends StatelessWidget {
+  const FallbackIconImage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      "assets/images/zine_logo.png",
+      fit: BoxFit.cover,
+      color: textColor.withOpacity(0.9),
     );
   }
 }

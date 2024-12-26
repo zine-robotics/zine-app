@@ -55,7 +55,7 @@ class _ChatRoomState extends State<ChatRoom> {
           0,
         );
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("roomName", " ");
+        await prefs.setString("roomId", " ");
         chatRoomView.loadRooms();
       });
     }
@@ -63,7 +63,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   Future<void> _saveRoomNameToPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("roomName", widget.roomDetail!.name.toString());
+    await prefs.setString("roomId", widget.roomDetail!.id.toString());
     // print('Room name saved: ${widget.roomName}');
   }
 
@@ -74,10 +74,10 @@ class _ChatRoomState extends State<ChatRoom> {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
         // var listOfUsers = [];
-        var image = null;
         // print("chatRoom:${widget.roomName}");
         final roomId = widget.roomDetail!.id.toString();
         final roomName = widget.roomDetail!.name.toString();
+        final String roomImage = widget.roomDetail!.dpUrl;
         UserModel currUser = userProv.getUserInfo;
         bool isAllowedTyping = true;
         List<ActiveMember> listOfUsers = chatVm.activeMembers;
@@ -119,7 +119,7 @@ class _ChatRoomState extends State<ChatRoom> {
                       .push(CupertinoPageRoute(builder: (BuildContext context) {
                     // return Text("chatDesctiption remove");
                     return ChatDescription(
-                        roomName: roomName, image: image, data: listOfUsers);
+                        roomName: roomName, image: roomImage, data: listOfUsers);
                   }));
                 },
                 child: Text(

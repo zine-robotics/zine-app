@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/components/gradient.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/onboarding/login/view_models/register_auth_vm.dart';
@@ -9,7 +10,6 @@ import 'package:zineapp2023/theme/color.dart';
 import 'package:zineapp2023/utilities/string_formatters.dart';
 
 import '../../common/routing.dart';
-import '../chat/chat_screen/chat_view.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -105,8 +105,9 @@ class ProfileScreen extends StatelessWidget {
                                             "assets/images/card_image.png")
                                         : null,
                                   ),
-                                  buildProfilePicture(
-                                      currUser.dp!, currUser.name!,
+                                  ProfilePicture(
+                                      dp: currUser.dp!,
+                                      name: currUser.name!,
                                       size: 45),
                                 ],
                               ),
