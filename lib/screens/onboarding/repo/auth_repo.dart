@@ -6,21 +6,23 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:zineapp2023/backend_properties.dart';
+import 'package:zineapp2023/database/database.dart';
+import 'package:zineapp2023/models/newUser.dart';
 import '/common/data_store.dart';
 import '../../../models/user.dart';
 
 class AuthRepo {
   // final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
   // final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-
+  AppDb db;
   late DataStore store;
 
-  AuthRepo({required this.store});
+  AuthRepo({required this.store,required this.db});
 
   Future<bool> sendResetEmail(String email) async {
     Response res = await http.post(
       BackendProperties.resetUri
-          .replace(queryParameters: {'email': email.toString()}),
+          .replace(queryParameters: {'email': email.toString()}),headers: BackendProperties.getHeaders()
     );
     print("res:${res.statusCode}");
     if (res.statusCode == 200) {
@@ -44,7 +46,7 @@ class AuthRepo {
       Response res = await http.post(BackendProperties.loginUri,
           body: jsonEncode(
               {"email": email, "password": password, "pushToken": pushToken}),
-          headers: {"Content-Type": "application/json"});
+          headers: {"Content-Type": "application/json",...BackendProperties.getHeaders()});
       Map<String, dynamic> resBody = jsonDecode(res.body);
       if (kDebugMode) {
         print("Reponse Code ${res.statusCode}");
@@ -86,6 +88,7 @@ class AuthRepo {
 
           throw AuthException(code: 'unknown');
       }
+
       return getUserbyId(userToken);
     } on SocketException {
       if (kDebugMode) print('no-connect');
@@ -148,12 +151,13 @@ class AuthRepo {
   Future<UserModel> getUserbyId(String uid) async {
     try {
       Response res = await http.get(BackendProperties.userInfoUri,
-          headers: {'Authorization': 'Bearer $uid'});
+          headers: {'Authorization': 'Bearer $uid' ,...BackendProperties.getHeaders()});
 
       if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
       print('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
-
+      NewUserModel userData = NewUserModel.fromJson(user);
+      await db.upsertUserDB(userData);
       //USER DOES NOT HAVE TASKIDS, ENDPOINT FOR QUERYING USER'S TASK IDS
 
       // var rooms = await getRoomIds(uid);
@@ -208,7 +212,7 @@ class AuthRepo {
             "email": email,
             "password": password,
           }),
-          headers: {"Content-Type": "application/json"});
+          headers: {"Content-Type": "application/json",...BackendProperties.getHeaders()});
 
       switch (res.statusCode) {
         case 409: //TODO: ADD COMMON CASES

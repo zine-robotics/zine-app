@@ -12,6 +12,9 @@ import './providers/user_info.dart';
 import './common/navigator.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'background/firebase_options.dart';
+import 'database/database.dart';
+
 final Language _language = Language();
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -20,14 +23,17 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _language.init();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
   await FlutterNotificationChannel.registerNotificationChannel(
       description: 'For Showing Message Notification',
       id: 'chats',
       importance: NotificationImportance.IMPORTANCE_HIGH,
       name: 'Chats');
   await initializeNotifications();
+  AppDb db=AppDb();
+  await db.initializeIsSyncedColumn();
   setupForegroundMessageListener();
+
 
   // log('\nNotification Channel Result: $result');
   // FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -45,20 +51,21 @@ Future<void> main() async {
   DataStore store = DefaultStore();
   UserProv userProv = UserProv(dataStore: store);
   FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-
-  runApp(MyApp(store: store, userProv: userProv, secureStorage: secureStorage));
+  runApp(MyApp(store: store, userProv: userProv, secureStorage: secureStorage ,db:db));
 }
 
 class MyApp extends StatelessWidget {
   final DataStore store;
   final UserProv userProv;
   final FlutterSecureStorage secureStorage;
+  final AppDb db;
 
   const MyApp(
       {super.key,
       required this.store,
       required this.userProv,
-      required this.secureStorage});
+      required this.secureStorage,
+      required this.db});
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +73,7 @@ class MyApp extends StatelessWidget {
       language: _language,
       userProv: userProv,
       store: store,
+      db: db,
       child: MaterialApp(
         navigatorKey: NavigationService.navigatorKey,
         title: 'Zine',

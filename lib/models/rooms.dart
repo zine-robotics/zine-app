@@ -3,7 +3,7 @@ class Rooms {
   String? name;
   String? description;
   String? type;
-  String dpUrl;
+  String? dpUrl;
   int? timestamp;
   int? lastMessageTimestamp;
   int? unreadMessages;
