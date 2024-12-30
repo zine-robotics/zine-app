@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/poll_card.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/reply_card.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
@@ -85,7 +86,6 @@ class _ChatRoomState extends State<ChatRoom> {
           isAllowedTyping = false;
         }
 
-
         chatVm.addRouteListener(
             context, roomName, userProv.getUserInfo.email.toString(), userProv);
 
@@ -109,7 +109,9 @@ class _ChatRoomState extends State<ChatRoom> {
                       .push(CupertinoPageRoute(builder: (BuildContext context) {
                     // return Text("chatDesctiption remove");
                     return ChatDescription(
-                        roomName: roomName, image: roomImage, data: listOfUsers);
+                        roomName: roomName,
+                        image: roomImage,
+                        data: listOfUsers);
                   }));
                 },
                 child: Text(
@@ -157,6 +159,9 @@ class _ChatRoomState extends State<ChatRoom> {
                                   chatVm: chatVm,
                                 )
                               : Container(),
+                          (chatVm.isPollBeingCreated)
+                              ? const PollCard()
+                              : Container(),
                           Align(
                             alignment: Alignment.bottomLeft,
                             child: Container(
@@ -197,6 +202,29 @@ class _ChatRoomState extends State<ChatRoom> {
                                   const SizedBox(
                                     width: 15,
                                   ),
+                                  PopupMenuButton(
+                                    offset: const Offset(0, -30),
+                                    position: PopupMenuPosition.over,
+                                    popUpAnimationStyle: AnimationStyle(
+                                      curve: Curves.bounceIn,
+                                    ),
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem(
+                                        onTap: () {
+                                          chatVm.isPollBeingCreated = true;
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Icon(Icons.menu),
+                                            Text('Poll')
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+
                                   IconButton(
                                     splashRadius: 30.0,
                                     visualDensity: const VisualDensity(

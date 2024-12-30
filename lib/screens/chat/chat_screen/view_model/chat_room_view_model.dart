@@ -336,6 +336,56 @@ class ChatRoomViewModel extends ChangeNotifier {
   void setText(String value) {
     _text = value;
   }
+
+  //----------------------------------------------------------POLLS----------------------------------------------------//
+
+  bool _isPollBeingCreated = false;
+
+  bool get isPollBeingCreated => _isPollBeingCreated;
+  set isPollBeingCreated(bool status) {
+    _isPollBeingCreated = status;
+    notifyListeners();
+  }
+
+  void sendPoll(String title, List<String> options) async {
+    if (!_client.connected) {
+      if (kDebugMode) {
+        print("Not connected to the WebSocket server.");
+      }
+      return;
+    }
+
+    final messageData = {
+      "type": "poll",
+      "content": {'title': title, 'options': options},
+      "timestamp": DateTime.now()
+          .millisecondsSinceEpoch, // or DateTime.now().toIso8601String()
+      "sentFrom": userProv.getUserInfo.id!,
+      "roomId": int.parse(_roomId),
+    };
+    if (replyTo != null && replyUsername != null) {
+      messageData['replyTo'] = replyTo;
+    }
+    final jsonBody = json.encode(messageData);
+    if (kDebugMode) {
+      print("Send Poll body $jsonBody");
+    }
+
+    try {
+      _client.send(
+        destination: "/app/message",
+        body: jsonBody,
+      );
+      if (kDebugMode) {
+        print("\n-------poll Sent--------\n");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Not connected to the WebSocket server.$e');
+      }
+    }
+  }
+
   //=====================================================older code===================================================================//
 
   void addRouteListener(
