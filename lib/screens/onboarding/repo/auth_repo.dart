@@ -19,9 +19,9 @@ class AuthRepo {
 
   Future<bool> sendResetEmail(String email) async {
     Response res = await http.post(
-      BackendProperties.resetUri
-          .replace(queryParameters: {'email': email.toString()}),
-    );
+        BackendProperties.resetUri
+            .replace(queryParameters: {'email': email.toString()}),
+        headers: BackendProperties.getHeaders());
     print("res:${res.statusCode}");
     if (res.statusCode == 200) {
       return true;
@@ -44,7 +44,10 @@ class AuthRepo {
       Response res = await http.post(BackendProperties.loginUri,
           body: jsonEncode(
               {"email": email, "password": password, "pushToken": pushToken}),
-          headers: {"Content-Type": "application/json"});
+          headers: {
+            "Content-Type": "application/json",
+            ...BackendProperties.getHeaders()
+          });
       Map<String, dynamic> resBody = jsonDecode(res.body);
       if (kDebugMode) {
         print("Reponse Code ${res.statusCode}");
@@ -98,78 +101,16 @@ class AuthRepo {
     return true;
   }
 
-  //TODO: REMOVE THIS
-
-  // dynamic getRoomMap(dynamic listRoomIds) async {
-  //   dynamic roomDetails = {"group": {}, "project": {}};
-  //   for (var roomId in listRoomIds) {
-  //     // print(item);
-  //     //IM JUST WINGING IT OVER HERE WELL BURN THE BRIDGES WHEN WE GET TO EM
-  //     Response res = await http.get(BackendProperties.roomDataUri.toString(),
-  //         body: jsonEncode({'roomId': "$roomId"}),
-  //         headers: {"Content-Type": "application/json"});
-
-  //     if (res.statusCode != 200) {
-  //       throw AuthException(code: 'It should probably return 200. Test Throw');
-  //     }
-
-  //     Map<String, dynamic> temp = jsonDecode(res.body);
-  //     // print(temp['type']);
-
-  //     roomDetails[temp['type']][roomId] = temp['name'];
-  //   }
-  //   return roomDetails;
-  // }
-
-  // Future<Tasks> getTemp(UserTask e) async {
-  //   // We are just Seeing if the given UserTask has any links and if it doesnt
-  //   DocumentSnapshot<Map<String, dynamic>> snapshot = await e.task!.get()
-  //       as DocumentSnapshot<Map<String, dynamic>>; // get tasks
-
-  //   if (!snapshot.data()!.containsKey('link')) {
-  //     // if task  doees not has link
-  //     snapshot.data()!['links'] = []; //
-  //     await e.task!.update({'link': []}); //set link = 0
-  //   }
-
-  //   Tasks data = Tasks.store(snapshot);
-
-  //   return data;
-  // }
-
-  // Future<List<Rooms>?> getRoomIds(uid) async {
-  //   // Uri roomUri = BackendProperties.roomDataUri(email)
-  //   // http.Response res = await http.get()
-  //   // Response res = await Requests.get(BackendProperties.roomDataUri.toString(),
-  //   //     queryParameters: {"email": "shmokedev2@gmail.com"}); //TODO: FIX THIS
-  //   return [];
-  // }
-
   Future<UserModel> getUserbyId(String uid) async {
     try {
-      Response res = await http.get(BackendProperties.userInfoUri,
-          headers: {'Authorization': 'Bearer $uid'});
+      Response res = await http.get(BackendProperties.userInfoUri, headers: {
+        'Authorization': 'Bearer $uid',
+        ...BackendProperties.getHeaders()
+      });
 
       if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
       print('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
-
-      //USER DOES NOT HAVE TASKIDS, ENDPOINT FOR QUERYING USER'S TASK IDS
-
-      // var rooms = await getRoomIds(uid);
-
-      // var roomDetails = getRoomMap(rooms);
-
-      // // List<Future<void>> futures = [];
-      // // for (var e in tasks!) {
-      // futures.add(getTemp(e).then((value) => e.template = value));
-      // // }
-
-      // await Future.wait(futures);
-
-      // // print(tasks);
-
-      // Above code just set User's links to empty, if the key wasnt created
 
       UserModel userMod = UserModel(
           uid: uid,
@@ -178,11 +119,8 @@ class AuthRepo {
           name: user['name'],
           dp: user['dpUrl'] ?? "1",
           type: user['type'],
-          registered:
-              user['registered']! ?? false, //SDK CONSTRAINTS MIGHT F WITH THIS
+          registered: user['registered']! ?? false,
           tasks: [],
-          // rooms: rooms,
-          // roomDetails: roomDetails, // FIXME:
           lastSeen: user['lastSeen'] ?? {});
 
       return userMod;
@@ -199,8 +137,6 @@ class AuthRepo {
     String email = 'a@gmail.com',
     String password = 'password',
   }) async {
-    //Verification mail is sent automatically.
-//TODO: ADD TRY CATCH
     try {
       Response res = await http.post(BackendProperties.registerUri,
           body: jsonEncode({
@@ -208,7 +144,10 @@ class AuthRepo {
             "email": email,
             "password": password,
           }),
-          headers: {"Content-Type": "application/json"});
+          headers: {
+            "Content-Type": "application/json",
+            ...BackendProperties.getHeaders()
+          });
 
       switch (res.statusCode) {
         case 409: //TODO: ADD COMMON CASES
@@ -217,8 +156,10 @@ class AuthRepo {
         default:
       }
       return UserModel();
-    } on SocketException catch (e) {
+    } on SocketException {
       throw AuthException(code: 'no-connect');
+    } catch (e) {
+      throw AuthException(code: 'unknown');
     }
   }
 

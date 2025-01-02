@@ -18,7 +18,7 @@ class ChatRepo {
       Uri url = BackendProperties.roomMessageUri(tempRoomId);
       //     "http://172.20.10.4:8080/messages/roomMsg?roomId=$TemproomId";
 
-      final response = await http.get(url);
+      final response = await http.get(url,headers: BackendProperties.getHeaders());
       // print("checking :${jsonDecode(response.body)}");
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = jsonDecode(response.body);
@@ -42,7 +42,7 @@ class ChatRepo {
     Uri url = BackendProperties.roomDataUri(email);
     // 'http://172.20.10.4:8080/rooms/user'
     //     '?email=$email';
-    final response = await http.get(url);
+    final response = await http.get(url,headers: BackendProperties.getHeaders());
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
@@ -59,7 +59,7 @@ class ChatRepo {
     List<Rooms> announcements = [];
     try {
       Uri url = BackendProperties.announcementUri(emailId);
-      final response = await http.get(url);
+      final response = await http.get(url,headers: BackendProperties.getHeaders());
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -83,7 +83,7 @@ class ChatRepo {
 
     try {
       Uri url = BackendProperties.lastSeenUri(emailId, roomId);
-      final response = await http.get(url);
+      final response = await http.get(url,headers: BackendProperties.getHeaders());
 
       print("response status code: ${response.statusCode}");
       if (response.statusCode == 200) {
@@ -109,7 +109,7 @@ class ChatRepo {
   Future<List<ActiveMember>> fetchTotalActiveMember(String roomId) async {
     try {
       Uri url = BackendProperties.activeMemberUri(roomId);
-      final response = await http.get(url);
+      final response = await http.get(url,headers: BackendProperties.getHeaders());
 
       if (response.statusCode == 200) {
         List<dynamic> users = jsonDecode(response.body);

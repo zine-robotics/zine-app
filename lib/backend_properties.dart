@@ -1,3 +1,7 @@
+class Environment {
+  static const String stage = 'prod'; // Change to 'prod' for production
+}
+
 class BackendProperties {
   static Uri baseUrl = Uri(
       scheme: 'http',
@@ -5,6 +9,11 @@ class BackendProperties {
   // host: '172.20.10.4',
   // port: 8080,
   // );
+  static Map<String, String> getHeaders() {
+    return {
+      'stage': Environment.stage, // Add the stage header
+    };
+  }
 
   static Uri resetUri = baseUrl.replace(path: '/auth/forgot');
   static Uri loginUri = baseUrl.replace(path: '/auth/login');
