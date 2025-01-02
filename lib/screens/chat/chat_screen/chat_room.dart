@@ -11,6 +11,7 @@ import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_m
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
 import '../../../components/gradient.dart';
+import '../../../database/database.dart';
 import '../../../models/rooms.dart';
 import 'chat_view.dart';
 
@@ -34,11 +35,12 @@ class _ChatRoomState extends State<ChatRoom> {
     _saveRoomNameToPreferences();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
+      var db = Provider.of<AppDb>(context, listen: false);
       widget.roomDetail?.id != null
-          ? chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
+          ? chatRoomView.staticMessagePipeline(db,widget.roomDetail!.id.toString())//chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
           : "";
       widget.roomDetail?.id != null
-          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString())
+          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(),db)
           : "";
       chatRoomView.getTotalActiveMember(widget.roomDetail!.id.toString());
     });
@@ -76,7 +78,7 @@ class _ChatRoomState extends State<ChatRoom> {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
         final roomName = widget.roomDetail!.name.toString();
-        final String roomImage = widget.roomDetail!.dpUrl;
+        final String roomImage = widget.roomDetail!.dpUrl!;
         UserModel currUser = userProv.getUserInfo;
         bool isAllowedTyping = true;
         List<ActiveMember> listOfUsers = chatVm.activeMembers;

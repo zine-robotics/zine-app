@@ -53,15 +53,15 @@ class Channel extends StatelessWidget {
                       CircleAvatar(
                         backgroundColor: Colors.white,
                         radius: 20,
-                        foregroundImage: CachedNetworkImageProvider(
-                          roomDetail.dpUrl,
+                        foregroundImage: roomDetail.dpUrl !=null ? CachedNetworkImageProvider(
+                          roomDetail.dpUrl!,
                           errorListener: (p0) {
                             // Handle Errors Gracefully and dont dump on the debug console
                             if (kDebugMode) {
                               print("Error in loading Image : $p0");
                             }
                           },
-                        ),
+                        ):CachedNetworkImageProvider("assets/images/zine_logo.png"),
                         backgroundImage:
                             const AssetImage("assets/images/zine_logo.png"),
                       ),

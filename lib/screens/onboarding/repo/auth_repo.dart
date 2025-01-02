@@ -6,16 +6,18 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:zineapp2023/backend_properties.dart';
+import 'package:zineapp2023/database/database.dart';
+import 'package:zineapp2023/models/newUser.dart';
 import '/common/data_store.dart';
 import '../../../models/user.dart';
 
 class AuthRepo {
   // final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
   // final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
-
+  AppDb db;
   late DataStore store;
 
-  AuthRepo({required this.store});
+  AuthRepo({required this.store,required this.db});
 
   Future<bool> sendResetEmail(String email) async {
     Response res = await http.post(
@@ -89,6 +91,7 @@ class AuthRepo {
 
           throw AuthException(code: 'unknown');
       }
+
       return getUserbyId(userToken);
     } on SocketException {
       if (kDebugMode) print('no-connect');
@@ -111,6 +114,24 @@ class AuthRepo {
       if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
       print('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
+      NewUserModel userData = NewUserModel.fromJson(user);
+      await db.upsertUserDB(userData);
+      //USER DOES NOT HAVE TASKIDS, ENDPOINT FOR QUERYING USER'S TASK IDS
+
+      // var rooms = await getRoomIds(uid);
+
+      // var roomDetails = getRoomMap(rooms);
+
+      // // List<Future<void>> futures = [];
+      // // for (var e in tasks!) {
+      // futures.add(getTemp(e).then((value) => e.template = value));
+      // // }
+
+      // await Future.wait(futures);
+
+      // // print(tasks);
+
+      // Above code just set User's links to empty, if the key wasnt created
 
       UserModel userMod = UserModel(
           uid: uid,

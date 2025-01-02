@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
+import '../../../database/database.dart';
 import '../../../models/rooms.dart';
 import '../../../providers/user_info.dart';
 import '../../../theme/color.dart';
@@ -16,12 +17,17 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
-      chatRoomView.loadRooms();
+      var db = Provider.of<AppDb>(context, listen: false);
+      // chatRoomView.loadRooms();
+      //pipeline
+      chatRoomView.fetchAllRoomDataFromLocalDB(db);
+      chatRoomView.fetchAllRoomDataFromApi(db);
     });
   }
 
@@ -46,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
       List<Rooms>? projectDetails = chatVm.userProjects;
       List<Rooms>? announcementDetails = chatVm.announcement;
       List<Rooms>? workshopDetails = chatVm.userWorkshop;
+      print("\nscreen Rebuild\n");
       return chatVm.isRoomLoaded
           ? Container(
               color: backgroundGrey,
@@ -56,27 +63,27 @@ class _ChatScreenState extends State<ChatScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --------------------Channels-------------------------------
+                      //--------------------Channels-------------------------------
                       headingText("Channels"),
 
-                      ///MODIFY:api problem
+                      announcementDetails !=null && announcementDetails.isNotEmpty ?
                       Channel(
                         // name: "Announcements",
                         // roomId: "452",
                         // roomDetail: [name:"Announcements",roomId:"452"],
                         roomDetail: announcementDetails![0],
-                      ),
+                      ):Container(),
                       //--------------------Workshop-------------------------------------
-                      workshopDetails != null && workshopDetails.isNotEmpty
-                          ? headingText("Workshop")
-                          : Container(),
-                      workshopDetails != null && workshopDetails.isNotEmpty
-                          ? ChatGroups(roomDetails: workshopDetails)
-                          : Container(),
-
-                      const SizedBox(
-                        height: 20,
-                      ),
+                      // workshopDetails != null && workshopDetails.isNotEmpty
+                      //     ? headingText("Workshop")
+                      //     : Container(),
+                      // workshopDetails != null && workshopDetails.isNotEmpty
+                      //     ? ChatGroups(roomDetails: workshopDetails)
+                      //     : Container(),
+                      //
+                      // const SizedBox(
+                      //   height: 20,
+                      // ),
 
                       //--------------------Projects-----------------------------------R
                       projectDetails != null && projectDetails.isNotEmpty

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:win32/win32.dart';
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:http/http.dart' as http;
@@ -27,7 +28,7 @@ class ChatRepo {
         // print("inside the chat_repo and message:${messages.toList()}");
         return messages;
       } else {
-        print("Failed to load messages: ${response.statusCode}");
+        // print("Failed to load messages: ${response.statusCode}");
         return [];
       }
     } catch (e) {
@@ -46,7 +47,20 @@ class ChatRepo {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
-      return jsonResponse.map((json) => Rooms.fromJson(json)).toList();
+      List<Rooms> roomData=jsonResponse.map((json) => Rooms.fromJson(json)).toList();
+      // roomData.forEach((room) {
+      //   print("Room ID: ${room.id}");
+      //   print("Room Name: ${room.name}");
+      //   print("Room Description: ${room.description}");
+      //   print("Room Type: ${room.type}");
+      //   print("Room DP URL: ${room.dpUrl}");
+      //   print("Timestamp: ${room.timestamp}");
+      //   print("Last Message Timestamp: ${room.lastMessageTimestamp}");
+      //   print("Unread Messages: ${room.unreadMessages}");
+      //   print("User Last Seen: ${room.userLastSeen}");
+      //   print("=====================================");
+      // });
+      return roomData;
     } else {
       print("failed to load the rooms info :${response.statusCode}");
       return [];
@@ -55,7 +69,7 @@ class ChatRepo {
 
   //---------------------------------Announcement_details----------------------------//
   Future<List<Rooms>> fetchAnnouncement(String emailId) async {
-    print("inside Announcement");
+    // print("inside Announcement");
     List<Rooms> announcements = [];
     try {
       Uri url = BackendProperties.announcementUri(emailId);
@@ -78,8 +92,8 @@ class ChatRepo {
 
   //--------------------------------check LastSeen----------------------------------//
   Future<LastSeen?> fetchLastSeen(String emailId, String roomId) async {
-    print("inside fetchLastSeen");
-    print("email: $emailId and roomId: $roomId");
+    // print("inside fetchLastSeen");
+    // print("email: $emailId and roomId: $roomId");
 
     try {
       Uri url = BackendProperties.lastSeenUri(emailId, roomId);
@@ -92,11 +106,11 @@ class ChatRepo {
           final Map<String, dynamic> info = responseData['info'];
           return LastSeen.fromJson(info);
         } else {
-          print("Key 'info' not found in response.");
+          // print("Key 'info' not found in response.");
           return null;
         }
       } else {
-        print("Failed to load the rooms info: ${response.statusCode}");
+        // print("Failed to load the rooms info: ${response.statusCode}");
         return null;
       }
     } catch (e) {
