@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:timelines/timelines.dart';
+import 'package:timelines_plus/timelines_plus.dart';
 import '../../models/events.dart';
 import '../../theme/color.dart';
 
@@ -106,7 +106,7 @@ class WorkshopTile extends StatelessWidget {
                   children: [
                     Text(
                       DateFormat.yMMMd().format(
-                          DateTime.fromMillisecondsSinceEpoch(
+                          (
                               event[index].startDateTime!)),
                       // .format(event[index].timeDate!.toDate()),
                       textAlign:
@@ -118,7 +118,7 @@ class WorkshopTile extends StatelessWidget {
                     ),
                     Text(
                       DateFormat.jm().format(
-                          DateTime.fromMillisecondsSinceEpoch(
+                          (
                               event[index].startDateTime!)),
                       textAlign:
                           index % 2 != 0 ? TextAlign.right : TextAlign.left,

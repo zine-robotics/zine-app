@@ -17,13 +17,13 @@ List<String> months = [
 ];
 
 //===============================Newer CODE=========================================//
-bool isPastEvent(int timeStamp) {
-  DateTime eventDate = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+bool isPastEvent(DateTime eventDate) {
   DateTime today = DateTime.now();
   DateTime eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
   DateTime todayDate = DateTime(today.year, today.month, today.day);
 
-  return eventDay.isBefore(todayDate);  // Returns true if the event is in the past
+  return eventDay
+      .isBefore(todayDate); // Returns true if the event is in the past
 }
 
 DateTime convertTimestamp(int timestamp) {
@@ -36,21 +36,17 @@ DateTime convertTimestamp(int timestamp) {
   }
 }
 
-String getChatTime(int timeStamp) {
-  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+String getChatTime(DateTime dateTime) {
   return '${dateTime.hour}:${dateTime.minute >= 10 ? dateTime.minute : '0${dateTime.minute}'}';
 }
 
-String getChatDate(int timeStamp) {
-  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timeStamp);
+String getChatDate(DateTime dateTime) {
 
   return '${months[dateTime.month - 1]}';
 }
 
-String validShowDate(int timeStamp) {
-  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timeStamp);
-
-  return '${dateTime.day} ${months[dateTime.month - 1]} ${dateTime.year}';
+String validShowDate(DateTime timeStamp) {
+  return '${timeStamp.day} ${months[timeStamp.month - 1]} ${timeStamp.year}';
 }
 
 String getLastSeenFormat(int timeStamp) {

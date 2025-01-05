@@ -54,7 +54,7 @@ class _ChatRoomState extends State<ChatRoom> {
         await chatRoomView.updateSeen(
           widget.email!.toString(),
           widget.roomDetail!.id.toString(),
-          DateTime.now().millisecondsSinceEpoch,
+          DateTime.now(),
           chatRoomView.messages[0].timestamp!,
           0,
         );

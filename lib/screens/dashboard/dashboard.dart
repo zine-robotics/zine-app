@@ -313,9 +313,9 @@ class _DashboardState extends State<Dashboard> {
                                                     eventVm.tempEvents.length >
                                                             0
                                                         ? DateFormat.MMMMd().format(
-                                                            convertTimestamp(eventVm
+                                                            eventVm
                                                                 .tempEvents[0]
-                                                                .startDateTime!))
+                                                                .startDateTime!)
                                                         : "Date",
                                                     style: const TextStyle(
                                                         fontSize: 18.0,
@@ -335,7 +335,7 @@ class _DashboardState extends State<Dashboard> {
                                                     eventVm.tempEvents[0]
                                                                 .startDateTime !=
                                                             null
-                                                        ? '${DateFormat.jm().format(convertTimestamp(eventVm.tempEvents[0].startDateTime!))} \n ${eventVm.tempEvents[0].venue.toString()}'
+                                                        ? '${DateFormat.jm().format(eventVm.tempEvents[0].startDateTime!)} \n ${eventVm.tempEvents[0].venue.toString()}'
                                                         : '',
                                                     maxFontSize: 18,
                                                     minFontSize: 10,

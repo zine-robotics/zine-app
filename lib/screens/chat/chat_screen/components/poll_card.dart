@@ -118,7 +118,8 @@ class _PollCardState extends State<PollCard> {
                                                       controller) =>
                                                   controller.text,
                                             )
-                                            .toList());
+                                            .toList(),
+                                        'Test Description');
                                   },
                                   child: SizedBox(
                                     height: 50,

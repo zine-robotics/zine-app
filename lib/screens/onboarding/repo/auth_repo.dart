@@ -17,7 +17,7 @@ class AuthRepo {
   AppDb db;
   late DataStore store;
 
-  AuthRepo({required this.store,required this.db});
+  AuthRepo({required this.store, required this.db});
 
   Future<bool> sendResetEmail(String email) async {
     Response res = await http.post(
@@ -96,6 +96,8 @@ class AuthRepo {
     } on SocketException {
       if (kDebugMode) print('no-connect');
       throw AuthException(code: 'no-connect');
+    } catch (e) {
+      throw AuthException(code: 'unknown');
     }
   }
 
