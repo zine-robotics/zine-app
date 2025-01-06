@@ -28,11 +28,11 @@ jobs:
         run: echo ${{ steps.gitversion.outputs.nuGetVersion }} > version.txt
 
       - name: Upload version.txt
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: gitversion
           path: version.txt
-
+          
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
