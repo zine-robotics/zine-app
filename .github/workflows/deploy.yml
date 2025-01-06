@@ -8,30 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  version:
-    name: Generate Version Number
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.7
-        with:
-          versionSpec: "5.x"
-
-      - name: Execute GitVersion
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.7
-
-      - name: Create version.txt with NuGetVersion
-        run: echo ${{ steps.gitversion.outputs.nuGetVersion }} > version.txt
-
-      - name: Upload version.txt
-        uses: actions/upload-artifact@v3
-        with:
-          name: gitversion
-          path: version.txt
           
   test:
     name: Run Unit Tests
@@ -55,7 +31,7 @@ jobs:
 
   build:
     name: Build Android App
-    needs: [version]
+    #needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -74,9 +50,6 @@ jobs:
         uses: juliangruber/read-file-action@v1
         with:
           path: version1.txt
-
-      - name: Update Version in pubspec.yaml
-        run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
       - name: Decode Android Keystore
         id: android_keystore
