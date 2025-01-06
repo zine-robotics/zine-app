@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,6 @@ class Channel extends StatelessWidget {
     return Consumer2<ChatRoomViewModel, UserProv>(
         builder: (context, chatVm, userProv, _) {
       UserModel currUser = userProv.getUserInfo;
-
       return Padding(
         padding: const EdgeInsets.all(5.0),
         child: GestureDetector(
@@ -50,22 +51,27 @@ class Channel extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
+                      File(roomDetail.dpUrl.toString()).existsSync() ?  CircleAvatar(
                         backgroundColor: Colors.white,
                         radius: 20,
-                        foregroundImage: roomDetail.dpUrl !=null ? CachedNetworkImageProvider(
-                          roomDetail.dpUrl!,
-                          errorListener: (p0) {
-                            // Handle Errors Gracefully and dont dump on the debug console
-                            if (kDebugMode) {
-                              print("Error in loading Image : $p0");
-                            }
-                          },
-                        ):CachedNetworkImageProvider("assets/images/zine_logo.png"),
-                        backgroundImage:
-                            const AssetImage("assets/images/zine_logo.png"),
-                      ),
-                      const SizedBox(
+                         child: chatVm.showProfileImage(roomDetail.dpUrl!,radius: 50.0),
+                        // foregroundImage:
+                        // roomDetail.dpUrl !=null ? CachedNetworkImageProvider(
+                        //   roomDetail.dpUrl!,
+                        //   errorListener: (p0) {
+                        //     // Handle Errors Gracefully and dont dump on the debug console
+                        //     if (kDebugMode) {
+                        //       print("Error in loading Image : $p0");
+                        //     }
+                        //   },
+                        // ):CachedNetworkImageProvider("assets/images/zine_logo.png"),
+                        // backgroundImage:
+                        //     const AssetImage("assets/images/zine_logo.png"),
+                      ):CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 20,
+                          backgroundImage:AssetImage("assets/images/zine_logo.png")),
+                      SizedBox(
                         width: 10,
                       ),
                       roomDetail.name != null
@@ -77,7 +83,7 @@ class Channel extends StatelessWidget {
                               ),
                             ))
                           : const Text(""),
-                    ],
+                      ],
                   ),
 
                   // -------------------modification for new unseen and lastseen--------------//

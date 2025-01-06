@@ -1,10 +1,10 @@
 class Environment {
-  static const String stage = 'test'; // Change to 'prod'||'test' for production
+  static const String stage = 'prod'; // Change to 'prod'||'test' for production
 }
 class BackendProperties {
   static Uri baseUrl = Uri(
-      scheme: 'https',
-      host: 'zine-backend.ip-ddns.com');// https://zinebackend-2b7b.onrender.com //'ec2-18-116-38-241.us-east-2.compute.amazonaws.com'
+      scheme: 'http',
+      host: '20.40.49.214');// https://zinebackend-2b7b.onrender.com //'ec2-18-116-38-241.us-east-2.compute.amazonaws.com'//20.40.49.214
   // host: '172.20.10.4',
   // port: 8080,
   // );
@@ -42,7 +42,7 @@ class BackendProperties {
       baseUrl.replace(path: '/instance/$instanceId/links');
 
   static Uri eventsUri = baseUrl.replace(path: '/event');
-  static Uri websocketUri = baseUrl.replace(scheme: 'https',path: '/ws',port: 443);
+  static Uri websocketUri = baseUrl.replace(path: '/ws');//scheme: 'https',path: '/ws',port: 443
   static Uri lastSeenUri(String emailId, String roomId) =>
       baseUrl.replace(path: '/user/$emailId/$roomId/last-seen');
 

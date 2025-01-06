@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,12 +26,14 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  late ChatRoomViewModel chatRoomView;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<EventsVm>(context, listen: false).tempGetAllEvent();
-      Provider.of<ChatRoomViewModel>(context, listen: false).loadRooms();
+      chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
+      // chatRoomView.loadRooms();
       Provider.of<TaskVm>(context, listen: false).getTaskInstances();
     });
   }
@@ -93,8 +97,9 @@ class _DashboardState extends State<Dashboard> {
                                 ],
                               ),
                               const Spacer(),
-                              buildProfilePicture(currUser.dp!, currUser.name!,
-                                  size: 30),
+                              File(currUser.dp!.toString()).existsSync() ? chatVm.showProfileImage(currUser.dp!.toString()):CircleAvatar(radius: 30, backgroundColor: iconTile,backgroundImage: AssetImage("assets/images/dp/${currUser.dp}.png",)),
+                              // buildProfilePicture(chatVm.showProfileImage(currUser.dp!.toString()), currUser.name!,
+                              //     size: 30),
                               // CircleAvatar(
                               //   radius: 30,
                               //   backgroundColor: iconTile,

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/models/user.dart';
@@ -27,6 +28,8 @@ class ChatRoom extends StatefulWidget {
 
 class _ChatRoomState extends State<ChatRoom> {
   late ChatRoomViewModel chatRoomView;
+  late final FocusNode _focusNode;
+  final TextEditingController messageController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -40,8 +43,41 @@ class _ChatRoomState extends State<ChatRoom> {
       widget.roomDetail?.id != null
           ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(),db)
           : "";
-      chatRoomView.getTotalActiveMember(widget.roomDetail!.id.toString());
+      chatRoomView.getTotalActiveMember(db,widget.roomDetail!.id.toString());
     });
+
+    _focusNode = FocusNode(
+      onKeyEvent: (FocusNode node, KeyEvent evt) {
+        bool is_enter = evt.logicalKey == LogicalKeyboardKey.enter;
+
+        bool is_shift = HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.shiftLeft) ||
+            HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.shiftRight);
+
+        if (!is_shift && is_enter) {
+          if (evt is KeyDownEvent) {
+            _sendMessage();
+          }
+          return KeyEventResult.handled;
+        }
+
+        else if (HardwareKeyboard.instance.physicalKeysPressed
+            .contains(PhysicalKeyboardKey.shiftLeft) &&
+            evt.logicalKey.keyLabel == 'Enter') {
+            messageController.text += "\n";
+
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+    );
+  }
+
+  void _sendMessage() {
+    final text = messageController.text.trim();
+    if (text.isNotEmpty) {
+      chatRoomView.sendMessage(text, widget.roomDetail!.name.toString());
+      messageController.clear();
+    }
   }
 
   @override
@@ -58,7 +94,7 @@ class _ChatRoomState extends State<ChatRoom> {
         );
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString("roomName", " ");
-        chatRoomView.loadRooms();
+        // chatRoomView.loadRooms();
       });
     }
   }
@@ -69,17 +105,19 @@ class _ChatRoomState extends State<ChatRoom> {
     // print('Room name saved: ${widget.roomName}');
   }
 
-  final TextEditingController messageController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
         // var listOfUsers = [];
-        var image = null;
+
         // print("chatRoom:${widget.roomName}");
         final roomId = widget.roomDetail!.id.toString();
         final roomName = widget.roomDetail!.name.toString();
+        final image = widget.roomDetail!.dpUrl.toString();
+        // print("\n\ninside chat_room,image:$image\n\n");
         UserModel currUser = userProv.getUserInfo;
         bool isAllowedTyping = true;
         List<ActiveMember> listOfUsers = chatVm.activeMembers;
@@ -274,8 +312,8 @@ class _ChatRoomState extends State<ChatRoom> {
                                     flex: 1,
                                     child: TextField(
                                       keyboardType: TextInputType.multiline,
-                                      focusNode: chatVm.replyfocus,
-                                      maxLines: 3,
+                                      focusNode: _focusNode,//chatVm.replyfocus,
+                                      maxLines: null,
                                       minLines: 1,
                                       controller: messageController,
                                       onChanged: (value) =>
@@ -296,10 +334,10 @@ class _ChatRoomState extends State<ChatRoom> {
                                         horizontal: 4.0, vertical: 1.0),
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
-                                      chatVm.sendMessage(
-                                          messageController.text, roomName);
-                                      messageController.text = "";
-
+                                      // chatVm.sendMessage(
+                                      //     messageController.text, roomName);
+                                      // messageController.text = "";
+                                        _sendMessage();
                                       // chatVm.send(
                                       //     from: userProv.currUser.name,
                                       //     roomId: roomName);

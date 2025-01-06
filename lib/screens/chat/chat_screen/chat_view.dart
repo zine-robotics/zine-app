@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -358,24 +359,25 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                   horizontalTitleGap: 6,
                                   contentPadding: EdgeInsets.zero,
                                   dense: true,
-                                  leading: userVm.getUserInfo.id ==
+                                  leading:
+                                  userVm.getUserInfo.id ==
                                               chats[currIndx].sentFrom?.id ||
                                           group
                                       ? CircleAvatar(
                                           backgroundColor: const Color.fromARGB(
                                               15, 255, 255, 255),
-                                          radius: 20,
+                                          radius: 25,
                                           child: Padding(
                                               padding:
-                                                  const EdgeInsets.all(3.0),
+                                                  const EdgeInsets.all(20.0),
                                               child: Container()),
                                         )
-                                      : buildProfilePicture(
-                                          chats[currIndx].sentFrom!.dp,
-                                          chats[currIndx].sentFrom!.name),
+                                      :File(chats[currIndx].sentFrom!.dp.toString()).existsSync() ? chatRoomViewModel.showProfileImage(chats[currIndx].sentFrom!.dp.toString()):chatRoomViewModel.customUserName(chats[currIndx].sentFrom!.name.toString()),//
+                                  // buildProfilePicture(chatRoomViewModel,
+                                  //         chats[currIndx].sentFrom!.dp,
+                                  //         chats[currIndx].sentFrom!.name),
 
                                   // * Because Priyansh Said So :) *
-
                                   // trailing: currUser.name !=
                                   //         chats[currIndx].from
                                   //     ? null
@@ -492,6 +494,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                 ),
                               ),
                             ),
+
                           ]);
               },
             ),
@@ -509,24 +512,25 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
   );
 }
 
-Widget buildProfilePicture(String dp, String name, {double size = 20}) {
+Widget buildProfilePicture(ChatRoomViewModel chatVm, String dp, String name, {double size = 20}) {
   double width = size * 2.0;
   return Container(
     clipBehavior: Clip.hardEdge,
     constraints: BoxConstraints(
         minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
     decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
-    child: CachedNetworkImage(
-      imageUrl: dp,
-      fit: BoxFit.cover,
-      errorWidget: (_, __, ___) => Center(
-          child: Text(
-        name.substring(0, 1).toUpperCase(),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: size,
-        ),
-      )),
-    ),
+    child:File(dp.toString()).existsSync() ? chatVm.showProfileImage(dp):chatVm.customUserName(name)
+    // CachedNetworkImage(
+    //   imageUrl: dp,
+    //   fit: BoxFit.cover,
+    //   errorWidget: (_, __, ___) => Center(
+    //       child: Text(
+    //     name.substring(0, 1).toUpperCase(),
+    //     style: TextStyle(
+    //       fontWeight: FontWeight.bold,
+    //       fontSize: size,
+    //     ),
+    //   )),
+    // ),
   );
 }

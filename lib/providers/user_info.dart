@@ -2,16 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/models/user.dart';
 import '../common/data_store.dart';
 
 class UserProv extends ChangeNotifier {
   final DataStore dataStore;
-
+  AppDb Db;
   bool _isLoggedIn = false;
   UserModel _currUser = UserModel();
 
-  UserProv({required this.dataStore});
+  UserProv({required this.dataStore, required this.Db});
 
   bool get isLoggedIn => _isLoggedIn;
 

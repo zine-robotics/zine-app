@@ -13,7 +13,7 @@ class UserModel {
   List<dynamic>? roomids = [];
   dynamic roomDetails = {};
   dynamic lastSeen;
-  String? dp;
+  dynamic? dp;
 
   UserModel(
       {this.uid,

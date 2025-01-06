@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import "package:flutter/material.dart";
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/components/gradient.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/onboarding/login/view_models/register_auth_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
 import 'package:zineapp2023/utilities/string_formatters.dart';
@@ -16,8 +19,9 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<RegisterAuthViewModel, UserProv>(
-      builder: (context, regVm, userProv, _) {
+    
+    return Consumer3<RegisterAuthViewModel, UserProv,ChatRoomViewModel>(
+      builder: (context, regVm, userProv,chatVm, _) {
         UserModel currUser = userProv.getUserInfo;
         return Scaffold(
           backgroundColor: backgroundGrey,
@@ -105,9 +109,10 @@ class ProfileScreen extends StatelessWidget {
                                             "assets/images/card_image.png")
                                         : null,
                                   ),
-                                  buildProfilePicture(
-                                      currUser.dp!, currUser.name!,
-                                      size: 45),
+                                  if (File(currUser.dp!.toString()).existsSync()) chatVm.showProfileImage(currUser.dp!) else CircleAvatar(radius: 30, backgroundColor: iconTile,backgroundImage: AssetImage("assets/images/dp/${currUser.dp}.png",)),
+                                  // buildProfilePicture(
+                                  //     currUser.dp!, currUser.name!,
+                                  //     size: 45),
                                 ],
                               ),
                               const SizedBox(
