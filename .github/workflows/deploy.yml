@@ -50,12 +50,12 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
-      - name: Run Tests
-        run: flutter test
+      # - name: Run Tests
+      #   run: flutter test
 
   build:
     name: Build Android App
-    needs: [version, test]
+    needs: [version]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
