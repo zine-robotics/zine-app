@@ -61,7 +61,7 @@ dependencies:
   stomp_dart_client: ^1.0.0
   swipe_to: ^1.0.2
   table_calendar: ^3.1.2
-  timelines: ^0.1.0
+  timelines_plus: ^1.0.4
   url_launcher: ^6.3.0
   xml: null
   win32: ^5.9.0
