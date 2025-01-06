@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/providers/user_info.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/file_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/poll_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
@@ -503,6 +504,11 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                     isUser: isUser,
                     onVote: (optionId) => chatRoomViewModel.sendPollResponse(
                         chats[currIndx].id!, optionId),
+                  );
+                } else if (chats[currIndx].type == MessageType.file &&
+                    chats[currIndx].file != null) {
+                  return FileTile(
+                    message: chats[currIndx],isUser: isUser,
                   );
                 }
               },

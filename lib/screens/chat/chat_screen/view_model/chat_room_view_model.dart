@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/drift.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -159,6 +163,12 @@ class ChatRoomViewModel extends ChangeNotifier {
 
           if (messageData['update'] == 'new-message' &&
               messageData['body'] != null) {
+            if (kDebugMode) {
+              print("New Message");
+              print("===========================MESSAGE================");
+              print(messageData);
+              print("===============================================");
+            }
             MessageModel messageData1 =
                 MessageModel.fromJson(messageData['body']);
             await workerToSaveMessage(messageData1, db);
@@ -901,6 +911,176 @@ class ChatRoomViewModel extends ChangeNotifier {
       );
       if (kDebugMode) {
         print("\n-------poll Sent--------\n");
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Not connected to the WebSocket server.$e');
+      }
+    }
+  }
+
+  //===============================================FILES===========================================
+
+  bool _isFileLoading = false;
+  bool _isUploading = false;
+  bool _isFileReady = false;
+
+  String _fileUri = '';
+  String _fileName = '';
+  String _publicId = '';
+
+  String get fileUri => _fileUri;
+  String get fileName => _fileName;
+
+  bool get isFileLoading => _isFileLoading;
+  bool get isUploading => _isUploading;
+  bool get isFileReady => _isFileReady;
+
+  void startFileSelect() async {
+    _isFileLoading = true;
+    notifyListeners();
+
+    File? file = await pickFile();
+
+    if (file != null) {
+      Uri? fileUri = await uploadFileWithDescription(
+          file: file, description: basename(file.path));
+
+      if (fileUri == null) {
+        Fluttertoast.showToast(
+            msg: 'An Error Occured during upload',
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
+
+        _isFileLoading = false;
+        notifyListeners();
+      }
+
+      _fileUri = fileUri.toString();
+      _fileName = basename(file.path);
+
+      _isFileReady = true;
+      notifyListeners();
+
+      print("Selected filename ${basename(file.path)}");
+    } else {
+      _isFileLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<File?> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    return result != null ? File(result.files.single.path!) : null;
+  }
+
+  Future<Uri?> uploadFileWithDescription({
+    required File file,
+    required String description,
+  }) async {
+    _isUploading = true;
+    notifyListeners();
+    try {
+      // Create a MultipartRequest
+      var request = http.MultipartRequest('POST', BackendProperties.uploadUri);
+
+      // Attach the file as form-data
+      var multipartFile = await http.MultipartFile.fromPath('file', file.path);
+      request.files.add(multipartFile);
+
+      // Attach the description as form-data
+      request.fields['description'] = description;
+
+      // Send the request
+      var response = await request.send();
+
+      // Handle the response
+      if (response.statusCode == 200) {
+        // Parse the response
+        var responseBody = await http.Response.fromStream(response);
+        var responseData = json.decode(responseBody.body);
+
+        // Return the 'url' field if it exists
+
+        if (responseData != null && responseData.containsKey('url')) {
+          Uri url = Uri.parse(responseData['url']);
+          if (kDebugMode) {
+            print("Got File url ${url.toString()}");
+          }
+          _publicId = responseData['publicId'];
+          return url;
+        } else {
+          if (kDebugMode) {
+            print('Response does not contain a "url" field');
+          }
+          return null;
+        }
+      } else {
+        throw Exception(
+            'File upload failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any errors
+      if (kDebugMode) {
+        print('Error uploading file: $e');
+      }
+      return null;
+    } finally {
+      _isUploading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> cancelUpload() async {
+    try {
+      _fileName = '';
+      _fileUri = '';
+      _isFileReady = false;
+      _isFileLoading = false;
+      notifyListeners();
+      final response =
+          await http.post(BackendProperties.deleteUpload(_publicId));
+      if (response.statusCode != 200) {
+        throw Exception('Failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return null; // Return null or handle the error as needed
+    }
+  }
+
+  void sendFile(String description) async {
+    if (!_client.connected) {
+      if (kDebugMode) {
+        print("Not connected to the WebSocket server.");
+      }
+      return;
+    }
+
+    final messageData = {
+      "type": "file",
+      'file': {'url': _fileUri, 'description': description, 'name': _fileName},
+      "timestamp": DateTime.now()
+          .millisecondsSinceEpoch, // or DateTime.now().toIso8601String()
+      "sentFrom": userProv.getUserInfo.id!,
+      "roomId": int.parse(_roomId),
+    };
+    if (replyTo != null && replyUsername != null) {
+      messageData['replyTo'] = replyTo;
+    }
+    final jsonBody = json.encode(messageData);
+    if (kDebugMode) {
+      print("Send Poll body $jsonBody");
+    }
+
+    try {
+      _client.send(
+        destination: "/app/message",
+        body: jsonBody,
+      );
+      if (kDebugMode) {
+        print("\n-------File Sent--------\n");
       }
     } catch (e) {
       if (kDebugMode) {

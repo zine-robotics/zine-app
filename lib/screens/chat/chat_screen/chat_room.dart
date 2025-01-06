@@ -37,10 +37,13 @@ class _ChatRoomState extends State<ChatRoom> {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
       widget.roomDetail?.id != null
-          ? chatRoomView.staticMessagePipeline(db,widget.roomDetail!.id.toString())//chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
+          ? chatRoomView.staticMessagePipeline(
+              db,
+              widget.roomDetail!.id
+                  .toString()) //chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
           : "";
       widget.roomDetail?.id != null
-          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(),db)
+          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db)
           : "";
       chatRoomView.getTotalActiveMember(widget.roomDetail!.id.toString());
     });
@@ -164,6 +167,27 @@ class _ChatRoomState extends State<ChatRoom> {
                           (chatVm.isPollBeingCreated)
                               ? const PollCard()
                               : Container(),
+                          (chatVm.isFileLoading)
+                              ? (chatVm.isFileReady)
+                                  ? Container(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(chatVm.fileName),
+                                          IconButton(
+                                              onPressed: () =>
+                                                  chatVm.cancelUpload(),
+                                              icon: const Icon(
+                                                  Icons.cancel_outlined))
+                                        ],
+                                      ),
+                                    )
+                                  : Container(
+                                      child: LinearProgressIndicator(),
+                                      color: Colors.green,
+                                    )
+                              : Container(),
                           Align(
                             alignment: Alignment.bottomLeft,
                             child: Container(
@@ -223,6 +247,19 @@ class _ChatRoomState extends State<ChatRoom> {
                                             Text('Poll')
                                           ],
                                         ),
+                                      ),
+                                      PopupMenuItem(
+                                        onTap: () {
+                                          chatVm.startFileSelect();
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Icon(Icons.menu),
+                                            Text('File')
+                                          ],
+                                        ),
                                       )
                                     ],
                                   ),
@@ -233,10 +270,15 @@ class _ChatRoomState extends State<ChatRoom> {
                                         horizontal: 4.0, vertical: 1.0),
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
-                                      chatVm.sendMessage(
-                                          _messageController.text, roomName);
-                                      _messageController.text = "";
-                                      chatVm.replyTo = null;
+                                      if (chatVm.isFileReady) {
+                                        chatVm
+                                            .sendFile(_messageController.text);
+                                      } else {
+                                        chatVm.sendMessage(
+                                            _messageController.text, roomName);
+                                        _messageController.text = "";
+                                        chatVm.replyTo = null;
+                                      }
                                     },
                                     iconSize: 20.0,
                                     icon: const ImageIcon(

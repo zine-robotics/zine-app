@@ -32,6 +32,9 @@ class _PollCardState extends State<PollCard> {
     });
   }
 
+  String? validator(String? value) =>
+      value!.trim().isEmpty ? 'This field cannot be empty' : null;
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ChatRoomViewModel>(
@@ -80,13 +83,17 @@ class _PollCardState extends State<PollCard> {
                         padding: const EdgeInsets.only(left: 5, right: 5),
                         width: double.infinity,
                         child: Column(children: [
-                          TextField(
+                          TextFormField(
                             controller: _titleController,
-                            decoration: InputDecoration(hintText: "Title"),
+                            validator: (value) => validator(value),
+                            decoration: InputDecoration(
+                              hintText: "Title",
+                            ),
                           ),
 
                           ..._controllers.map(
                             (controller) => PollOption(
+                              validator: validator,
                               controller: controller,
                               onDelete: onDelete,
                             ),
@@ -120,6 +127,7 @@ class _PollCardState extends State<PollCard> {
                                             )
                                             .toList(),
                                         'Test Description');
+                                    chatVm.isPollBeingCreated = false;
                                   },
                                   child: SizedBox(
                                     height: 50,
@@ -146,8 +154,12 @@ class _PollCardState extends State<PollCard> {
 class PollOption extends StatelessWidget {
   final TextEditingController controller;
   final Function(TextEditingController) onDelete;
+  final Function(String?) validator;
   const PollOption(
-      {super.key, required this.controller, required this.onDelete});
+      {super.key,
+      required this.controller,
+      required this.onDelete,
+      required this.validator});
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +169,7 @@ class PollOption extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
+              validator: (value) => validator(value),
               controller: controller,
               decoration: InputDecoration(hintText: 'Option'),
             ),

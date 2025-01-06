@@ -6,7 +6,8 @@ class BackendProperties {
   static Uri baseUrl = Uri(
     scheme: 'http',
     //  host: 'zine-backend.ip-ddns.com'
-    host: '172.22.0.1',
+    host: '20.40.49.214',
+    // host: '172.22.0.1',
     // port: 8080,
     // );
     // https://zinebackend-2b7b.onrender.com //'ec2-18-116-38-241.us-east-2.compute.amazonaws.com'
@@ -61,4 +62,8 @@ class BackendProperties {
 
   static Uri announcementUri(String emailId) => baseUrl
       .replace(path: 'rooms/announcement', queryParameters: {'email': emailId});
+
+  static Uri uploadUri = baseUrl.replace(path: '/image/upload');
+  static Uri deleteUpload(String publicId) => baseUrl
+      .replace(path: '/image/delete', queryParameters: {'publicKey': publicId});
 }
