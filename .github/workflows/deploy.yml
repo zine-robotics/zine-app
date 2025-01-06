@@ -1,0 +1,99 @@
+name: Android CI/CD
+
+on:
+  push:
+    branches: ["release24"]
+  pull_request:
+    branches: ["release24"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.1"
+          channel: "stable"
+          cache: true
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      # - name: Run Tests
+      #   run: flutter test
+
+  build:
+    name: Build Android App
+    #needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Decode Android Keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.0.3
+        with:
+          fileName: upload-keystore.jks
+          encodedString: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: Create key.properties File
+        run: |
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > android/key.properties
+          echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17.x"
+          cache: gradle
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.0"
+          channel: "stable"
+          cache: true
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Build Release App Bundle
+        run: flutter build appbundle --release
+
+      - name: Upload Android Release Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-release
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  deploy:
+    name: Deploy Android Build
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: android-release
+
+      - name: Upload to Google Play Console
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_ACCOUNT_KEY }}
+          packageName: <YOUR_PACKAGE_NAME>
+          releaseFiles: app-release.aab
+          track: internal
+          status: completed
