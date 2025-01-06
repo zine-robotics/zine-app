@@ -59,6 +59,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        coreLibraryDesugaringEnabled true  
     }
 
     signingConfigs {
