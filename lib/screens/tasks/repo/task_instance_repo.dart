@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
@@ -20,7 +19,7 @@ class TaskInstanceRepo {
     List<UserTaskInstance> taskInstances = [];
 
     Response res = await http.get(BackendProperties.taskInstanceByIdUri,
-        headers: {'Authorization': 'Bearer $_uid'});
+        headers: {'Authorization': 'Bearer $_uid',...BackendProperties.getHeaders()});
     print("Called get Tasks");
     // print(res.body);
 
@@ -49,7 +48,7 @@ class TaskInstanceRepo {
   Future<List<Checkpoint>> getCheckpoints(int instanceId) async {
     Response res = await http.get(
         BackendProperties.instanceCheckpointUri(instanceId),
-        headers: {'Authorization': 'Bearer $_uid'});
+        headers: {'Authorization': 'Bearer $_uid',...BackendProperties.getHeaders()});
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
@@ -71,6 +70,7 @@ class TaskInstanceRepo {
           headers: {
             'Authorization': 'Bearer $_uid',
             'Content-Type': 'application/json',
+            ...BackendProperties.getHeaders()
           });
 
       if (res.statusCode == 200) {
@@ -86,7 +86,7 @@ class TaskInstanceRepo {
   Future<List<Link>> getLinks(int instanceId) async {
     Response res = await http.get(
         BackendProperties.instanceLinksUri(instanceId),
-        headers: {'Authorization': 'Bearer $_uid'});
+        headers: {'Authorization': 'Bearer $_uid',...BackendProperties.getHeaders()});
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
@@ -106,6 +106,7 @@ class TaskInstanceRepo {
           headers: {
             'Authorization': 'Bearer $_uid',
             'Content-Type': 'application/json',
+            ...BackendProperties.getHeaders()
           });
 
       if (res.statusCode == 200) {

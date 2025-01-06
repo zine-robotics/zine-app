@@ -1,21 +1,12 @@
-import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
-import 'package:http/http.dart';
-import 'package:requests/requests.dart';
-import 'package:zineapp2023/models/newTask.dart';
 import 'package:zineapp2023/models/task_instance.dart';
-import 'package:zineapp2023/models/tasks.dart';
 import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/tasks/repo/task_instance_repo.dart';
 import 'package:zineapp2023/screens/tasks/repo/task_repo.dart';
-import 'package:zineapp2023/utilities/date_time.dart';
-import 'package:http/http.dart' as http;
 
-import '../../../backend_properties.dart';
 import '../../../models/userTask.dart';
 
 class TaskVm extends ChangeNotifier {
@@ -103,7 +94,7 @@ class TaskVm extends ChangeNotifier {
   UserTaskInstance? findLatest() {
     if (taskInstances.isNotEmpty) {
       taskInstances
-          .sort((a, b) => a.task!.dateCreated!.compareTo(b.task!.dateCreated!));
+          .sort((a, b) => a.task.dateCreated!.compareTo(b.task.dateCreated!));
       return taskInstances.first;
     }
     return null;

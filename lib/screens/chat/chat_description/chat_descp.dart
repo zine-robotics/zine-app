@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:zineapp2023/models/user.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/chat_view.dart';
 import 'package:zineapp2023/theme/color.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/chat_room.dart';
 
 class ChatDescription extends StatelessWidget {
   ChatDescription({
@@ -110,16 +112,11 @@ class ChatDescription extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: Container(
-                                  color: Colors.grey,
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: Image.asset(
-                                    "assets/images/dp/${Random().nextInt(25) + 1}.png",
-                                    height: 45,
-                                    width: 45,
-                                    fit: BoxFit.cover,
-                                    // color: Colors.white,
-                                  ),
-                                ),
+                                    color: Colors.grey,
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: buildProfilePicture(
+                                        data[index].dpUrl, data[index].name,
+                                        size: 22.5)),
                               ),
                             ),
                             const SizedBox(
@@ -170,7 +167,7 @@ class ChatDescription extends StatelessWidget {
                 },
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             )
           ],

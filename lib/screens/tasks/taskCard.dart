@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/common/routing.dart';
 import 'package:zineapp2023/models/task_instance.dart';
-import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/screens/tasks/view_models/task_vm.dart';
 
 // import '/screens/tasks/problem_statement.dart';
@@ -57,10 +55,10 @@ class TaskCard extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 7,
                     ),
-                    Text(
+                    const Text(
                       "Problem Statement",
                       style: TextStyle(
                           color: textColor,

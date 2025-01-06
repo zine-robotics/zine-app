@@ -24,7 +24,7 @@ class ChatGroups extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: roomDetails?.length ?? 0,
             itemBuilder: (BuildContext context, int index) {
-              if (roomDetails == null) return SizedBox.shrink();
+              if (roomDetails == null) return const SizedBox.shrink();
               return GestureDetector(
                 onTap: () {
                   Navigator.push(

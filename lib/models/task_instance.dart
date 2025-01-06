@@ -29,7 +29,6 @@
 */
 
 import 'package:zineapp2023/models/newTask.dart';
-import 'package:zineapp2023/models/userTask.dart';
 
 class UserTaskInstance {
   String? title;

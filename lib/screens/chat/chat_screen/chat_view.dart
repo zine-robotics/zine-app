@@ -1,16 +1,14 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
-import 'package:xml/xml.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
-import 'package:zineapp2023/utilities/string_formatters.dart';
 
 import '../../../models/message.dart';
 import '../../../theme/color.dart';
@@ -28,8 +26,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
     builder: (context, snapshot) {
       print("chat reply to :${chatRoomViewModel.replyTo}");
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return Expanded(
-          child: const Center(
+        return const Expanded(
+          child: Center(
             child: CircularProgressIndicator(),
           ),
         );
@@ -98,14 +96,14 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                 chats[chats.length - index - 2].timestamp!));
 
                 bool group = index > 0 &&
-                    chats[currIndx].sentFrom?.name.toString() ==
-                        chats[chats.length - index].sentFrom?.name.toString() &&
+                    chats[currIndx].sentFrom?.id ==
+                        chats[chats.length - index].sentFrom?.id &&
                     getChatDate(chats[currIndx].timestamp!) ==
                         getChatDate(chats[chats.length - index].timestamp!);
 
-                dynamic repliedMessage = null;
+                dynamic repliedMessage;
                 // print("reply to:${chats[currIndx].replyTo?.id}");
-                if (chats[currIndx].replyTo?.id.toString() != null) {
+                if (chats[currIndx].replyTo?.id != null) {
                   repliedMessage = chatRoomViewModel.userGetMessageById(
                       chats, chats[currIndx].replyTo!.id.toString());
                   // print("checking reply content:${chats[currIndx].content}");
@@ -120,20 +118,20 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 10, 0, 5),
                                     child: Padding(
-                                      padding: userVm.getUserInfo.name !=
+                                      padding: userVm.getUserInfo.id !=
                                               chats[currIndx]
                                                   .sentFrom
-                                                  ?.name //currUser.name != chats[currIndx].from
-                                          ? EdgeInsets.symmetric(
+                                                  ?.id //currUser.name != chats[currIndx].from
+                                          ? const EdgeInsets.symmetric(
                                               horizontal: 35.0)
-                                          : EdgeInsets.all(0),
+                                          : const EdgeInsets.all(0),
                                       child: Text(
-                                        "${userVm.getUserInfo.name == chats[currIndx].sentFrom?.name.toString() ? "You" : chats[currIndx].sentFrom?.name.toString()} replied to ${chats[currIndx].replyTo?.sentFrom?.name} ",
-                                        textAlign: userVm.getUserInfo.name ==
-                                                chats[currIndx].sentFrom?.name
+                                        "${userVm.getUserInfo.id == chats[currIndx].sentFrom?.id ? "You" : chats[currIndx].sentFrom?.name} replied to ${chats[currIndx].replyTo?.sentFrom?.name}",
+                                        textAlign: userVm.getUserInfo.id ==
+                                                chats[currIndx].sentFrom?.id
                                             ? TextAlign.right
                                             : TextAlign.left,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: greyText, fontSize: 11),
                                       ),
                                     ),
@@ -142,32 +140,29 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                             repliedMessage != null
                                 ? Row(
                                     // direction: Axis.horizontal,
-                                    mainAxisAlignment:
-                                        userVm.getUserInfo.name ==
-                                                chats[currIndx].sentFrom?.name
-                                            ? MainAxisAlignment.end
-                                            : MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        userVm.getUserInfo.name ==
-                                                chats[currIndx].sentFrom?.name
-                                            ? CrossAxisAlignment.end
-                                            : CrossAxisAlignment.start,
+                                    mainAxisAlignment: userVm.getUserInfo.id ==
+                                            chats[currIndx].sentFrom?.id
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
+                                    crossAxisAlignment: userVm.getUserInfo.id ==
+                                            chats[currIndx].sentFrom?.id
+                                        ? CrossAxisAlignment.end
+                                        : CrossAxisAlignment.start,
                                     children: [
-                                      userVm.getUserInfo.name ==
-                                              chats[currIndx].sentFrom?.name
+                                      userVm.getUserInfo.id ==
+                                              chats[currIndx].sentFrom?.id
                                           ? Container()
-                                          : CircleAvatar(
+                                          : const CircleAvatar(
                                               backgroundColor:
                                                   Colors.transparent,
                                               child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(3.0),
+                                                padding: EdgeInsets.all(3.0),
                                                 // child: Image.asset(
                                                 //     "assets/images/zine_logo.png"),
                                               ),
                                             ),
-                                      userVm.getUserInfo.name ==
-                                              chats[currIndx].sentFrom?.name
+                                      userVm.getUserInfo.id ==
+                                              chats[currIndx].sentFrom?.id
                                           ? IntrinsicHeight(
                                               child: Column(
                                                 children: [
@@ -202,13 +197,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                                             .toString())
                                                                         .length >
                                                                     20
-                                                                ? repliedMessage
-                                                                        .content
-                                                                        .toString()
-                                                                        .substring(
-                                                                            0,
-                                                                            20) +
-                                                                    '...'
+                                                                ? '${repliedMessage.content.toString().substring(0, 20)}...'
                                                                 : repliedMessage
                                                                     .content
                                                                     .toString()
@@ -216,7 +205,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                         // softWrap: true,
                                                         textAlign:
                                                             TextAlign.right,
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             fontSize: 13),
                                                       ),
                                                     ),
@@ -248,8 +237,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                 ],
                                               ),
                                             ),
-                                      userVm.getUserInfo.name ==
-                                              chats[currIndx].sentFrom?.name
+                                      userVm.getUserInfo.id ==
+                                              chats[currIndx].sentFrom?.id
                                           ? IntrinsicHeight(
                                               child: Column(
                                                 children: [
@@ -282,10 +271,10 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                         color: backgroundGrey,
                                                         borderRadius: userVm
                                                                     .getUserInfo
-                                                                    .name !=
+                                                                    .id !=
                                                                 chats[currIndx]
                                                                     .sentFrom
-                                                                    ?.name
+                                                                    ?.id
                                                             ? const BorderRadius.only(
                                                                 topRight:
                                                                     Radius.circular(
@@ -314,12 +303,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                                     .toString()
                                                                     .length >
                                                                 20
-                                                            ? repliedMessage
-                                                                    .content
-                                                                    .toString()
-                                                                    .substring(
-                                                                        0, 20) +
-                                                                " . . ."
+                                                            ? "${repliedMessage.content.toString().substring(0, 20)} . . ."
                                                             : repliedMessage
                                                                 .content
                                                                 .toString(),
@@ -352,8 +336,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                 ),
                               ),
                             Container(
-                              alignment: userVm.getUserInfo.name ==
-                                      chats[currIndx].sentFrom?.name
+                              alignment: userVm.getUserInfo.id ==
+                                      chats[currIndx].sentFrom?.id
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
                               child: SwipeTo(
@@ -374,12 +358,12 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                   horizontalTitleGap: 6,
                                   contentPadding: EdgeInsets.zero,
                                   dense: true,
-                                  leading: userVm.getUserInfo.name ==
-                                              chats[currIndx].sentFrom?.name ||
+                                  leading: userVm.getUserInfo.id ==
+                                              chats[currIndx].sentFrom?.id ||
                                           group
                                       ? CircleAvatar(
-                                          backgroundColor:
-                                              Color.fromARGB(15, 255, 255, 255),
+                                          backgroundColor: const Color.fromARGB(
+                                              15, 255, 255, 255),
                                           radius: 20,
                                           child: Padding(
                                               padding:
@@ -387,7 +371,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                               child: Container()),
                                         )
                                       : buildProfilePicture(
-                                          chats[currIndx].sentFrom?.dp),
+                                          chats[currIndx].sentFrom!.dp,
+                                          chats[currIndx].sentFrom!.name),
 
                                   // * Because Priyansh Said So :) *
 
@@ -413,15 +398,14 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                       : Padding(
                                           padding: const EdgeInsets.all(6.0),
                                           child: Align(
-                                            alignment:
-                                                userVm.getUserInfo.name !=
-                                                        chats[chats.length -
-                                                                index -
-                                                                1]
-                                                            .sentFrom
-                                                            ?.name
-                                                    ? Alignment.bottomLeft
-                                                    : Alignment.bottomRight,
+                                            alignment: userVm.getUserInfo.id !=
+                                                    chats[chats.length -
+                                                            index -
+                                                            1]
+                                                        .sentFrom
+                                                        ?.id
+                                                ? Alignment.bottomLeft
+                                                : Alignment.bottomRight,
                                             child: group
                                                 ? const Text("")
                                                 : Text(
@@ -438,8 +422,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                         ),
                                   title: Wrap(
                                     crossAxisAlignment: WrapCrossAlignment.end,
-                                    alignment: userVm.getUserInfo.name ==
-                                            chats[currIndx].sentFrom?.name
+                                    alignment: userVm.getUserInfo.id ==
+                                            chats[currIndx].sentFrom?.id
                                         ? WrapAlignment.end
                                         : WrapAlignment.start,
                                     direction: Axis.horizontal,
@@ -447,12 +431,12 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                       // Text("Something"),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: userVm.getUserInfo.name ==
+                                          color: userVm.getUserInfo.id ==
                                                   chats[chats.length -
                                                           index -
                                                           1]
                                                       .sentFrom
-                                                      ?.name
+                                                      ?.id
                                               ? const Color(0xff68a5ca)
                                               : const Color(0xff0C72B0),
                                           borderRadius: BorderRadius.only(
@@ -461,21 +445,21 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                               topRight:
                                                   const Radius.circular(15.0),
                                               bottomRight: userVm
-                                                          .getUserInfo.name ==
+                                                          .getUserInfo.id ==
                                                       chats[chats.length -
                                                               index -
                                                               1]
                                                           .sentFrom
-                                                          ?.name
+                                                          ?.id
                                                   ? const Radius.circular(0.0)
                                                   : const Radius.circular(15.0),
                                               bottomLeft: userVm
-                                                          .getUserInfo.name ==
+                                                          .getUserInfo.id ==
                                                       chats[chats.length -
                                                               index -
                                                               1]
                                                           .sentFrom
-                                                          ?.name
+                                                          ?.id
                                                   ? const Radius.circular(15.0)
                                                   : const Radius.circular(0.0)),
                                           // border: Border.all(color: greyText, width: 2.0),
@@ -525,47 +509,24 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
   );
 }
 
-Widget buildProfilePicture(var dp, {double size = 20}) {
-  final random = Random();
-
-  if ((dp is int || dp == null) && size == 20) {
-    final assetIndex = dp ?? (random.nextInt(26) + 1);
-    return CircleAvatar(
-      backgroundColor: const Color(0x0f2F80ED),
-      radius: size,
-      child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Image.asset(
-            "assets/images/dp/$assetIndex.png",
-            fit: BoxFit.cover,
-          )),
-    );
-  } else if (dp is String &&
-      (dp.startsWith('http') || dp.startsWith('https'))) {
-    return CircleAvatar(
-      backgroundColor: const Color(0x0f2F80ED),
-      radius: size,
-      child: Padding(
-        padding: const EdgeInsets.all(3.0),
-        child: Image.network(
-          dp,
-          fit: BoxFit.cover,
+Widget buildProfilePicture(String dp, String name, {double size = 20}) {
+  double width = size * 2.0;
+  return Container(
+    clipBehavior: Clip.hardEdge,
+    constraints: BoxConstraints(
+        minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
+    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
+    child: CachedNetworkImage(
+      imageUrl: dp,
+      fit: BoxFit.cover,
+      errorWidget: (_, __, ___) => Center(
+          child: Text(
+        name.substring(0, 1).toUpperCase(),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: size,
         ),
-      ),
-    );
-  } else if (size != 20) {
-    final assetIndex = dp;
-    return CircleAvatar(
-      backgroundColor: const Color(0x0f2F80ED),
-      radius: size,
-      child: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Image.asset(
-            "assets/images/dp/$assetIndex.png",
-            fit: BoxFit.cover,
-          )),
-    );
-  }else{
-    return SizedBox();
-  }
+      )),
+    ),
+  );
 }

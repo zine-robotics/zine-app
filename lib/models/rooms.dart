@@ -14,24 +14,23 @@ class Rooms {
     this.name,
     this.description,
     this.type,
-    this.dpUrl,
+    this.dpUrl = '',
     this.timestamp,
     this.lastMessageTimestamp,
     this.unreadMessages,
     this.userLastSeen,
   });
 
-  Rooms.fromJson(Map<String, dynamic> json) {
-    id = json['room']['id'];
-    name = json['room']['name'];
-    description = json['room']['description'];
-    type = json['room']['type'];
-    dpUrl = json['room']['dpUrl'];
-    timestamp = json['room']['timestamp'];
-    lastMessageTimestamp = json['lastMessageTimestamp'];
-    unreadMessages = json['unreadMessages'];
-    userLastSeen = json['userLastSeen'];
-  }
+  Rooms.fromJson(Map<String, dynamic> json)
+      : id = json['room']['id'],
+        name = json['room']['name'],
+        description = json['room']['description'],
+        type = json['room']['type'],
+        dpUrl = json['room']['dpUrl'] ?? '',
+        timestamp = json['room']['timestamp'],
+        lastMessageTimestamp = json['lastMessageTimestamp'],
+        unreadMessages = json['unreadMessages'],
+        userLastSeen = json['userLastSeen'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -64,4 +63,3 @@ class Rooms {
         unreadMessages = snapshot.data()['unreadMessages'],
         userLastSeen = snapshot.data()['userLastSeen'];
 }
-

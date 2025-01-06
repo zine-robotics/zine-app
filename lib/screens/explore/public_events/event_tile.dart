@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +61,7 @@ class _EventTileState extends State<EventTile> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(25), // Ensure the radius matches the card
 
-                gradient: isEventPast? LinearGradient(
+                gradient: isEventPast? const LinearGradient(
                   begin: Alignment.bottomRight,
                   end: Alignment.topLeft,
                   colors: [
@@ -104,14 +103,14 @@ class _EventTileState extends State<EventTile> {
                     width: 85,height: 85,
                     decoration: expanded ?BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      gradient: !isEventPast? LinearGradient(
+                      gradient: !isEventPast? const LinearGradient(
                         begin: Alignment.centerRight,
                         end: Alignment.centerLeft,
                         colors: [
                           Color(0xff268CCB), // Light blue
                           Color(0xff003D63), // Dark blue
                         ],
-                      ):LinearGradient(
+                      ):const LinearGradient(
                         begin: Alignment.centerRight,
                         end: Alignment.centerLeft,
                         colors: [
@@ -162,7 +161,7 @@ class _EventTileState extends State<EventTile> {
                       textAlign: TextAlign.center,
                       maxFontSize: 28,
                       minFontSize: 16,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: textDarkBlue),
                       // color: expanded ? Colors.white : textDarkBlue),
@@ -175,7 +174,7 @@ class _EventTileState extends State<EventTile> {
                     child: Text(
                       widget.event.venue!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 15,
                           // color: expanded ? Colors.white : blurBlue),
                           color: blurBlue),
@@ -196,7 +195,7 @@ class _EventTileState extends State<EventTile> {
                             child: Text(
                               "${utf8.decode((widget.event.description!).runes.toList())}",
                               overflow: TextOverflow.fade,
-                              style: TextStyle(fontFamily: 'Roboto'),
+                              style: const TextStyle(fontFamily: 'Roboto'),
                             ),
                           ),
                           const SizedBox(

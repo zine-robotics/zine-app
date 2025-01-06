@@ -1,11 +1,18 @@
+class Environment {
+  static const String stage = 'test'; // Change to 'prod'||'test' for production
+}
 class BackendProperties {
   static Uri baseUrl = Uri(
-      scheme: 'http',
-      host: 'ec2-18-116-38-241.us-east-2.compute.amazonaws.com');
+      scheme: 'https',
+      host: 'zine-backend.ip-ddns.com');// https://zinebackend-2b7b.onrender.com //'ec2-18-116-38-241.us-east-2.compute.amazonaws.com'
   // host: '172.20.10.4',
   // port: 8080,
   // );
-
+  static Map<String, String> getHeaders() {
+    return {
+      'stage': Environment.stage, // Add the stage header
+    };
+  }
   static Uri resetUri = baseUrl.replace(path: '/auth/forgot');
   static Uri loginUri = baseUrl.replace(path: '/auth/login');
   static Uri userInfoUri = baseUrl.replace(path: '/auth/me');
@@ -35,11 +42,12 @@ class BackendProperties {
       baseUrl.replace(path: '/instance/$instanceId/links');
 
   static Uri eventsUri = baseUrl.replace(path: '/event');
-  static Uri websocketUri = baseUrl.replace(path: '/ws');
+  static Uri websocketUri = baseUrl.replace(scheme: 'https',path: '/ws',port: 443);
   static Uri lastSeenUri(String emailId, String roomId) =>
       baseUrl.replace(path: '/user/$emailId/$roomId/last-seen');
 
-  static Uri activeMemberUri = baseUrl.replace(path: '/members/get');
+  static Uri activeMemberUri(String roomId) => baseUrl
+      .replace(path: '/members/get', queryParameters: {"roomId": roomId});
 
   static Uri updateLastSeenUri(String emailId, String roomId) {
     return baseUrl.replace(path: '/user/$emailId/$roomId/seen');

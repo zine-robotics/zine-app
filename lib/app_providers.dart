@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/repo/chat_repo.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/events/view_models/events_vm.dart';
@@ -30,12 +31,14 @@ class AppProviders extends StatelessWidget {
   final Language language;
   final DataStore store;
   final UserProv userProv;
+  final AppDb db;
 
   const AppProviders({
     required this.language,
     required this.store,
     required this.child,
     required this.userProv,
+    required this.db,
     super.key,
   });
 
@@ -43,7 +46,8 @@ class AppProviders extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<AuthRepo>(create: (_) => AuthRepo(store: store)),
+        Provider<AppDb>(create: (_)=>db),
+        Provider<AuthRepo>(create: (_) => AuthRepo(store: store,db:db)),
         Provider<ChatRepo>(create: (_) => ChatRepo()),
         Provider<TaskRepo>(create: (_) => TaskRepo(userProv: userProv)),
         Provider<TaskInstanceRepo>(
@@ -55,14 +59,14 @@ class AppProviders extends StatelessWidget {
             create: (_) => SplashVM(
                 store: store,
                 userProv: userProv,
-                authRepo: AuthRepo(store: store))),
+                authRepo: AuthRepo(store: store,db: db))),
         ChangeNotifierProvider(
             create: (_) => LoginAuthViewModel(
-                myRepo: AuthRepo(store: store), userProvider: userProv)),
+                myRepo: AuthRepo(store: store,db: db), userProvider: userProv)),
         ChangeNotifierProvider(
             create: (_) => RegisterAuthViewModel(
                 store: store,
-                myRepo: AuthRepo(store: store),
+                myRepo: AuthRepo(store: store,db: db),
                 userProvider: UserProv(dataStore: store))),
         ChangeNotifierProvider<DashboardVm>(
             create: (_) => DashboardVm(store: store, userProv: userProv)),
@@ -84,7 +88,7 @@ class AppProviders extends StatelessWidget {
         ChangeNotifierProvider<HomeVm>(create: (_) => HomeVm()),
         ChangeNotifierProvider<Language>(create: (_) => language),
         ChangeNotifierProvider<PasswordResetVm>(
-            create: (_) => PasswordResetVm(myRepo: AuthRepo(store: store))),
+            create: (_) => PasswordResetVm(myRepo: AuthRepo(store: store,db: db))),
         ChangeNotifierProvider<ChatRoomViewModel>(
             create: (_) => ChatRoomViewModel(userProv: userProv)),
         ChangeNotifierProvider<PublicEventsVM>(

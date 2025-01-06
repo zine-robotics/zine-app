@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:zineapp2023/components/gradient.dart';
 import 'package:zineapp2023/models/events.dart';
-import 'package:zineapp2023/theme/color.dart';
 import 'package:zineapp2023/utilities/date_time.dart';
 
 class EventCard extends StatefulWidget {
@@ -32,9 +30,9 @@ class _EventCardState extends State<EventCard> {
     // DateTime? tempDate = convertTimestamp(widget.tempEvent.startDateTime!);
 
     if (widget.selectedDate != null && !checked) {
-      print(getDDate(date!));
+      print(getDDate(date));
       print(getDDate(widget.selectedDate));
-      initExp = getDDate(date!) == getDDate(widget.selectedDate);
+      initExp = getDDate(date) == getDDate(widget.selectedDate);
       isExpanded = initExp;
     }
     //isExpanded=int.parse(compareDay.toString())==checkDay ? true :false;
@@ -74,7 +72,7 @@ class _EventCardState extends State<EventCard> {
                   ? Container(
                       width: 118,
                       height: 80,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Color.fromARGB(255, 12, 113, 176),
                         borderRadius:
                             BorderRadius.only(topLeft: Radius.circular(20.0)),
@@ -163,14 +161,14 @@ class _EventCardState extends State<EventCard> {
                                 convertTimestamp(tempEvent.startDateTime!))),
                             textAlign: TextAlign.left,
                             softWrap: true,
-                            style: TextStyle(fontSize: 50, color: Colors.white),
+                            style: const TextStyle(fontSize: 50, color: Colors.white),
                           ),
                           Text(
                             getDate(Timestamp.fromDate(
                                 convertTimestamp(tempEvent.startDateTime!))),
                             textAlign: TextAlign.left,
                             softWrap: true,
-                            style: TextStyle(fontSize: 30, color: Colors.white),
+                            style: const TextStyle(fontSize: 30, color: Colors.white),
                           ),
                           Text(
                               getTime(Timestamp.fromDate(
@@ -178,7 +176,7 @@ class _EventCardState extends State<EventCard> {
                               textAlign: TextAlign.left,
                               softWrap: true,
                               style:
-                                  TextStyle(fontSize: 20, color: Colors.white)),
+                                  const TextStyle(fontSize: 20, color: Colors.white)),
                         ],
                       ),
                     ),
@@ -191,13 +189,13 @@ class _EventCardState extends State<EventCard> {
                                 right: 3, left: 10, bottom: 10),
                             child: Text(
                               tempEvent.description.toString(),
-                              style: TextStyle(fontSize: 11),
+                              style: const TextStyle(fontSize: 11),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 150,
                     ),
                   ],
@@ -208,16 +206,16 @@ class _EventCardState extends State<EventCard> {
                   height: 210,
                   width: 120,
                   decoration: BoxDecoration(
-                    color: date!.compareTo(DateTime.now()) >= 0
-                        ? Color.fromARGB(255, 12, 113, 176)
+                    color: date.compareTo(DateTime.now()) >= 0
+                        ? const Color.fromARGB(255, 12, 113, 176)
                         : Colors.grey,
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(20.0),
                         bottomLeft: Radius.circular(20.0)),
                   ),
                   child: Column(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 30,
                       ),
                       Text(
@@ -225,31 +223,31 @@ class _EventCardState extends State<EventCard> {
                             convertTimestamp(tempEvent.startDateTime!))),
                         textAlign: TextAlign.left,
                         softWrap: true,
-                        style: TextStyle(fontSize: 50, color: Colors.white),
+                        style: const TextStyle(fontSize: 50, color: Colors.white),
                       ),
                       Text(
                         getDate(Timestamp.fromDate(
                             convertTimestamp(tempEvent.startDateTime!))),
                         textAlign: TextAlign.left,
                         softWrap: true,
-                        style: TextStyle(fontSize: 30, color: Colors.white),
+                        style: const TextStyle(fontSize: 30, color: Colors.white),
                       ),
                       Text(
                           getTime(Timestamp.fromDate(
                               convertTimestamp(tempEvent.startDateTime!))),
                           textAlign: TextAlign.left,
                           softWrap: true,
-                          style: TextStyle(fontSize: 20, color: Colors.white)),
+                          style: const TextStyle(fontSize: 20, color: Colors.white)),
                       Container(
                         width: 150,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             borderRadius: BorderRadius.only(
                                 bottomLeft: Radius.circular(100))),
                       ),
                     ],
                   ),
                 )
-              : Text("")
+              : const Text("")
         ],
       ),
     );
