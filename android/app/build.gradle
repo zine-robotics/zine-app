@@ -38,8 +38,10 @@ android {
     ndkVersion '25.1.8937393'
 
     compileOptions {
+        
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+         coreLibraryDesugaringEnabled true 
     }
 
     kotlinOptions {
@@ -59,7 +61,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        coreLibraryDesugaringEnabled true  
+        
     }
 
     signingConfigs {
