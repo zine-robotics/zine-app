@@ -8,7 +8,8 @@ class EventsRepo {
   Future<List<Events>> fetchEvents() async {
     try {
       Uri url = BackendProperties.eventsUri;
-      final response = await http.get(url,headers: BackendProperties.getHeaders());
+      final response =
+          await http.get(url, headers: BackendProperties.getHeaders());
       if (response.statusCode == 200) {
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         List<dynamic> eventJson = jsonResponse['events'];

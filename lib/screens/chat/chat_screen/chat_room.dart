@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/poll_card.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/reply_card.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
@@ -35,10 +37,13 @@ class _ChatRoomState extends State<ChatRoom> {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
       widget.roomDetail?.id != null
-          ? chatRoomView.staticMessagePipeline(db,widget.roomDetail!.id.toString())//chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
+          ? chatRoomView.staticMessagePipeline(
+              db,
+              widget.roomDetail!.id
+                  .toString()) //chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
           : "";
       widget.roomDetail?.id != null
-          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(),db)
+          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db)
           : "";
       chatRoomView.getTotalActiveMember(widget.roomDetail!.id.toString());
     });
@@ -52,12 +57,12 @@ class _ChatRoomState extends State<ChatRoom> {
         await chatRoomView.updateSeen(
           widget.email!.toString(),
           widget.roomDetail!.id.toString(),
-          DateTime.now().millisecondsSinceEpoch,
+          DateTime.now(),
           chatRoomView.messages[0].timestamp!,
           0,
         );
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("roomName", " ");
+        await prefs.setString("roomId", " ");
         chatRoomView.loadRooms();
       });
     }
@@ -65,21 +70,18 @@ class _ChatRoomState extends State<ChatRoom> {
 
   Future<void> _saveRoomNameToPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("roomName", widget.roomDetail!.name.toString());
+    await prefs.setString("roomId", widget.roomDetail!.id.toString());
     // print('Room name saved: ${widget.roomName}');
   }
 
-  final TextEditingController messageController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
-        // var listOfUsers = [];
-        var image = null;
-        // print("chatRoom:${widget.roomName}");
-        final roomId = widget.roomDetail!.id.toString();
         final roomName = widget.roomDetail!.name.toString();
+        final String roomImage = widget.roomDetail!.dpUrl!;
         UserModel currUser = userProv.getUserInfo;
         bool isAllowedTyping = true;
         List<ActiveMember> listOfUsers = chatVm.activeMembers;
@@ -88,15 +90,6 @@ class _ChatRoomState extends State<ChatRoom> {
         if (currUser.type == 'user' && roomName == 'Announcements') {
           isAllowedTyping = false;
         }
-        // print("room detila");
-        // print(roomDetails);
-        // if (roomDetails != null && roomDetails['members'] != null) {
-        //   listOfUsers = roomDetails['members'];
-        //   image = roomDetails['image'];
-        // }
-        // chatVm.replyfocus.addListener(chatVm.replyListner);
-
-        // var data = chatVm.getData(roomName);//earlier data from firebas
 
         chatVm.addRouteListener(
             context, roomName, userProv.getUserInfo.email.toString(), userProv);
@@ -121,7 +114,9 @@ class _ChatRoomState extends State<ChatRoom> {
                       .push(CupertinoPageRoute(builder: (BuildContext context) {
                     // return Text("chatDesctiption remove");
                     return ChatDescription(
-                        roomName: roomName, image: image, data: listOfUsers);
+                        roomName: roomName,
+                        image: roomImage,
+                        data: listOfUsers);
                   }));
                 },
                 child: Text(
@@ -165,90 +160,33 @@ class _ChatRoomState extends State<ChatRoom> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           chatVm.replyfocus.hasFocus && chatVm.replyTo != null
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(0, 1, 0, 2),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 3),
-                                        child: Text(
-                                          "Reply To ${chatVm.selectedReplyMessage.sentFrom!.name}",
-                                          textAlign: TextAlign.left,
-                                          style: const TextStyle(
-                                              color: greyText, fontSize: 11),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                        width: double.infinity,
-                                        decoration: const BoxDecoration(
-                                          color: backgroundGrey,
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(10.0),
-                                            topRight: Radius.circular(20.0),
-                                            bottomRight: Radius.circular(20.0),
-                                            bottomLeft: Radius.circular(10.0),
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10, 5, 10, 10),
-                                          child: Column(
-                                            children: [
-                                              Align(
-                                                alignment: Alignment.topRight,
-                                                // heightFactor: 1,
-                                                // widthFactor: 1,
-                                                child: Container(
-                                                  constraints:
-                                                      BoxConstraints.tight(
-                                                          const Size.square(
-                                                              20)),
-                                                  child: IconButton(
-                                                    padding: EdgeInsets.zero,
-                                                    iconSize: 20,
-                                                    onPressed:
-                                                        chatVm.userCancelReply,
-                                                    icon: const Icon(
-                                                        Icons.cancel_outlined),
-                                                  ),
-                                                ),
-                                              ),
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    border: Border.all(
-                                                        color: Colors.black38)),
-                                                padding: const EdgeInsets.only(
-                                                    left: 5, right: 5),
-                                                width: double.infinity,
-                                                child: Text(
-                                                  chatVm.selectedReplyMessage
-                                                      .content
-                                                      .toString(),
-
-                                                  // softWrap: true,
-                                                  textAlign: TextAlign.left,
-                                                  style: const TextStyle(
-                                                      fontSize: 13),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        )),
-                                    const SizedBox(
-                                      height: 5,
-                                    )
-                                  ],
+                              ? ReplyCard(
+                                  chatVm: chatVm,
                                 )
+                              : Container(),
+                          (chatVm.isPollBeingCreated)
+                              ? const PollCard()
+                              : Container(),
+                          (chatVm.isFileLoading)
+                              ? (chatVm.isFileReady)
+                                  ? Container(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(chatVm.fileName),
+                                          IconButton(
+                                              onPressed: () =>
+                                                  chatVm.cancelUpload(),
+                                              icon: const Icon(
+                                                  Icons.cancel_outlined))
+                                        ],
+                                      ),
+                                    )
+                                  : Container(
+                                      child: LinearProgressIndicator(),
+                                      color: Colors.green,
+                                    )
                               : Container(),
                           Align(
                             alignment: Alignment.bottomLeft,
@@ -277,7 +215,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                       focusNode: chatVm.replyfocus,
                                       maxLines: 3,
                                       minLines: 1,
-                                      controller: messageController,
+                                      controller: _messageController,
                                       onChanged: (value) =>
                                           chatVm.setText(value),
                                       decoration: const InputDecoration(
@@ -290,21 +228,57 @@ class _ChatRoomState extends State<ChatRoom> {
                                   const SizedBox(
                                     width: 15,
                                   ),
+                                  PopupMenuButton(
+                                    offset: const Offset(0, -30),
+                                    position: PopupMenuPosition.over,
+                                    popUpAnimationStyle: AnimationStyle(
+                                      curve: Curves.bounceIn,
+                                    ),
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem(
+                                        onTap: () {
+                                          chatVm.isPollBeingCreated = true;
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Icon(Icons.menu),
+                                            Text('Poll')
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        onTap: () {
+                                          chatVm.startFileSelect();
+                                        },
+                                        child: const Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Icon(Icons.menu),
+                                            Text('File')
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+
                                   IconButton(
                                     splashRadius: 30.0,
                                     visualDensity: const VisualDensity(
                                         horizontal: 4.0, vertical: 1.0),
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
-                                      chatVm.sendMessage(
-                                          messageController.text, roomName);
-                                      messageController.text = "";
-
-                                      // chatVm.send(
-                                      //     from: userProv.currUser.name,
-                                      //     roomId: roomName);
-                                      //
-                                      chatVm.replyTo = null;
+                                      if (chatVm.isFileReady) {
+                                        chatVm
+                                            .sendFile(_messageController.text);
+                                      } else {
+                                        chatVm.sendMessage(
+                                            _messageController.text, roomName);
+                                        _messageController.text = "";
+                                        chatVm.replyTo = null;
+                                      }
                                     },
                                     iconSize: 20.0,
                                     icon: const ImageIcon(

@@ -1,4 +1,3 @@
-
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart'; // Using SQLite as the database provider
 import 'dart:io';
@@ -24,8 +23,8 @@ class RoomsTable extends Table {
   IntColumn get userLastSeen => integer().nullable()();
   BoolColumn get isSynced => boolean().withDefault(Constant(false))();
   Set<Column> get primaryKey => {id};
-
 }
+
 @DataClassName('UserDB')
 class UsersTable extends Table {
   IntColumn get id => integer()();
@@ -43,8 +42,11 @@ class UsersTable extends Table {
 class MessagesTable extends Table {
   IntColumn get id => integer()();
   TextColumn get type => text().nullable()();
-  TextColumn get content => text().nullable()();
-  TextColumn get contentUrl => text().nullable()();
+  TextColumn get textData => text().nullable()();
+  IntColumn get fileId =>
+      integer().nullable().customConstraint('REFERENCES file_table(id)')();
+  IntColumn get pollId =>
+      integer().nullable().customConstraint('REFERENCES poll_table(id)')();
   IntColumn get timestamp => integer().nullable()();
   BoolColumn get isSynced => boolean().withDefault(Constant(false))();
   IntColumn get roomId =>
@@ -53,10 +55,48 @@ class MessagesTable extends Table {
       integer().nullable().customConstraint('REFERENCES users_table(id)')();
   IntColumn get replyToId =>
       integer().nullable().customConstraint('REFERENCES messages_table(id)')();
+
+  @override
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [RoomsTable,MessagesTable,UsersTable])
+@DataClassName('PollDB')
+class PollTable extends Table {
+  IntColumn get id => integer().nullable()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get optionsId => integer()
+      .nullable()
+      .customConstraint('REFERENCES poll_option_table(id)')();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DataClassName('PollOptionDB')
+class PollOptionTable extends Table {
+  IntColumn get id => integer().nullable()();
+  IntColumn get optionId => integer()();
+  TextColumn get option => text()();
+  IntColumn get value => integer()();
+}
+
+@DataClassName('FileDB')
+class FileTable extends Table {
+  IntColumn get id => integer().nullable()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get name => text()();
+}
+
+@DriftDatabase(tables: [
+  RoomsTable,
+  MessagesTable,
+  UsersTable,
+  FileTable,
+  PollTable,
+  PollOptionTable
+])
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
@@ -70,13 +110,13 @@ class AppDb extends _$AppDb {
       // print("Database folder path: ${dbFolder.path}");
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
-        // await file.delete();
-        print("Old database present.");
+        await file.delete();
+        print("Old database Deleted.");
       }
       return NativeDatabase(file);
     });
+  }
 
-}
   Future<void> initializeIsSyncedColumn() async {
     try {
       await customStatement('UPDATE rooms_table SET isSynced = FALSE');
@@ -86,30 +126,31 @@ class AppDb extends _$AppDb {
     }
   }
 
-
 // Insert function for adding a room
   Future<int> insertRoomToDB(RoomsTableCompanion room) async {
     try {
-      final existingRoom = await (select(roomsTable)..where((t) => t.id.equals(room.id.value))).getSingleOrNull();
+      final existingRoom = await (select(roomsTable)
+            ..where((t) => t.id.equals(room.id.value)))
+          .getSingleOrNull();
       int insertedId;
       if (existingRoom != null) {
         // Room exists, it's being updated
-        insertedId = await into(roomsTable).insert(room, mode: InsertMode.replace);  // Replace existing room data
+        insertedId = await into(roomsTable).insert(room,
+            mode: InsertMode.replace); // Replace existing room data
         // print('Room updated successfully with ID: $insertedId');
       } else {
         // Room doesn't exist, it's being inserted
-        insertedId=-1;
-        await into(roomsTable).insert(room, mode: InsertMode.insert);  // Insert new room
+        insertedId = -1;
+        await into(roomsTable)
+            .insert(room, mode: InsertMode.insert); // Insert new room
         // print('Room inserted successfully with ID: ${room.id}');
       }
       return insertedId;
     } catch (e) {
       print('Error inserting room: $e');
-      return -1;  // Return failure code if insertion fails
+      return -1; // Return failure code if insertion fails
     }
   }
-
-
 
   // Function to get all rooms from the database
   Future<List<Room>> getAllRoomsDB() async {
@@ -120,12 +161,13 @@ class AppDb extends _$AppDb {
       } else {
         // print('No rooms found in the database');
       }
-      return rooms;  // Returning the list of rooms
+      return rooms; // Returning the list of rooms
     } catch (e) {
       // print('Error fetching rooms: $e');
-      return [];  // Return an empty list in case of error
+      return []; // Return an empty list in case of error
     }
   }
+
   Future<List<Room>> getAllProjectsDB() async {
     try {
       final rooms = await select(roomsTable).get();
@@ -138,17 +180,19 @@ class AppDb extends _$AppDb {
         // print('No projects found in the database');
       }
 
-      return projects;  // Returning the filtered list of projects
+      return projects; // Returning the filtered list of projects
     } catch (e) {
       // print('Error fetching projects: $e');
-      return [];  // Return an empty list in case of error
+      return []; // Return an empty list in case of error
     }
   }
+
   Future<List<Room>> getAllAnnouncementsDB() async {
     try {
       final rooms = await select(roomsTable).get();
       // Filter rooms based on the type being 'announcement'
-      final announcements = rooms.where((room) => room.type == 'announcement').toList();
+      final announcements =
+          rooms.where((room) => room.type == 'announcement').toList();
 
       if (announcements.isNotEmpty) {
         // print('Successfully fetched ${announcements.length} announcements');
@@ -162,9 +206,12 @@ class AppDb extends _$AppDb {
       return [];
     }
   }
+
   Future<int> deleteUnsyncedRooms() async {
     try {
-      final unsyncedRooms = await (select(roomsTable)..where((t) => t.isSynced.equals(false))).get();
+      final unsyncedRooms = await (select(roomsTable)
+            ..where((t) => t.isSynced.equals(false)))
+          .get();
       if (unsyncedRooms.isNotEmpty) {
         for (var room in unsyncedRooms) {
           // print("Deleting unsynced room with ID: ${room.id}");
@@ -188,13 +235,16 @@ class AppDb extends _$AppDb {
       name: Value(userData.name!),
       email: Value(userData.email),
       type: Value(userData.type),
-      dp: Value(userData.dp !=null ?userData.dp!: ''),
-      registered: Value(userData.registered !=null ?userData.registered!:false ),
+      dp: Value(userData.dp != null ? userData.dp! : ''),
+      registered:
+          Value(userData.registered != null ? userData.registered! : false),
       emailVerified: Value(userData.registered), // Adjust based on your data
-      pushToken: Value(userData.pushToken !=null ? userData.pushToken! : null), // Example
+      pushToken: Value(
+          userData.pushToken != null ? userData.pushToken! : null), // Example
     );
     try {
-      final insertedId = await into(usersTable).insert(userCompanion, mode: InsertMode.replace);
+      final insertedId = await into(usersTable)
+          .insert(userCompanion, mode: InsertMode.replace);
       // print('User upserted successfully with ID: ${userCompanion.id.value}');
       return insertedId;
     } catch (e) {
@@ -203,9 +253,5 @@ class AppDb extends _$AppDb {
     }
   }
 
-
-
-
-
-
+  //=========================POLLS============================================
 }
