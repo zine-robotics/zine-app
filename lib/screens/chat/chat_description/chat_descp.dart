@@ -1,17 +1,19 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/chat_view.dart';
 import 'package:zineapp2023/theme/color.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/chat_room.dart';
 
+import '../../../models/newUser.dart';
 import '../chat_screen/view_model/chat_room_view_model.dart';
 
 class ChatDescription extends StatelessWidget {
-  ChatDescription({
+  const ChatDescription({
     required this.roomName,
     required this.data,
     required this.image,
@@ -19,9 +21,8 @@ class ChatDescription extends StatelessWidget {
   });
 
   final String roomName;
-  final dynamic image;
-  List<ActiveMember> data;
-
+  final String image;
+  final List<RoomMemberModel>? data;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,7 @@ class ChatDescription extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                      color: Colors.white,
+                      color: Colors.transparent,
                       padding: const EdgeInsets.all(10.0),
                       child:  File(image).existsSync() ?chatVm.showProfileImage(image,height: 100.0,width: 100.0)
                       // Image.file(
@@ -77,58 +78,58 @@ class ChatDescription extends StatelessWidget {
                         width: 50,
                         fit: BoxFit.cover,
                         // color: textColor.withOpacity(0.9),
-                      )),
-                ),
+                          )),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  0,
-                  20.0,
-                  0,
-                  0,
-                ),
-                child: Text(
-                  roomName,
-                  style: const TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 23),
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                0,
+                20.0,
+                0,
+                0,
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0.0, 10, 0, 10),
-                child: Text(
-                  "${data.length} Active Members",
-                  style: const TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
-                ),
+              child: Text(
+                roomName,
+                style: const TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23),
               ),
-              Expanded(
-                child: ListView.builder(
-                  // physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 0),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Container(
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0.0, 10, 0, 10),
+              child: Text(
+                "${data?.length} Active Members",
+                style: const TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                // physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: data !=null ?data?.length:0,
+                itemBuilder: (context, index) {
+                  return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 0,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
                                       color: Colors.transparent,
                                       padding: const EdgeInsets.all(5.0),
-                                      child:File(data[index].dpUrl.toString()).existsSync() ? chatVm.showProfileImage(data[index].dpUrl.toString()):chatVm.customUserName(data[index].name.toString())
+                                      child:File(data![index].dpUrl.toString()).existsSync() ? chatVm.showProfileImage(data![index].dpUrl.toString()):chatVm.customUserName(data![index].name.toString())
 
                                     // buildProfilePicture(
                                     //     data[index].dpUrl, data[index].name,
@@ -144,7 +145,7 @@ class ChatDescription extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    data[index].name.toString(),
+                                    data![index].name.toString(),
                                     style: TextStyle(
                                         fontSize: MediaQuery
                                             .of(context)
@@ -157,7 +158,7 @@ class ChatDescription extends StatelessWidget {
                                     height: 4,
                                   ),
                                   Text(
-                                    data[index].email.toString(),
+                                    data![index].email.toString(),
                                     style: TextStyle(
                                         fontSize: MediaQuery
                                             .of(context)
@@ -167,6 +168,10 @@ class ChatDescription extends StatelessWidget {
                                   )
                                 ],
                               ),
+                              SizedBox(width: 10,),
+                              const Spacer(),
+                              Icon(Icons.circle_rounded,color: Colors.green,size: 15,),
+                              Text("Online",style: TextStyle(fontWeight: FontWeight.w500),),
                               const Spacer(),
                               // Padding(
                               //   padding:
@@ -194,6 +199,19 @@ class ChatDescription extends StatelessWidget {
         ),
       );
     }
+    );
+  }
+}
+
+class FallbackIconImage extends StatelessWidget {
+  const FallbackIconImage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      "assets/images/zine_logo.png",
+      fit: BoxFit.cover,
+      color: textColor.withOpacity(0.9),
     );
   }
 }

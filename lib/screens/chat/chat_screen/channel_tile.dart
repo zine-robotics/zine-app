@@ -22,6 +22,7 @@ class Channel extends StatelessWidget {
     return Consumer2<ChatRoomViewModel, UserProv>(
         builder: (context, chatVm, userProv, _) {
       UserModel currUser = userProv.getUserInfo;
+      print("check, inside channel_tile,image of roomdetails:${roomDetail.dpUrl} and room is :${roomDetail.name}");
       return Padding(
         padding: const EdgeInsets.all(5.0),
         child: GestureDetector(

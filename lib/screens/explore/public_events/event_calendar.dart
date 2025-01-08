@@ -35,7 +35,7 @@ class EventCalendar extends StatelessWidget {
           return false;
         } else {
           return isSameDay(
-              DateTime.fromMillisecondsSinceEpoch(
+              (
                   evm.selectedEvent.startDateTime!),
               day);
         }

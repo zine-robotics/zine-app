@@ -80,6 +80,7 @@ class LoginAuthViewModel with ChangeNotifier {
           password: data['password'],
           pushToken: pushToken);
       print(value);
+      print("pushTOken:${pushToken}");
       userProvider.updateUserInfo(value!);
 
       setLoading(false);

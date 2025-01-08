@@ -26,7 +26,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
 
-  // print("Handling a background message: ${message.notification.}");
+  print("Handling a background message: ${message.messageId}");
 }
 
 Future<void> main() async {
@@ -38,6 +38,7 @@ Future<void> main() async {
       id: 'chats',
       importance: NotificationImportance.IMPORTANCE_HIGH,
       name: 'Chats');
+
   await initializeNotifications();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   AppDb db=AppDb();

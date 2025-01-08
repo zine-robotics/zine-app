@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:win32/win32.dart';
 import 'package:zineapp2023/backend_properties.dart';
+import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:http/http.dart' as http;
+import 'package:zineapp2023/models/newUser.dart';
 
 import '../../../../models/events.dart';
 import '../../../../models/rooms.dart';
@@ -19,20 +22,39 @@ class ChatRepo {
       Uri url = BackendProperties.roomMessageUri(tempRoomId);
       //     "http://172.20.10.4:8080/messages/roomMsg?roomId=$TemproomId";
 
-      final response = await http.get(url,headers: BackendProperties.getHeaders());
+      final response =
+          await http.get(url, headers: BackendProperties.getHeaders());
       // print("checking :${jsonDecode(response.body)}");
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = jsonDecode(response.body);
         List<MessageModel> messages =
             jsonResponse.map((json) => MessageModel.fromJson(json)).toList();
         // print("inside the chat_repo and message:${messages.toList()}");
+        // for (var message in messages) {
+        //   print("------------Message Details:---------------");
+        //   print("ID: ${message.id}");
+        //   print("Text: ${message.text}");
+        //   print("Type: ${message.type}");
+        //   print("Timestamp: ${message.timestamp}");
+        //   print("Sent From: ${message.sentFrom?.id ?? 'Unknown'}");
+        //   print("Poll: ${message.poll?.pollOptions?? 'No Poll'}");
+        //   print("File: ${message.file?.uri ?? 'No File'}");
+        //   print("Reply To: ${message.replyTo ?? 'No Reply'}");
+        //   print("----------------------------");
+        // }
         return messages;
       } else {
         // print("Failed to load messages: ${response.statusCode}");
         return [];
       }
     } catch (e) {
-      print("An error occurred!!: $e");
+      if (kDebugMode) {
+        print(
+            '==============================ERROR in getChatMessages =============');
+        print(e);
+        print(
+            '====================================================================');
+      }
       return [];
     }
   }
@@ -43,11 +65,13 @@ class ChatRepo {
     Uri url = BackendProperties.roomDataUri(email);
     // 'http://172.20.10.4:8080/rooms/user'
     //     '?email=$email';
-    final response = await http.get(url,headers: BackendProperties.getHeaders());
+    final response =
+        await http.get(url, headers: BackendProperties.getHeaders());
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
-      List<Rooms> roomData=jsonResponse.map((json) => Rooms.fromJson(json)).toList();
+      List<Rooms> roomData =
+          jsonResponse.map((json) => Rooms.fromJson(json)).toList();
       // roomData.forEach((room) {
       //   print("Room ID: ${room.id}");
       //   print("Room Name: ${room.name}");
@@ -73,7 +97,8 @@ class ChatRepo {
     List<Rooms> announcements = [];
     try {
       Uri url = BackendProperties.announcementUri(emailId);
-      final response = await http.get(url,headers: BackendProperties.getHeaders());
+      final response =
+          await http.get(url, headers: BackendProperties.getHeaders());
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -97,7 +122,8 @@ class ChatRepo {
 
     try {
       Uri url = BackendProperties.lastSeenUri(emailId, roomId);
-      final response = await http.get(url,headers: BackendProperties.getHeaders());
+      final response =
+          await http.get(url, headers: BackendProperties.getHeaders());
 
       print("response status code: ${response.statusCode}");
       if (response.statusCode == 200) {
@@ -120,15 +146,16 @@ class ChatRepo {
   }
 
 //-------------------------------total activememeber subscribe to same room---------------------//
-  Future<List<ActiveMember>> fetchTotalActiveMember(String roomId) async {
+  Future<List<RoomMemberModel>> fetchTotalActiveMember(String roomId) async {
     try {
       Uri url = BackendProperties.activeMemberUri(roomId);
-      final response = await http.get(url,headers: BackendProperties.getHeaders());
+      final response =
+          await http.get(url, headers: BackendProperties.getHeaders());
 
       if (response.statusCode == 200) {
         List<dynamic> users = jsonDecode(response.body);
-        List<ActiveMember> members =
-            users.map((json) => ActiveMember.fromJson(json)).toList();
+        List<RoomMemberModel> members =
+            users.map((json) => RoomMemberModel.fromJson(json)).toList();
         return members;
       } else {
         print("Failed to load users, status code: ${response.statusCode}");
@@ -139,4 +166,5 @@ class ChatRepo {
       return [];
     }
   }
+
 }
