@@ -37,7 +37,7 @@ android {
     namespace "co.zine.zineapp2023"
     compileSdkVersion 34
     ndkVersion '25.1.8937393'
-    namespace 'co.zine.zineapp2023'
+  
     compileOptions {
         
         sourceCompatibility JavaVersion.VERSION_17
@@ -46,7 +46,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_17
     }
 
     sourceSets {
