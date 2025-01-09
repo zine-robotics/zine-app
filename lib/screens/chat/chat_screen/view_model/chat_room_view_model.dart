@@ -116,14 +116,12 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
   void subscribeToActiveMember(String currRoomID,AppDb db)
   {
-    print("\n \ninside the subscribeToActiveMemeberRoom & roomId:$roomId");
-    List<NewUserModel> ActiveMemberData;
     final subscription=_client.subscribe(
         destination: "/room/$currRoomID/active-users",
         // headers: BackendProperties.getHeaders(),
         callback: (StompFrame frame) async{
         try{
-          print("inside the activemember try block");
+          _activeMembers=[];
           final List<dynamic> activeMemberData = json.decode(frame.body!);
           final List<String> activeMemberList = activeMemberData.map((item) => item.toString()).toList();
           print("\n newly created websocket acive user data:${activeMemberData}");
@@ -139,7 +137,6 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   void subscribeToRoom(String roomId,AppDb db) {
-    print("\n\n inside the subscribeToRoom & roomid:$roomId");
     if (!_client.connected) {
       print("client is not connected");
       return;
@@ -386,42 +383,6 @@ class ChatRoomViewModel extends ChangeNotifier {
 //------------------------------------------------------INFO about Active member-----------------------------//
   List<RoomMemberModel>? _activeMembers = [];
   List<RoomMemberModel>? get activeMembers => _activeMembers;
-  // dynamic getTotalActiveMember(AppDb db,String roomId) async {
-  //   // print("inside the totalactivemember");
-  //   // _activeMembers = await chatP.fetchTotalActiveMember(roomId);
-  //   // notifyListeners();
-  //   try{
-  //     final query = db.select(db.usersTable,distinct: true,).join([
-  //       innerJoin(
-  //         db.messagesTable,
-  //         db.messagesTable.sentFromId.equalsExp(db.usersTable.id),
-  //       ),
-  //     ])
-  //       ..where(db.messagesTable.roomId.equals(int.parse(roomId)))
-  //       ..groupBy([db.usersTable.id]);
-  //
-  //     // Mapping the result to a list of UserDB objects
-  //     final results = await query.get();
-  //
-  //     List<ActiveMember> activeUserDetails = results.map((row) {
-  //       final userRow = row.readTable(db.usersTable); // Read the user table data
-  //
-  //       return ActiveMember(
-  //         name: userRow.name,
-  //         email: userRow.email,
-  //         role: userRow.type,
-  //         dpUrl: userRow.dp,
-  //       );
-  //     }).toList();
-  //     _activeMembers=activeUserDetails;
-  //
-  //
-  //   }
-  //   catch (e)
-  //   {
-  //     print("ERROR:getTotalActiveMember:${e}");
-  //   }
-  // }
 
   //------------------------------------------------------------chat text value-------------------------------------------//
   String _text = "";
@@ -476,11 +437,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
     final query = db.select(db.roomMemberTable)
       ..where((tbl) => tbl.email.isIn(allEmail));
-
-
     final roomMemberRows = await query.get();
-    print("inside teh fetchRoomMember length:${roomMemberRows.length}");
-
     final roomMembers = roomMemberRows.map((row) {
       return RoomMemberModel(
         name: row.name,
@@ -507,7 +464,6 @@ class ChatRoomViewModel extends ChangeNotifier {
       List<String>? allRoomIds = allRooms?.map((option) => option.id.toString()).cast<String>().toList();
       saveRoomMemberToLocalDb(db, allRoomIds);
       if (allRooms!.isEmpty) {
-        // print('No rooms to save. The list is empty.');
         return []; // Exit the function if no rooms to save
       }
       for (Rooms room in allRooms!) {
@@ -523,14 +479,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             userLastSeen: drift.Value(room.userLastSeen),
             isSynced: drift.Value(true));
         _apiRoomData?.add(roomCompanion);
-        // for inserting RoomData and checking new data.
-        final insertedId = await db.insertRoomToDB(roomCompanion);
-        if (insertedId == -1) {
-          // print('RoomProject Data inserted successfully with ID: $insertedId');
-          // _isNewRoomData=true;
-        } else {
-          // print('RoomProject Data updated: ${room.name}');
-        }
+        await db.insertRoomToDB(roomCompanion);
       }
       return allRooms;
     } catch (e) {
@@ -558,18 +507,6 @@ class ChatRoomViewModel extends ChangeNotifier {
           userLastSeen: room.userLastSeen,
         );
       }).toList();
-      // temp.forEach((room) {
-      //   print("Room ID: ${room.id}");
-      //   print("Room Name: ${room.name}");
-      //   print("Room Description: ${room.description}");
-      //   print("Room Type: ${room.type}");
-      //   print("Room DP URL: ${room.dpUrl}");
-      //   print("Timestamp: ${room.timestamp}");
-      //   print("Last Message Timestamp: ${room.lastMessageTimestamp}");
-      //   print("Unread Messages: ${room.unreadMessages}");
-      //   print("User Last Seen: ${room.userLastSeen}");
-      //   print("=================================^^====");
-      // });
 
       return userProjectData;
     } catch (e) {
@@ -586,8 +523,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       List<Rooms>? allRooms =
           email != null ? await chatP.fetchAnnouncement(email!) : [];
       if (allRooms!.isEmpty) {
-        // print('No Announcement to save. The list is empty.');
-        return []; // Exit the function if no rooms to save
+        return [];
       }
       for (Rooms room in allRooms!) {
         final roomCompanion = RoomsTableCompanion(
@@ -602,15 +538,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             userLastSeen: drift.Value(room.userLastSeen),
             isSynced: drift.Value(true));
         _apiAnnouncementData?.add(roomCompanion);
-        // inserting annoucement data and check of any updates
-        final insertedId = await db.insertRoomToDB(roomCompanion);
-        if (insertedId == -1) {
-          // print('Announcement Data inserted successfully with ID: $insertedId');
-          // _isNewRoomData=true;
-        } else {
-          // print('updated Announcement Data: ${room.name}');
-          // print("_isNewRoomData:$_isNewRoomData");
-        }
+        await db.insertRoomToDB(roomCompanion);
       }
       return allRooms;
     } catch (e) {
@@ -642,19 +570,6 @@ class ChatRoomViewModel extends ChangeNotifier {
         );
       }).toList();
 
-      // Print the mapped Rooms objects for debugging
-      // temp.forEach((room) {
-      //   print("Room ID: ${room.id}");
-      //   print("Room Name: ${room.name}");
-      //   print("Room Description: ${room.description}");
-      //   print("Room Type: ${room.type}");
-      //   print("Room DP URL: ${room.dpUrl}");
-      //   print("Timestamp: ${room.timestamp}");
-      //   print("Last Message Timestamp: ${room.lastMessageTimestamp}");
-      //   print("Unread Messages: ${room.unreadMessages}");
-      //   print("User Last Seen: ${room.userLastSeen}");
-      //   print("=================================^^====");
-      // });
       _isRoomLoaded = true; //this will help chatScreen for data available or not
       return announcementData;
     } catch (e) {
@@ -685,7 +600,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
       List<Rooms>? newAnnouncements= await saveAnnouncementToLocalDb(db);
       List<Rooms>? newProjects=await  saveRoomsToLocalDb(db);
-      // compareAndUpdate(newProjects, newAnnouncements,db);
+      compareAndUpdate(newProjects, newAnnouncements,db);
     }catch(e)
     {
 
@@ -710,32 +625,12 @@ class ChatRoomViewModel extends ChangeNotifier {
     {
       print("ERROR compareAndUpdate:${e}");
     }
-      // print("Value of temp: $temp");
-    //   if (temp == -1) {
-    //     _isNewRoomData = true;
-    //   }
-    //   if (_isNewRoomData) {
-    //     // _userProjects = newProjects;
-    //     // _announcement = newAnnouncements;
-    //     await fetchAllRoomDataFromApi(db);
-    //
-    //     // print("Rooms Data has changed");
-    //   } else {
-    //     // print("Rooms Data has not changed");
-    //   }
-    // } catch (e) {
-    //   print("Error in compareAndUpdate: $e");
-    // }
-    // finally
-    //     {
-    //       // notifyListeners();
-    //     }
 
   }
   // ---------------------------------------------------messageDataSavingAndFetching--------------------------------------------------//
   //savingAllStaticMessageFromAPi
   Future<void> workerToSaveMessage(MessageModel message, db, String messageRoomId) async {
-    print("Inside workerToSaveMessage");
+    // print("Inside workerToSaveMessage");
 
     // Use a transaction and batch to ensure atomicity and improve performance
     try {
@@ -760,14 +655,10 @@ class ChatRoomViewModel extends ChangeNotifier {
               value: drift.Value(option.value),
               numVotes: drift.Value(option.numVotes),
             );
-
-            // Insert each poll option
-            await db.into(db.pollOptionTable).insert(pollOptionCompanion);
-            print("Success: PollOptionCompanion saved!!");
+            await db.into(db.pollOptionTable).insertOnConflictUpdate(pollOptionCompanion);
+            // print("Success: PollOptionCompanion saved!!");
           }
         }
-
-        // Insert message data
         final messageCompanion = MessagesTableCompanion(
           id: message.id != null ? drift.Value(message.id!) : drift.Value.absent(),
           type: drift.Value(message.type.toString().split('.').last),
@@ -792,7 +683,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
         // Insert or update message data
         await db.into(db.messagesTable).insertOnConflictUpdate(messageCompanion);
-        print("Success: MessageCompanion saved!");
+        // print("Success: MessageCompanion saved!");
       });
     } catch (e) {
       print("Error saving poll/message data: $e");
@@ -1000,7 +891,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   //----------------------------------------------------save the image url as image path-----------------------------------------------//
   Future<String> saveImageToLocalStorage(String imageUrl, String userId, String fileName) async {
     if (imageUrl.isEmpty || !Uri.parse(imageUrl).isAbsolute) {
-       print('Invalid URL: $imageUrl');
+       // print('Invalid URL: $imageUrl');
        return "";
     }
     try {
