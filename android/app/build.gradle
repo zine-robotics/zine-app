@@ -37,7 +37,7 @@ android {
     
     compileSdkVersion 34
     ndkVersion '25.1.8937393'
-    namespace 'co.zine.zineapp2023'
+  
     compileOptions {
         
         sourceCompatibility JavaVersion.VERSION_17
