@@ -19,16 +19,17 @@ import '../../../theme/color.dart';
 import '../../../utilities/date_time.dart';
 
 Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
-    dashVm, dynamic reply) {
+    dashVm, dynamic reply, ScrollController controller) {
   ChatRoomViewModel chatRoomViewModel =
       Provider.of<ChatRoomViewModel>(context, listen: true);
-
+  int length = chatRoomViewModel.length;
   UserProv userVm = Provider.of<UserProv>(context, listen: true);
 
   return StreamBuilder<List<MessageModel>>(
     stream: messageStream,
     builder: (context, snapshot) {
       print("chat reply to :${chatRoomViewModel.replyTo}");
+      print("LEngth $length");
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Expanded(
           child: Center(
@@ -84,6 +85,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
               }
             },
             child: ListView.builder(
+              controller: controller,
               padding: const EdgeInsets.all(8.0),
               reverse: true,
               // physics: NeverScrollableScrollPhysics(),
@@ -362,38 +364,55 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                     contentPadding: EdgeInsets.zero,
                                     dense: true,
                                     leading: isUser || group
-                                      ? CircleAvatar(
-                                          backgroundColor: const Color.fromARGB(
-                                              15, 255, 255, 255),
-                                          radius: 25,
-                                          child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(20.0),
-                                              child: Container()),
-                                        )
-                                      :File(chats[currIndx].sentFrom!.dp.toString()).existsSync() ? chatRoomViewModel.showProfileImage(chats[currIndx].sentFrom!.dp.toString(),radius: 50.0):chatRoomViewModel.customUserName(chats[currIndx].sentFrom!.name.toString()),//
-                                  // buildProfilePicture(chatRoomViewModel,
-                                  //         chats[currIndx].sentFrom!.dp,
-                                  //         chats[currIndx].sentFrom!.name),
+                                        ? CircleAvatar(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    15, 255, 255, 255),
+                                            radius: 25,
+                                            child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20.0),
+                                                child: Container()),
+                                          )
+                                        : File(chats[currIndx]
+                                                    .sentFrom!
+                                                    .dp
+                                                    .toString())
+                                                .existsSync()
+                                            ? chatRoomViewModel
+                                                .showProfileImage(
+                                                    chats[currIndx]
+                                                        .sentFrom!
+                                                        .dp
+                                                        .toString(),
+                                                    radius: 50.0)
+                                            : chatRoomViewModel.customUserName(
+                                                chats[currIndx]
+                                                    .sentFrom!
+                                                    .name
+                                                    .toString()), //
+                                    // buildProfilePicture(chatRoomViewModel,
+                                    //         chats[currIndx].sentFrom!.dp,
+                                    //         chats[currIndx].sentFrom!.name),
 
-                                  // * Because Priyansh Said So :) *
+                                    // * Because Priyansh Said So :) *
 
-                                  // trailing: currUser.name !=
-                                  //         chats[currIndx].from
-                                  //     ? null
-                                  //     : group
-                                  //         ? const CircleAvatar(
-                                  //             backgroundColor: Colors.transparent,
-                                  //           )
-                                  //         : CircleAvatar(
-                                  //             backgroundColor:
-                                  //                 const Color(0x0f2F80ED),
-                                  //             child: Padding(
-                                  //               padding: const EdgeInsets.all(3.0),
-                                  //               child: Image.asset(
-                                  //                   "assets/images/zine_logo.png"),
-                                  //             ),
-                                  //           ),
+                                    // trailing: currUser.name !=
+                                    //         chats[currIndx].from
+                                    //     ? null
+                                    //     : group
+                                    //         ? const CircleAvatar(
+                                    //             backgroundColor: Colors.transparent,
+                                    //           )
+                                    //         : CircleAvatar(
+                                    //             backgroundColor:
+                                    //                 const Color(0x0f2F80ED),
+                                    //             child: Padding(
+                                    //               padding: const EdgeInsets.all(3.0),
+                                    //               child: Image.asset(
+                                    //                   "assets/images/zine_logo.png"),
+                                    //             ),
+                                    //           ),
 
                                     subtitle: group
                                         ? null
@@ -499,8 +518,15 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                             ]);
                 } else if (chats[currIndx].type == MessageType.poll &&
                     chats[currIndx].poll != null) {
-                  return PollTile(
-                    message: chats[currIndx],
+                  print("TEst");
+                  return PollTile(leading: chatRoomViewModel.showProfileImage(
+                                                    chats[currIndx]
+                                                        .sentFrom!
+                                                        .dp
+                                                        .toString(),
+                                                    radius: 50.0),
+                    chatVm: chatRoomViewModel,
+                    messageIndex: currIndx,
                     isUser: isUser,
                     onVote: (optionId) => chatRoomViewModel.sendPollResponse(
                         chats[currIndx].id!, optionId),
@@ -508,7 +534,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                 } else if (chats[currIndx].type == MessageType.file &&
                     chats[currIndx].file != null) {
                   return FileTile(
-                    message: chats[currIndx],isUser: isUser,
+                    message: chats[currIndx],
+                    isUser: isUser,
                   );
                 }
               },
@@ -527,25 +554,29 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
   );
 }
 
-Widget buildProfilePicture(ChatRoomViewModel chatVm, String dp, String name, {double size = 20}) {
+Widget buildProfilePicture(ChatRoomViewModel chatVm, String dp, String name,
+    {double size = 20}) {
   double width = size * 2.0;
   return Container(
-    clipBehavior: Clip.hardEdge,
-    constraints: BoxConstraints(
-        minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
-    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
-    child:File(dp.toString()).existsSync() ? chatVm.showProfileImage(dp):chatVm.customUserName(name)
-    // CachedNetworkImage(
-    //   imageUrl: dp,
-    //   fit: BoxFit.cover,
-    //   errorWidget: (_, __, ___) => Center(
-    //       child: Text(
-    //     name.substring(0, 1).toUpperCase(),
-    //     style: TextStyle(
-    //       fontWeight: FontWeight.bold,
-    //       fontSize: size,
-    //     ),
-    //   )),
-    // ),
-  );
+      clipBehavior: Clip.hardEdge,
+      constraints: BoxConstraints(
+          minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
+      decoration:
+          const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
+      child: File(dp.toString()).existsSync()
+          ? chatVm.showProfileImage(dp)
+          : chatVm.customUserName(name)
+      // CachedNetworkImage(
+      //   imageUrl: dp,
+      //   fit: BoxFit.cover,
+      //   errorWidget: (_, __, ___) => Center(
+      //       child: Text(
+      //     name.substring(0, 1).toUpperCase(),
+      //     style: TextStyle(
+      //       fontWeight: FontWeight.bold,
+      //       fontSize: size,
+      //     ),
+      //   )),
+      // ),
+      );
 }

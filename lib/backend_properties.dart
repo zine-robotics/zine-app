@@ -1,21 +1,25 @@
 class Environment {
-  static const String stage = 'prod'; // Change to 'prod'||'test' for production
+  static const String stage = 'test'; // Change to 'prod'||'test' for production
 }
 
 class BackendProperties {
   static Uri baseUrl = Uri(
-    scheme: 'http',
-    //  host: 'zine-backend.ip-ddns.com'
-    host: '20.40.49.214',
-    // host: '172.22.0.1',
-    // port: 8080,
-    // );
-    // https://zinebackend-2b7b.onrender.com //'ec2-18-116-38-241.us-east-2.compute.amazonaws.com'
-  );
-  static Map<String, String> getHeaders() {
-    return {
+      scheme: 'https', host: 'zine-test-backend.ip-ddns.com'
+      // host: '20.40.49.214',
+      // host: '172.22.0.1',
+      // port: 8080,
+      // );
+      // https://zinebackend-2b7b.onrender.com //'ec2-18-116-38-241.us-east-2.compute.amazonaws.com'
+      );
+  static Map<String, String> getHeaders({String? uid}) {
+    //TODO: Eventually Bring all Auth headers into the main header
+    Map<String, String> headers = {
       'stage': Environment.stage, // Add the stage header
     };
+    if (uid != null) {
+      headers['Authorization'] = 'Bearer $uid';
+    }
+    return headers;
   }
 
   static Uri resetUri = baseUrl.replace(path: '/auth/forgot');
@@ -63,8 +67,9 @@ class BackendProperties {
   static Uri announcementUri(String emailId) => baseUrl
       .replace(path: 'rooms/announcement', queryParameters: {'email': emailId});
 
-  static Uri uploadUri = baseUrl.replace(path: '/image/upload');
+  static Uri uploadUri = baseUrl.replace(path: '/file/upload');
   static Uri deleteUpload(String publicId) => baseUrl
-      .replace(path: '/image/delete', queryParameters: {'publicKey': publicId});
+      .replace(path: '/file/delete', queryParameters: {'publicKey': publicId});
 
+  static Uri updateDp = baseUrl.replace(path: '/user/update-dp');
 }
