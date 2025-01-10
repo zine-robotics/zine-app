@@ -6,7 +6,8 @@ class MessageModel {
   PollData? poll;
   SentFrom? sentFrom;
   DateTime? timestamp;
-  ReplyTo? replyTo;
+  dynamic replyToID;
+  dynamic replyToMsg;
 
   MessageModel({
     required this.type,
@@ -14,14 +15,16 @@ class MessageModel {
     required this.id,
     this.sentFrom,
     this.poll,
-    this.replyTo,
+    this.replyToID,
+    this.replyToMsg,
     this.text,
     this.file,
   });
 
   MessageModel.fromJson(Map<String, dynamic> json)
       : type = MessageType.values.byName(json['type'] ?? 'text'),
-        replyTo = json['replyTo'],
+        replyToID = json['replyTo'] != null ? json['replyTo']['id'] : null,
+        replyToMsg = null,
         sentFrom = SentFrom.fromJson(json['sentFrom']) {
     switch (type) {
       case MessageType.file:
@@ -48,19 +51,19 @@ class MessageModel {
     }
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['type'] = type.toString();
-    data['text'] = {'content': text};
-    data['file'] = file?.toJson();
-    data['poll'] = poll?.toJson();
-    data['timestamp'] = timestamp;
+  // Map<String, dynamic> toJson() {
+  //   final Map<String, dynamic> data = <String, dynamic>{};
+  //   data['id'] = id;
+  //   data['type'] = type.toString();
+  //   data['text'] = {'content': text};
+  //   data['file'] = file?.toJson();
+  //   data['poll'] = poll?.toJson();
+  //   data['timestamp'] = timestamp;
 
-    data['sentFrom'] = sentFrom?.toJson();
-    data['replyTo'] = replyTo?.toJson();
-    return data;
-  }
+  //   data['sentFrom'] = sentFrom?.toJson();
+  //   data['replyTo'] = replyToID?.toJson();
+  //   return data;
+  // }
 }
 
 //TODO: LOOK INTO THIS
@@ -203,7 +206,7 @@ class ReplyTo {
 
   ReplyTo.fromJson(Map<String, dynamic> json)
       : type = MessageType.values.byName(json['type'] ?? 'text'),
-        replyTo = json['replyTo'],
+        replyTo = null,
         sentFrom = json['sentFrom'],
         roomId = RoomId.fromJson(json['roomId']) {
     id = json['id'];
@@ -269,8 +272,7 @@ class PollData {
       {required this.title,
       required this.description,
       required this.pollOptions,
-      this.lastVoted
-      });
+      this.lastVoted});
 
   PollData.fromJson(Map<String, dynamic> json)
       : title = json['title'] ?? '',
@@ -278,14 +280,14 @@ class PollData {
         pollOptions = (json['options'] as List)
             .map((e) => PollOption.fromJson(e))
             .toList(),
-        lastVoted=json['lastVoted'];
+        lastVoted = json['lastVoted'];
 
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'description': description,
       'pollOptions': pollOptions,
-      'lastVoted':lastVoted,
+      'lastVoted': lastVoted,
     };
   }
 }

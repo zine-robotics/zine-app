@@ -282,7 +282,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     selectedReplyMessage = message;
     replyTo = message.id;
     replyUsername = message.sentFrom!.name.toString();
-    // print("reply in user Reply:${replyTo.runtimeType}");
+    print("reply in user Reply:${replyTo.runtimeType}");
 
     replyfocus.requestFocus();
 
@@ -694,8 +694,8 @@ class ChatRoomViewModel extends ChangeNotifier {
           sentFromId: message.sentFrom?.id != null
               ? drift.Value(message.sentFrom!.id!)
               : drift.Value.absent(),
-          replyToId: drift.Value(
-              message.replyTo != null ? (message.replyTo as ReplyTo).id : null),
+          replyToId:
+              drift.Value(message.replyToID != null ? message.replyToID : null),
           isSynced: drift.Value(true),
           textData: message.type == MessageType.text && message.text != null
               ? drift.Value(message.text)
@@ -722,8 +722,14 @@ class ChatRoomViewModel extends ChangeNotifier {
   Future<List<MessageModel>?> saveStaticMessageToLocalDb(
       AppDb db, String roomID) async {
     try {
+      print("priya mc $roomID");
       List<MessageModel>? allMessages =
           roomID != null ? await chatP.getChatMessages(roomID) : [];
+      print("priya mc ${allMessages.length}");
+      messages = allMessages!;
+      notifyListeners();
+
+      print(allMessages);
       if (allMessages!.isEmpty) {
         return [];
       }
@@ -768,15 +774,15 @@ class ChatRoomViewModel extends ChangeNotifier {
           ..where((tbl) => tbl.pollId.equals(message.id));
         final pollOptionQueryData = await pollOptionQuery.get();
         {
-          print("------------Message Details:---------------");
-          print("ID: ${user?.id}");
-          print("name: ${user?.name}");
-          print(
-              "name: ${message?.sentFromId} and message is :${message.textData}");
-          print("Type: ${user?.role}");
-          print("email: ${user?.email}");
-          print("dp: ${user?.dpUrl ?? 'Unknown'}");
-          print("length of sender Details:${user == null}");
+          // print("------------Message Details:---------------");
+          // print("ID: ${user?.id}");
+          // print("name: ${user?.name}");
+          // print(
+          //     "name: ${message?.sentFromId} and message is :${message.textData}");
+          // print("Type: ${user?.role}");
+          // print("email: ${user?.email}");
+          // print("dp: ${user?.dpUrl ?? 'Unknown'}");
+          // print("length of sender Details:${user == null}");
           // print("Poll: ${user.pollId?? 'No Poll'}");
           // print("File: ${user.fileId ?? 'No File'}");
           // print("Reply To: ${user.replyToId ?? 'No Reply'}");
@@ -870,7 +876,8 @@ class ChatRoomViewModel extends ChangeNotifier {
                       emailVerified: user.emailVerified,
                     )
                   : null,
-              replyTo: replyTo != null ? replyTo! : null,
+              replyToMsg: replyTo != null ? replyTo! : null,
+              replyToID: replyTo != null ? replyTo!.id : null,
               poll: pollData));
         } catch (e) {
           print("problem in this :$e");

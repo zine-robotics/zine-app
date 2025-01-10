@@ -27,13 +27,17 @@ class ChatRepo {
       // print("checking :${jsonDecode(response.body)}");
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = jsonDecode(response.body);
-        List<MessageModel> messages =
-            jsonResponse.map((json) => MessageModel.fromJson(json)).toList();
+        print("jsonResponse: $jsonResponse");
+        List<MessageModel> messages = jsonResponse
+            .where((json) => json != null && json is Map<String, dynamic>)
+            .map((json) => MessageModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+        print("inside the chat_repo and message:${messages.toList().length}");
         // print("inside the chat_repo and message:${messages.toList()}");
         // for (var message in messages) {
         //   print("------------Message Details:---------------");
         //   print("ID: ${message.id}");
-        //   print("Text: ${message.text}");
+        //   print("Text: ${message.text}");R
         //   print("Type: ${message.type}");
         //   print("Timestamp: ${message.timestamp}");
         //   print("Sent From: ${message.sentFrom?.name ?? 'Unknown'}");
@@ -44,7 +48,7 @@ class ChatRepo {
         // }
         return messages;
       } else {
-        // print("Failed to load messages: ${response.statusCode}");
+        print("Failed to load messages: ${response.statusCode}");
         return [];
       }
     } catch (e) {
@@ -166,5 +170,4 @@ class ChatRepo {
       return [];
     }
   }
-
 }
