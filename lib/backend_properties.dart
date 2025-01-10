@@ -4,9 +4,9 @@ class Environment {
 
 class BackendProperties {
   static Uri baseUrl = Uri(
-    scheme: 'http',
+    scheme: 'https',
     //  host: 'zine-backend.ip-ddns.com'
-    host: '20.40.49.214',
+    host: 'zine-test-backend.ip-ddns.com',
     // host: '172.22.0.1',
     // port: 8080,
     // );

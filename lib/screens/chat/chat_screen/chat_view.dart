@@ -92,9 +92,10 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
               key: UniqueKey(),
               itemCount: chats.length,
               itemBuilder: (BuildContext context, int index) {
+                // print("chats[currIndx].sentFrom:${chats[index].sentFrom ==null} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
                 var currIndx = chats.length - index - 1;
                 bool isUser =
-                    (userVm.getUserInfo.name == chats[currIndx].sentFrom!.name);
+                    (userVm.getUserInfo.id == chats[currIndx].sentFrom!.id);
                 var showDate = index == chats.length - 1 ||
                     (chats.length - index >= 2 &&
                         validShowDate(chats[currIndx].timestamp!) !=
@@ -102,8 +103,8 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                 chats[chats.length - index - 2].timestamp!));
 
                 bool group = index > 0 &&
-                    chats[currIndx].sentFrom!.name ==
-                        chats[chats.length - index].sentFrom?.name &&
+                    chats[currIndx].sentFrom!.id ==
+                        chats[chats.length - index].sentFrom?.id &&
                     getChatDate(chats[currIndx].timestamp!) ==
                         getChatDate(chats[chats.length - index].timestamp!);
 
@@ -126,14 +127,14 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                       padding: const EdgeInsets.fromLTRB(
                                           0, 10, 0, 5),
                                       child: Padding(
-                                        padding: userVm.getUserInfo.name !=
-                                                chats[currIndx].sentFrom!.name
+                                        padding: userVm.getUserInfo.id !=
+                                                chats[currIndx].sentFrom!.id
                                             //currUser.name != chats[currIndx].from
                                             ? const EdgeInsets.symmetric(
                                                 horizontal: 35.0)
                                             : const EdgeInsets.all(0),
                                         child: Text(
-                                          "${isUser ? "You" : chats[currIndx].sentFrom?.name} replied to ${chats[currIndx].replyTo?.sentFrom?.name}",
+                                          "${isUser ? "You" : chats[currIndx].sentFrom?.id} replied to ${chats[currIndx].replyTo?.sentFrom?.id}",
                                           textAlign: isUser
                                               ? TextAlign.right
                                               : TextAlign.left,
@@ -275,10 +276,10 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                           color: backgroundGrey,
                                                           borderRadius: userVm
                                                                       .getUserInfo
-                                                                      .name !=
+                                                                      .id !=
                                                                   chats[currIndx]
                                                                       .sentFrom
-                                                                      ?.name
+                                                                      ?.id
                                                               ? const BorderRadius.only(
                                                                   topRight:
                                                                       Radius.circular(
@@ -401,12 +402,12 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                             padding: const EdgeInsets.all(6.0),
                                             child: Align(
                                               alignment:
-                                                  userVm.getUserInfo.name !=
+                                                  userVm.getUserInfo.id !=
                                                           chats[chats.length -
                                                                   index -
                                                                   1]
                                                               .sentFrom
-                                                              ?.name
+                                                              ?.id
                                                       ? Alignment.bottomLeft
                                                       : Alignment.bottomRight,
                                               child: group
@@ -434,12 +435,12 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                         // Text("Something"),
                                         Container(
                                           decoration: BoxDecoration(
-                                            color: userVm.getUserInfo.name ==
+                                            color: userVm.getUserInfo.id ==
                                                     chats[chats.length -
                                                             index -
                                                             1]
                                                         .sentFrom
-                                                        ?.name
+                                                        ?.id
                                                 ? const Color(0xff68a5ca)
                                                 : const Color(0xff0C72B0),
                                             borderRadius: BorderRadius.only(
@@ -448,22 +449,22 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                 topRight:
                                                     const Radius.circular(15.0),
                                                 bottomRight: userVm
-                                                            .getUserInfo.name ==
+                                                            .getUserInfo.id ==
                                                         chats[chats.length -
                                                                 index -
                                                                 1]
                                                             .sentFrom
-                                                            ?.name
+                                                            ?.id
                                                     ? const Radius.circular(0.0)
                                                     : const Radius.circular(
                                                         15.0),
                                                 bottomLeft: userVm
-                                                            .getUserInfo.name ==
+                                                            .getUserInfo.id ==
                                                         chats[chats.length -
                                                                 index -
                                                                 1]
                                                             .sentFrom
-                                                            ?.name
+                                                            ?.id
                                                     ? const Radius.circular(15.0)
                                                     : const Radius.circular(0.0)),
                                             // border: Border.all(color: greyText, width: 2.0),

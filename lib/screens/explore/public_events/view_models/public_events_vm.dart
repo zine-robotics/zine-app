@@ -21,8 +21,8 @@ class PublicEventsVM extends ChangeNotifier {
   void loadEvents() async {
     if (_isLoaded) return;
     try {
-      // List<Events> tempEvents = await eventsRepo.fetchEvents();
-      List<Events> tempEvents = dummyEvents;
+      List<Events> tempEvents = await eventsRepo.fetchEvents();
+      // List<Events> tempEvents = dummyEvents;
 
       tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
       _events = tempEvents;

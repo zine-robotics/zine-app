@@ -51,14 +51,16 @@ class RoomMemberModel {
   String? email;
   String? role;
   String? dpUrl;
+  int? userId;
 
-  RoomMemberModel({this.name, this.email, this.role, this.dpUrl});
+  RoomMemberModel({this.name,this.userId ,this.email, this.role, this.dpUrl});
 
   RoomMemberModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     email = json['email'];
     role = json['role'];
     dpUrl = json['dpUrl'];
+    userId=json['id'];
   }
 
   Map<String, dynamic> toJson() {
@@ -67,6 +69,7 @@ class RoomMemberModel {
     data['email'] = this.email;
     data['role'] = this.role;
     data['dpUrl'] = this.dpUrl;
+    data['userId']=this.userId;
     return data;
   }
 }

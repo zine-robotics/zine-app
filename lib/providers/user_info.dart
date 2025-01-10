@@ -82,10 +82,12 @@ class UserProv extends ChangeNotifier {
     _currUser.lastSeen[name] = DateTime.now();
   }
 
-  void logOut() {
+  void logOut() async{
     _isLoggedIn = false;
     // _currUser = UserModel();
     // notifyListeners();
+    AppDb.deleteUserLocalDb(Db);
+
   }
 
   // void updateLast(String name) {
