@@ -15,7 +15,8 @@ class ChatRepo {
 //=====================================================NEWER CODE================================================================//
 
 //------------------------------------Fetching_all_messages_through_RoomId-------------------------------------------//
-  Future<List<MessageModel>> getChatMessages(String tempRoomId) async {
+  Future<List<MessageModel>> getChatMessages(
+      {required String tempRoomId, required String uid}) async {
     // print("\n ----------getchatMessage Called------------------ \n");
     // String groupID='352';
     try {
@@ -23,7 +24,7 @@ class ChatRepo {
       //     "http://172.20.10.4:8080/messages/roomMsg?roomId=$TemproomId";
 
       final response =
-          await http.get(url, headers: BackendProperties.getHeaders());
+          await http.get(url, headers: BackendProperties.getHeaders(uid: uid));
       // print("checking :${jsonDecode(response.body)}");
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = jsonDecode(response.body);
@@ -166,5 +167,4 @@ class ChatRepo {
       return [];
     }
   }
-
 }
