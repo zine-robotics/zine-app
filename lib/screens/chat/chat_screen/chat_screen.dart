@@ -23,11 +23,9 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
-      // chatRoomView.loadRooms();
-      //pipeline
-      // chatRoomView.fetchAllRoomDataFromApi(db);
-      chatRoomView.fetchAllRoomDataFromLocalDB(db);
-      chatRoomView.fetchAllRoomDataFromApi(db);
+
+      // chatRoomView.fetchAllRoomDataFromLocalDB(db);
+      chatRoomView.fetchAllRoomDataFromApiAndSyncWithDB(db);
     });
   }
 

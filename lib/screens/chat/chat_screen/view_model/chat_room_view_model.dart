@@ -440,23 +440,11 @@ class ChatRoomViewModel extends ChangeNotifier {
   static List<RoomsTableCompanion>? _apiAnnouncementData;
   List<Room>? _toDeleteRoomData;
 
-  Future<List<Rooms>?> saveRoomsToLocalDb(AppDb db) async {
+  Future<List<Rooms>?> saveRoomsToLocalDb(
+      List<Rooms>? allRooms, AppDb db) async {
     UserModel currUser = userProv.getUserInfo;
     String? email = currUser.email;
     try {
-      List<Rooms>? allRooms =
-          email != null ? await chatP.fetchRooms(email!) : [];
-      List<Rooms>? allAnnouncementRooms =
-          email != null ? await chatP.fetchAnnouncement(email) : [];
-      List<String>? allRoomIds = [
-        ...?allRooms?.map((room) => room.id.toString()),
-        ...?allAnnouncementRooms
-            ?.map((announcement) => announcement.id.toString())
-      ].cast<String>().toList();
-      saveRoomMemberToLocalDb(db, allRoomIds);
-      if (allRooms!.isEmpty) {
-        return []; // Exit the function if no rooms to save
-      }
       for (Rooms room in allRooms!) {
         final roomCompanion = RoomsTableCompanion(
             id: room.id != null ? drift.Value(room.id!) : drift.Value.absent(),
@@ -475,12 +463,13 @@ class ChatRoomViewModel extends ChangeNotifier {
         _apiRoomData?.add(roomCompanion);
         await db.insertRoomToDB(roomCompanion);
       }
-      return allRooms;
+      logger.d("Saved All Rooms to Local DB");
     } catch (e) {
       print('Error saving rooms to local DB: $e');
     }
   }
-  //-----------------------------------------------------fetchRoomDataFromLocalDB------------------------------------------------------//
+
+  //-----------------------------------------------------fetch RoomData FromLocalDB------------------------------------------------------//
 
   Future<List<Rooms>> fetchRoomDataFromLocalDB(AppDb db) async {
     // print("Fetching from local Storage");
@@ -508,41 +497,6 @@ class ChatRoomViewModel extends ChangeNotifier {
       return [];
     }
   }
-
-  //----------------------------------------------------saveAnnouncementToLocalStorage------------------------------------------------//
-  Future<List<Rooms>?> saveAnnouncementToLocalDb(AppDb db) async {
-    UserModel currUser = userProv.getUserInfo;
-    String? email = currUser.email;
-    try {
-      List<Rooms>? allRooms =
-          email != null ? await chatP.fetchAnnouncement(email!) : [];
-      if (allRooms!.isEmpty) {
-        return [];
-      }
-      for (Rooms room in allRooms!) {
-        final roomCompanion = RoomsTableCompanion(
-            id: room.id != null ? drift.Value(room.id!) : drift.Value.absent(),
-            name: drift.Value(room.name),
-            description: drift.Value(room.description),
-            type: drift.Value(room.type),
-            dpUrl: drift.Value(await saveImageToLocalStorage(
-                room.dpUrl.toString(),
-                room.id.toString(),
-                room.name.toString())),
-            timestamp: drift.Value(room.timestamp),
-            lastMessageTimestamp: drift.Value(room.lastMessageTimestamp),
-            unreadMessages: drift.Value(room.unreadMessages),
-            userLastSeen: drift.Value(room.userLastSeen),
-            isSynced: drift.Value(true));
-        _apiAnnouncementData?.add(roomCompanion);
-        await db.insertRoomToDB(roomCompanion);
-      }
-      return allRooms;
-    } catch (e) {
-      print('Error saving Announcement to local DB: $e');
-    }
-  }
-  //-----------------------------------------------------fetchAnnoucementDataFromLocalDB------------------------------------------------------//
 
   Future<List<Rooms>> fetchAnnouncementDataFromLocalDB(db) async {
     // print("Fetching Announcement from local Storage");
@@ -575,8 +529,6 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
-  //-------PIPELINE:1.localDBfetch -->fetchFromApi -->updateLocalDBwithNewData --> UpdateUI ------------------------------------------//
-  ///STAGE 1:localDB
   Future<void> fetchAllRoomDataFromLocalDB(AppDb db) async {
     try {
       allrooms = await fetchRoomDataFromLocalDB(db);
@@ -599,30 +551,35 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchAllRoomDataFromApi(AppDb db) async {
+  //-----------------------------------------------------fetch RoomData From  API------------------------------------------------------//
+
+  Future<void> fetchAllRoomDataFromApiAndSyncWithDB(AppDb db) async {
+    UserModel currUser = userProv.getUserInfo;
+    String? email = currUser.email;
     try {
-      List<Rooms>? newAnnouncements = await saveAnnouncementToLocalDb(db);
-      List<Rooms>? newProjects = await saveRoomsToLocalDb(db);
-      compareAndUpdate(newProjects, newAnnouncements, db);
+      //Fetch all Data and Render
+      announcement = email != null ? await chatP.fetchAnnouncement(email) : [];
+      allrooms = email != null ? await chatP.fetchRooms(email) : [];
+
+      userProjects = allrooms
+              ?.where((room) => room.type != "workshop")
+              .toList()
+              .cast<Rooms>() ??
+          [];
+      userWorkshop = allrooms
+              ?.where((room) => room.type == "workshop")
+              .toList()
+              .cast<Rooms>() ??
+          [];
+
+      //Overwrite in DB and refetch from db
+      await saveRoomsToLocalDb(announcement, db);
+      await saveRoomsToLocalDb(allrooms, db);
       fetchAllRoomDataFromLocalDB(db);
+
+      logger.d("Fetched And Saved All Room info");
     } catch (e) {
-    } finally {
-      // notifyListeners();
-    }
-  }
-
-  ///STAGE3:syncRoomsDataWithApi
-
-  ///STAGE4:compare and update UI
-  void compareAndUpdate(
-      List<Rooms>? newProjects, List<Rooms>? newAnnouncements, db) async {
-    // print("inside compareAndUpdate");
-
-    try {
-      int temp = await db.deleteUnsyncedRooms();
-      // await fetchAllRoomDataFromApi(db);
-    } catch (e) {
-      print("ERROR compareAndUpdate:${e}");
+      logger.e(e);
     }
   }
 
