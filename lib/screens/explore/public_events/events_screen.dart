@@ -32,46 +32,19 @@ class _EventsScreenState extends State<EventsScreen> {
     _controller.dispose();
     super.dispose();
   }
+
   // final List<Events> dummyEvents = [
   @override
   Widget build(BuildContext context) {
     // var height = MediaQuery.of(context).size.height;
-    double screenWidth=MediaQuery.of(context).size.width;
-    double screenHeight=MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     double availableHeight = MediaQuery.of(context).size.height -
         (kBottomNavigationBarHeight + kToolbarHeight);
     return Scaffold(
       // backgroundColor: backgroundGrey.withOpacity(0.7),
       backgroundColor: Colors.white.withOpacity(0.95),
 
-      // appBar: AppBar(
-      //   toolbarHeight: MediaQuery.of(context).size.height * 0.06,
-      //   elevation: 0,
-      //   centerTitle: true,
-      //   backgroundColor: Colors.white,
-      //   surfaceTintColor: Colors.white,
-      //   leading: (Navigator.canPop(context))
-      //       ? IconButton(
-      //           icon: const Icon(
-      //             color: greyText,
-      //             Icons.arrow_back_rounded,
-      //             size: 40,
-      //           ),
-      //           onPressed: () {
-      //             Navigator.pop(context);
-      //           },
-      //         )
-      //       : null,
-      //   title: const Text(
-      //     "Events Calendar",
-      //     style: TextStyle(
-      //         height: 0.9,
-      //         letterSpacing: 0.3,
-      //         fontSize: 30.0,
-      //         fontWeight: FontWeight.w700,
-      //         color: greyText),
-      //   ),
-      // ),
       body: Consumer<PublicEventsVM>(
         builder: (context, evm, _) {
           if (evm.events.isNotEmpty && _controller.hasClients) {
@@ -80,28 +53,19 @@ class _EventsScreenState extends State<EventsScreen> {
           }
           return SafeArea(
             child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                  colors: [
-                    Color(0xff268CCB), // Light blue
-                    Color(0xff003D63), // Dark blue
-                  ],
-                ),
-              ),
               child: Column(
                 children: [
                   Padding(
-                    padding:EdgeInsets.only(left: screenWidth*0.025,right: screenWidth*0.025),
+                    padding: EdgeInsets.only(
+                        left: screenWidth * 0.025, right: screenWidth * 0.025),
                     child: Container(
-
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          // boxShadow: [BoxShadow(color:textColor,spreadRadius: 10,blurRadius: 10 )]
+                        color: Colors.white,
+                        // boxShadow: [BoxShadow(color:textColor,spreadRadius: 10,blurRadius: 10 )]
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 5.0, left: 0, right: 5),
+                        padding:
+                            const EdgeInsets.only(top: 5.0, left: 0, right: 5),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -137,30 +101,22 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                   Container(
                     // height: availableHeight / 2,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.centerRight,
-                        end: Alignment.centerLeft,
-                        colors: [
-                          Color(0xff268CCB), // Light blue
-                          Color(0xff003D63), // Dark blue
-                        ],
-                      ),
-                    ),
                     // color: Colors.white.withOpacity(0.3),
                     // padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 10,right: 10),
+                      padding: const EdgeInsets.only(left: 10, right: 10),
                       child: Container(
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(50), bottomRight: Radius.circular(50)),
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(50),
+                              bottomRight: Radius.circular(50)),
                           color: Colors.white,
-
                         ),
 
                         // elevation: 0,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
+                          padding: const EdgeInsets.only(
+                              left: 20, right: 20, bottom: 20),
                           child: EventCalendar(
                             evm: evm,
                           ),
@@ -172,22 +128,17 @@ class _EventsScreenState extends State<EventsScreen> {
                   (evm.events.isNotEmpty)
                       ? Expanded(
                           child: ListView.builder(
-                          clipBehavior: Clip.hardEdge,
                           controller: _controller,
                           itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-                              child: EventTile(
-                                evm: evm,
-                                index: index,
-                                event: evm.events[index],
-                              ),
+                            return EventTile(
+                              evm: evm,
+                              index: index,
+                              event: evm.events[index],
                             );
                           },
                           itemCount: evm.events.length,
                         ))
-                      :
-                  Expanded(
+                      : Expanded(
                           child: Center(
                             child: Text(
                               'Something\'s cooking. . .',

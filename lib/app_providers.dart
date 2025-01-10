@@ -67,7 +67,7 @@ class AppProviders extends StatelessWidget {
             create: (_) => RegisterAuthViewModel(
                 store: store,
                 myRepo: AuthRepo(store: store,db: db),
-                userProvider: UserProv(dataStore: store))),
+                userProvider: UserProv(dataStore: store,Db:db))),
         ChangeNotifierProvider<DashboardVm>(
             create: (_) => DashboardVm(store: store, userProv: userProv)),
         ChangeNotifierProvider<EventsVm>(create: (_) => EventsVm()),

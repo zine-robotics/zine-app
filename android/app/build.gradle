@@ -34,14 +34,16 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 
 android {
+
     compileSdkVersion 34
     ndkVersion '25.1.8937393'
-    namespace 'co.zine.zineapp2023'
+    namespace "co.zine.zineapp2023"
+
     compileOptions {
-        
+
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-         coreLibraryDesugaringEnabled true 
+         coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -61,7 +63,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        
+
     }
 
     signingConfigs {

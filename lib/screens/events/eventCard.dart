@@ -25,9 +25,8 @@ class _EventCardState extends State<EventCard> {
     // print("date passsing from the eventCalender${widget.selectedDate}");
 
     bool initExp = false;
-    DateTime? date =
-        DateTime.fromMillisecondsSinceEpoch(tempEvent.startDateTime!);
-    // DateTime? tempDate = convertTimestamp(widget.tempEvent.startDateTime!);
+    DateTime? date = tempEvent.startDateTime!;
+    // DateTime? tempDate = widget.tempEvent.tartDateTime!);
 
     if (widget.selectedDate != null && !checked) {
       print(getDDate(date));
@@ -38,8 +37,7 @@ class _EventCardState extends State<EventCard> {
     //isExpanded=int.parse(compareDay.toString())==checkDay ? true :false;
 
     bool isOld = Timestamp.fromDate(DateTime.now()).compareTo(
-                Timestamp.fromDate(
-                    convertTimestamp(widget.tempEvent.startDateTime!))) >
+                Timestamp.fromDate((widget.tempEvent.startDateTime!))) >
             0
         ? false
         : true;
@@ -157,26 +155,28 @@ class _EventCardState extends State<EventCard> {
                       child: Column(
                         children: [
                           Text(
-                            getDay(Timestamp.fromDate(
-                                convertTimestamp(tempEvent.startDateTime!))),
+                            getDay(
+                                Timestamp.fromDate(tempEvent.startDateTime!)),
                             textAlign: TextAlign.left,
                             softWrap: true,
-                            style: const TextStyle(fontSize: 50, color: Colors.white),
+                            style: const TextStyle(
+                                fontSize: 50, color: Colors.white),
                           ),
                           Text(
-                            getDate(Timestamp.fromDate(
-                                convertTimestamp(tempEvent.startDateTime!))),
+                            getDate(
+                                Timestamp.fromDate(tempEvent.startDateTime!)),
                             textAlign: TextAlign.left,
                             softWrap: true,
-                            style: const TextStyle(fontSize: 30, color: Colors.white),
+                            style: const TextStyle(
+                                fontSize: 30, color: Colors.white),
                           ),
                           Text(
-                              getTime(Timestamp.fromDate(
-                                  convertTimestamp(tempEvent.startDateTime!))),
+                              getTime(
+                                  Timestamp.fromDate(tempEvent.startDateTime!)),
                               textAlign: TextAlign.left,
                               softWrap: true,
-                              style:
-                                  const TextStyle(fontSize: 20, color: Colors.white)),
+                              style: const TextStyle(
+                                  fontSize: 20, color: Colors.white)),
                         ],
                       ),
                     ),
@@ -219,25 +219,25 @@ class _EventCardState extends State<EventCard> {
                         height: 30,
                       ),
                       Text(
-                        getDay(Timestamp.fromDate(
-                            convertTimestamp(tempEvent.startDateTime!))),
+                        getDay(Timestamp.fromDate(tempEvent.startDateTime!)),
                         textAlign: TextAlign.left,
                         softWrap: true,
-                        style: const TextStyle(fontSize: 50, color: Colors.white),
+                        style:
+                            const TextStyle(fontSize: 50, color: Colors.white),
                       ),
                       Text(
-                        getDate(Timestamp.fromDate(
-                            convertTimestamp(tempEvent.startDateTime!))),
+                        getDate(Timestamp.fromDate(tempEvent.startDateTime!)),
                         textAlign: TextAlign.left,
                         softWrap: true,
-                        style: const TextStyle(fontSize: 30, color: Colors.white),
+                        style:
+                            const TextStyle(fontSize: 30, color: Colors.white),
                       ),
                       Text(
-                          getTime(Timestamp.fromDate(
-                              convertTimestamp(tempEvent.startDateTime!))),
+                          getTime(Timestamp.fromDate(tempEvent.startDateTime!)),
                           textAlign: TextAlign.left,
                           softWrap: true,
-                          style: const TextStyle(fontSize: 20, color: Colors.white)),
+                          style: const TextStyle(
+                              fontSize: 20, color: Colors.white)),
                       Container(
                         width: 150,
                         decoration: const BoxDecoration(

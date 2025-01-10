@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,14 @@ Future<void> initializeNotifications() async {
       InitializationSettings(android: initializationSettingsAndroid);
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+//--------------------------------backend Message Listener----------------------------------------//
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
 }
 
 //--------------------------------show foreground notification------------------------------------//
@@ -42,7 +51,7 @@ Future<void> _showNotification({String? title, String? body}) async {
 //-------------------------------------listen notification by FCM--------------------------//
 void setupForegroundMessageListener() {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    print("message data:${message.notification?.title}");
+    print("message data:${message.notification?.body}");
     if (message.notification != null) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? storedRoomName = prefs.getString("roomName");
@@ -55,10 +64,10 @@ void setupForegroundMessageListener() {
       }
       print("object");
       print(NavigationService.navigatorKey.currentContext!);
-      Provider.of<ChatRoomViewModel>(
-        NavigationService.navigatorKey.currentContext!,
-        listen: false,
-      ).loadRooms();
+      // Provider.of<ChatRoomViewModel>(
+      //   NavigationService.navigatorKey.currentContext!,
+      //   listen: false,
+      // ).loadRooms();
     }
   });
 }

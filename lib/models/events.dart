@@ -1,23 +1,22 @@
-
 class Events {
   int? id;
   String? description;
   String? type;
   String? name;
   String? venue;
-  int? startDateTime;
-  int? endDateTime;
+  DateTime? startDateTime;
+  DateTime? endDateTime;
   Recruitment? recruitment;
 
   Events(
       {this.id,
-        this.description,
-        this.type,
-        this.name,
-        this.venue,
-        this.startDateTime,
-        this.endDateTime,
-        this.recruitment});
+      this.description,
+      this.type,
+      this.name,
+      this.venue,
+      this.startDateTime,
+      this.endDateTime,
+      this.recruitment});
 
   Events.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -72,7 +71,6 @@ class Recruitment {
     return data;
   }
 }
-
 
 //----------------------------------------lastSeen Api--------------------------------------//
 class LastSeen {

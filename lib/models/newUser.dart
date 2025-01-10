@@ -46,3 +46,27 @@ class NewUserModel {
     return data;
   }
 }
+class RoomMemberModel {
+  String? name;
+  String? email;
+  String? role;
+  String? dpUrl;
+
+  RoomMemberModel({this.name, this.email, this.role, this.dpUrl});
+
+  RoomMemberModel.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    email = json['email'];
+    role = json['role'];
+    dpUrl = json['dpUrl'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['name'] = this.name;
+    data['email'] = this.email;
+    data['role'] = this.role;
+    data['dpUrl'] = this.dpUrl;
+    return data;
+  }
+}

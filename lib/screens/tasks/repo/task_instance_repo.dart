@@ -19,7 +19,10 @@ class TaskInstanceRepo {
     List<UserTaskInstance> taskInstances = [];
 
     Response res = await http.get(BackendProperties.taskInstanceByIdUri,
-        headers: {'Authorization': 'Bearer $_uid',...BackendProperties.getHeaders()});
+        headers: {
+          'Authorization': 'Bearer $_uid',
+          ...BackendProperties.getHeaders()
+        });
     print("Called get Tasks");
     // print(res.body);
 
@@ -46,9 +49,11 @@ class TaskInstanceRepo {
   }
 
   Future<List<Checkpoint>> getCheckpoints(int instanceId) async {
-    Response res = await http.get(
-        BackendProperties.instanceCheckpointUri(instanceId),
-        headers: {'Authorization': 'Bearer $_uid',...BackendProperties.getHeaders()});
+    Response res = await http
+        .get(BackendProperties.instanceCheckpointUri(instanceId), headers: {
+      'Authorization': 'Bearer $_uid',
+      ...BackendProperties.getHeaders()
+    });
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
@@ -64,10 +69,14 @@ class TaskInstanceRepo {
   Future<void> addCheckpoints(String message, int instanceId) async {
     try {
       print("user id:${userProv.getUserInfo.uid}");
-      Response res = await http.post(
-          BackendProperties.addCheckpointUri(instanceId),
-          body: jsonEncode({"content": message, "remark": "false" ,"sentFromId":userProv.getUserInfo.id.toString()}),
-          headers: {
+      Response res =
+          await http.post(BackendProperties.addCheckpointUri(instanceId),
+              body: jsonEncode({
+                "content": message,
+                "remark": "false",
+                "sentFromId": userProv.getUserInfo.id.toString()
+              }),
+              headers: {
             'Authorization': 'Bearer $_uid',
             'Content-Type': 'application/json',
             ...BackendProperties.getHeaders()
@@ -84,9 +93,11 @@ class TaskInstanceRepo {
   }
 
   Future<List<Link>> getLinks(int instanceId) async {
-    Response res = await http.get(
-        BackendProperties.instanceLinksUri(instanceId),
-        headers: {'Authorization': 'Bearer $_uid',...BackendProperties.getHeaders()});
+    Response res = await http
+        .get(BackendProperties.instanceLinksUri(instanceId), headers: {
+      'Authorization': 'Bearer $_uid',
+      ...BackendProperties.getHeaders()
+    });
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
@@ -99,11 +110,14 @@ class TaskInstanceRepo {
 
   Future<void> addLinks(String heading, String link, int instanceId) async {
     try {
-      Response res = await http.post(
-          BackendProperties.addInstanceLinkUri(instanceId),
-          body:
-              jsonEncode({"type": heading, "link": Uri.parse(link).toString(),"sentFromId":userProv.getUserInfo.id.toString()}),
-          headers: {
+      Response res =
+          await http.post(BackendProperties.addInstanceLinkUri(instanceId),
+              body: jsonEncode({
+                "type": heading,
+                "link": Uri.parse(link).toString(),
+                "sentFromId": userProv.getUserInfo.id.toString()
+              }),
+              headers: {
             'Authorization': 'Bearer $_uid',
             'Content-Type': 'application/json',
             ...BackendProperties.getHeaders()

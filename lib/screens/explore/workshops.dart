@@ -6,6 +6,7 @@ import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/screens/explore/view_model/timeline_vm.dart';
 import 'package:zineapp2023/screens/explore/workshop_tile.dart';
+import 'package:zineapp2023/screens/explore/coming_soon.dart';
 
 import '../../../theme/color.dart';
 import '../../components/gradient.dart';
@@ -25,8 +26,7 @@ class WorkshopScreen extends StatelessWidget {
             : Scaffold(
                 bottomNavigationBar:
                     (currUser.registered != null && currUser.registered as bool)
-                        ? null
-                        : Container(
+                        ? Container(
                             color: backgroundGrey,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
@@ -55,7 +55,8 @@ class WorkshopScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          ),
+                          )
+                        : const ComingSoon(),
                 backgroundColor: backgroundGrey,
                 appBar: AppBar(
                   elevation: 0,

@@ -11,6 +11,7 @@ class EventsVm extends ChangeNotifier {
   Future<void> tempGetAllEvent() async {
     print("inside the getallevents");
     try {
+
       _tempEvents = await eventRepo.fetchEvents();
       _tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
       print("sorted Events:${_tempEvents}");
