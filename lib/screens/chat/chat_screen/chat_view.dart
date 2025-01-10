@@ -88,9 +88,10 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
 
             dynamic repliedMessage;
             // print("reply to:${chats[currIndx].replyTo}");
-            if (chats[currIndx].replyToMsg != null) {
+            if (chats[currIndx].replyToID != null) {
+              print("checking reply content:${chats[currIndx].replyToID}");
               repliedMessage = chats[currIndx].replyToMsg;
-              // print("checking reply content:${chats[currIndx].content}");
+              print("checking reply:${chats[currIndx].replyToMsg}");
             }
 
             if (chats[currIndx].type == MessageType.text) {
@@ -166,15 +167,18 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                         const EdgeInsets.all(
                                                             12.0),
                                                     child: Text(
-                                                      repliedMessage != null
-                                                          ? (repliedMessage
-                                                                          .content
+                                                      repliedMessage != null &&
+                                                              repliedMessage
+                                                                      .type ==
+                                                                  MessageType
+                                                                      .text
+                                                          ? (repliedMessage.text
                                                                           .toString())
                                                                       .length >
                                                                   20
-                                                              ? '${repliedMessage.content.toString().substring(0, 20)}...'
+                                                              ? '${repliedMessage.text.toString().substring(0, 20)}...'
                                                               : repliedMessage
-                                                                  .content
+                                                                  .text
                                                                   .toString()
                                                           : " ",
                                                       // softWrap: true,

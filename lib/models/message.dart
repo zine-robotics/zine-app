@@ -7,7 +7,7 @@ class MessageModel {
   SentFrom? sentFrom;
   DateTime? timestamp;
   dynamic replyToID;
-  dynamic replyToMsg;
+  ReplyTo? replyToMsg;
 
   MessageModel({
     required this.type,
@@ -51,19 +51,20 @@ class MessageModel {
     }
   }
 
-  // Map<String, dynamic> toJson() {
-  //   final Map<String, dynamic> data = <String, dynamic>{};
-  //   data['id'] = id;
-  //   data['type'] = type.toString();
-  //   data['text'] = {'content': text};
-  //   data['file'] = file?.toJson();
-  //   data['poll'] = poll?.toJson();
-  //   data['timestamp'] = timestamp;
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['type'] = type.toString();
+    data['text'] = {'content': text};
+    data['file'] = file?.toJson();
+    data['poll'] = poll?.toJson();
+    data['timestamp'] = timestamp;
 
-  //   data['sentFrom'] = sentFrom?.toJson();
-  //   data['replyTo'] = replyToID?.toJson();
-  //   return data;
-  // }
+    data['sentFrom'] = sentFrom?.toJson();
+    data['replyToID'] = replyToID;
+    data['replyToMsg'] = replyToMsg?.toJson();
+    return data;
+  }
 }
 
 //TODO: LOOK INTO THIS
@@ -190,13 +191,13 @@ class ReplyTo {
   SentFrom? sentFrom;
   DateTime? timestamp;
   ReplyTo? replyTo;
-  RoomId roomId;
+  RoomId? roomId;
 
   ReplyTo({
     required this.type,
     required this.timestamp,
     required this.id,
-    required this.roomId,
+    this.roomId,
     this.sentFrom,
     this.replyTo,
     this.text,

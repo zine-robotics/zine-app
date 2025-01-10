@@ -124,6 +124,8 @@ class _ChatRoomState extends State<ChatRoom> {
         bool isAllowedTyping = true;
         List<RoomMemberModel>? listOfUsers = chatVm.activeMembers;
         //
+        print("roomName: $roomName build for reply to");
+        print("replyTo: ${chatVm.replyTo}");
 
         if (currUser.type == 'user' && roomName == 'Announcements') {
           isAllowedTyping = false;
@@ -196,7 +198,8 @@ class _ChatRoomState extends State<ChatRoom> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          chatVm.replyfocus.hasFocus && chatVm.replyTo != null
+                          // chatVm.replyfocus.hasFocus && chatVm.replyTo != null
+                          chatVm.replyTo != null
                               ? ReplyCard(
                                   chatVm: chatVm,
                                 )
@@ -312,11 +315,11 @@ class _ChatRoomState extends State<ChatRoom> {
                                         chatVm
                                             .sendFile(_messageController.text);
                                       } else {
+                                        chatVm.replyTo = null;
                                         _sendMessage();
                                         // chatVm.sendMessage(
                                         // _messageController.text, roomName);
                                         // _messageController.text = "";
-                                        chatVm.replyTo = null;
                                       }
                                     },
                                     iconSize: 20.0,
