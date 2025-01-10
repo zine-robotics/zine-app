@@ -4,9 +4,8 @@ class Environment {
 
 class BackendProperties {
   static Uri baseUrl = Uri(
-    scheme: 'http',
-    //  host: 'zine-backend.ip-ddns.com'
-    host: '20.40.49.214',
+    scheme: 'https',
+    host: 'zine-test-backend.ip-ddns.com',
     // host: '172.22.0.1',
     // port: 8080,
     // );
@@ -66,5 +65,4 @@ class BackendProperties {
   static Uri uploadUri = baseUrl.replace(path: '/image/upload');
   static Uri deleteUpload(String publicId) => baseUrl
       .replace(path: '/image/delete', queryParameters: {'publicKey': publicId});
-
 }
