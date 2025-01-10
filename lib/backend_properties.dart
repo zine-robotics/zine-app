@@ -70,4 +70,6 @@ class BackendProperties {
   static Uri uploadUri = baseUrl.replace(path: '/file/upload');
   static Uri deleteUpload(String publicId) => baseUrl
       .replace(path: '/file/delete', queryParameters: {'publicKey': publicId});
+
+  static Uri updateDp = baseUrl.replace(path: '/user/update-dp');
 }

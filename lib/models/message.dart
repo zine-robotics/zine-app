@@ -269,8 +269,7 @@ class PollData {
       {required this.title,
       required this.description,
       required this.pollOptions,
-      this.lastVoted
-      });
+      this.lastVoted});
 
   PollData.fromJson(Map<String, dynamic> json)
       : title = json['title'] ?? '',
@@ -278,14 +277,14 @@ class PollData {
         pollOptions = (json['options'] as List)
             .map((e) => PollOption.fromJson(e))
             .toList(),
-        lastVoted=json['lastVoted'];
+        lastVoted = json['lastVoted'];
 
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'description': description,
       'pollOptions': pollOptions,
-      'lastVoted':lastVoted,
+      'lastVoted': lastVoted,
     };
   }
 }
@@ -313,5 +312,11 @@ class PollOption {
       'value': value,
       'numVotes': numVotes,
     };
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'PollOption: id: $id, value: $value, numVotes: $numVotes';
   }
 }

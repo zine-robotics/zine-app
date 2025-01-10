@@ -120,6 +120,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     final subscription = _client.subscribe(
         destination: "/room/$currRoomID/active-users",
         // headers: BackendProperties.getHeaders(),
+        headers: {'roomId':currRoomID},
         callback: (StompFrame frame) async {
           try {
             _activeMembers = [];

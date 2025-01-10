@@ -8,6 +8,7 @@ import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
+import 'package:zineapp2023/screens/dp_change_screen/dp_change_screen.dart';
 import 'package:zineapp2023/screens/onboarding/login/view_models/register_auth_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
 import 'package:zineapp2023/utilities/string_formatters.dart';
@@ -19,10 +20,16 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    return Consumer3<RegisterAuthViewModel, UserProv,ChatRoomViewModel>(
-      builder: (context, regVm, userProv,chatVm, _) {
+    return Consumer3<RegisterAuthViewModel, UserProv, ChatRoomViewModel>(
+      builder: (context, regVm, userProv, chatVm, _) {
         UserModel currUser = userProv.getUserInfo;
+        Widget dp = File(currUser.dp!.toString()).existsSync()
+            ? chatVm.showProfileImage(currUser.dp!)
+            : CircleAvatar(
+                radius: 30,
+                backgroundColor: iconTile,
+                backgroundImage:
+                    AssetImage("assets/images/dp/${currUser.dp}.png"));
         return Scaffold(
           backgroundColor: backgroundGrey,
           appBar: AppBar(
@@ -109,7 +116,16 @@ class ProfileScreen extends StatelessWidget {
                                             "assets/images/card_image.png")
                                         : null,
                                   ),
-                                  if (File(currUser.dp!.toString()).existsSync()) chatVm.showProfileImage(currUser.dp!) else CircleAvatar(radius: 30, backgroundColor: iconTile,backgroundImage: AssetImage("assets/images/dp/${currUser.dp}.png",)),
+                                  InkWell(
+                                      onTap: () {
+                                        print("Muh Maaro");
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (context) =>
+                                              DpChangeScreen(),
+                                        ));
+                                      },
+                                      child: Hero(tag: "profilePic", child: dp))
                                   // buildProfilePicture(
                                   //     currUser.dp!, currUser.name!,
                                   //     size: 45),

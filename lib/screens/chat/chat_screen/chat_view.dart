@@ -519,7 +519,12 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                 } else if (chats[currIndx].type == MessageType.poll &&
                     chats[currIndx].poll != null) {
                   print("TEst");
-                  return PollTile(
+                  return PollTile(leading: chatRoomViewModel.showProfileImage(
+                                                    chats[currIndx]
+                                                        .sentFrom!
+                                                        .dp
+                                                        .toString(),
+                                                    radius: 50.0),
                     chatVm: chatRoomViewModel,
                     messageIndex: currIndx,
                     isUser: isUser,

@@ -45,7 +45,6 @@ class _ChatRoomState extends State<ChatRoom> {
     _saveRoomNameToPreferences();
     _scrollController.addListener(() {
       if (_scrollController.hasClients) {
-        print("Controller has frens :-)");
         _lastScrollOffset = _scrollController.offset;
       }
     });
@@ -136,7 +135,6 @@ class _ChatRoomState extends State<ChatRoom> {
             if (_scrollController.hasClients &&
                 _lastScrollOffset! <=
                     _scrollController.position.maxScrollExtent) {
-              print("Controller HJump");
               _scrollController.jumpTo(_lastScrollOffset!);
             }
           });
