@@ -27,6 +27,12 @@ import 'package:http/http.dart' as http;
 import 'package:zineapp2023/database/database.dart';
 import 'package:drift/drift.dart' as drift;
 
+import 'package:logger/logger.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
+
 class ChatRoomViewModel extends ChangeNotifier {
   final UserProv userProv;
 
@@ -572,7 +578,6 @@ class ChatRoomViewModel extends ChangeNotifier {
   //-------PIPELINE:1.localDBfetch -->fetchFromApi -->updateLocalDBwithNewData --> UpdateUI ------------------------------------------//
   ///STAGE 1:localDB
   Future<void> fetchAllRoomDataFromLocalDB(AppDb db) async {
-    print("..Room pipeline started...");
     try {
       allrooms = await fetchRoomDataFromLocalDB(db);
       userProjects = allrooms
@@ -587,21 +592,13 @@ class ChatRoomViewModel extends ChangeNotifier {
           [];
       announcement = await fetchAnnouncementDataFromLocalDB(db);
     } catch (e) {
-      // print("Error fetching data from local storage: $e");
+      logger.e("Error fetching data from local storage: $e");
     } finally {
       isRoomLoaded = true;
       notifyListeners();
     }
-    // finally
-    //     {
-    //       print("before : isRoomLoaded${isRoomLoaded}");
-    //       _isRoomLoaded = true;
-    //       print("after : isRoomLoaded${isRoomLoaded}");
-    //     notifyListeners();
-    //     }
   }
 
-  ///STAGE2:APIdata
   Future<void> fetchAllRoomDataFromApi(AppDb db) async {
     try {
       List<Rooms>? newAnnouncements = await saveAnnouncementToLocalDb(db);
