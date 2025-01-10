@@ -47,7 +47,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   .toString()) //chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
           : "";
       widget.roomDetail?.id != null
-          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(),db)
+          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db)
           : "";
       // chatRoomView.getTotalActiveMember(db,widget.roomDetail!.id.toString());
     });
@@ -56,20 +56,20 @@ class _ChatRoomState extends State<ChatRoom> {
       onKeyEvent: (FocusNode node, KeyEvent evt) {
         bool is_enter = evt.logicalKey == LogicalKeyboardKey.enter;
 
-        bool is_shift = HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.shiftLeft) ||
-            HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.shiftRight);
+        bool is_shift = HardwareKeyboard.instance.logicalKeysPressed
+                .contains(LogicalKeyboardKey.shiftLeft) ||
+            HardwareKeyboard.instance.logicalKeysPressed
+                .contains(LogicalKeyboardKey.shiftRight);
 
         if (!is_shift && is_enter) {
           if (evt is KeyDownEvent) {
             _sendMessage();
           }
           return KeyEventResult.handled;
-        }
-
-        else if (HardwareKeyboard.instance.physicalKeysPressed
-            .contains(PhysicalKeyboardKey.shiftLeft) &&
+        } else if (HardwareKeyboard.instance.physicalKeysPressed
+                .contains(PhysicalKeyboardKey.shiftLeft) &&
             evt.logicalKey.keyLabel == 'Enter') {
-            _messageController.text += "\n";
+          _messageController.text += "\n";
 
           return KeyEventResult.handled;
         }
@@ -103,7 +103,6 @@ class _ChatRoomState extends State<ChatRoom> {
         // chatRoomView.loadRooms();
       });
     }
-
   }
 
   Future<void> _saveRoomNameToPreferences() async {
@@ -153,7 +152,9 @@ class _ChatRoomState extends State<ChatRoom> {
                       .push(CupertinoPageRoute(builder: (BuildContext context) {
                     // return Text("chatDesctiption remove");
                     return ChatDescription(
-                        roomName: roomName, image: image, data: listOfUsers !=null ? listOfUsers :[] );
+                        roomName: roomName,
+                        image: image,
+                        data: listOfUsers != null ? listOfUsers : []);
                   }));
                 },
                 child: Text(
@@ -188,8 +189,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   children: [
                     // chatV(data, currUser, dashVm, chatVm.replyText,
                     //     chatVm.updateMessage, context),
-                    chatV(context, chatVm.messageStream, dashVm,
-                        chatVm.userReplyText),
+                    chatV(context, dashVm, chatVm.userReplyText),
 
                     if (isAllowedTyping)
                       Column(
@@ -249,7 +249,8 @@ class _ChatRoomState extends State<ChatRoom> {
                                     flex: 1,
                                     child: TextField(
                                       keyboardType: TextInputType.multiline,
-                                      focusNode: _focusNode,//chatVm.replyfocus,
+                                      focusNode:
+                                          _focusNode, //chatVm.replyfocus,
                                       maxLines: null,
                                       minLines: 1,
                                       controller: _messageController,
@@ -311,10 +312,10 @@ class _ChatRoomState extends State<ChatRoom> {
                                         chatVm
                                             .sendFile(_messageController.text);
                                       } else {
-                                                _sendMessage();
-                                              // chatVm.sendMessage(
-                                              // _messageController.text, roomName);
-                                              // _messageController.text = "";
+                                        _sendMessage();
+                                        // chatVm.sendMessage(
+                                        // _messageController.text, roomName);
+                                        // _messageController.text = "";
                                         chatVm.replyTo = null;
                                       }
                                     },

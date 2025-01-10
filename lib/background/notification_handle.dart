@@ -51,7 +51,7 @@ Future<void> _showNotification({String? title, String? body}) async {
 //-------------------------------------listen notification by FCM--------------------------//
 void setupForegroundMessageListener() {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    print("message data:${message.notification?.body}");
+    print("message data:${message.data}  message notification data:${message.notification?.body}");
     if (message.notification != null) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? storedRoomName = prefs.getString("roomName");

@@ -36,7 +36,7 @@ class ChatRepo {
         //   print("Text: ${message.text}");
         //   print("Type: ${message.type}");
         //   print("Timestamp: ${message.timestamp}");
-        //   print("Sent From: ${message.sentFrom?.id ?? 'Unknown'}");
+        //   print("Sent From: ${message.sentFrom?.name ?? 'Unknown'}");
         //   print("Poll: ${message.poll?.pollOptions?? 'No Poll'}");
         //   print("File: ${message.file?.uri ?? 'No File'}");
         //   print("Reply To: ${message.replyTo ?? 'No Reply'}");
@@ -99,12 +99,12 @@ class ChatRepo {
       Uri url = BackendProperties.announcementUri(emailId);
       final response =
           await http.get(url, headers: BackendProperties.getHeaders());
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         if (responseData.containsKey('announcementRoom')) {
           final Map<String, dynamic> announcement =
               responseData['announcementRoom'];
+          print("\n\nannouncement data as:${announcement}");
           Rooms announcement1 = Rooms.fromJson(announcement);
           announcements.add(announcement1);
         }

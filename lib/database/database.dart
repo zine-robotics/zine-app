@@ -64,8 +64,8 @@ class MessagesTable extends Table {
   BoolColumn get isSynced => boolean().withDefault(Constant(false))();
   IntColumn get roomId =>
       integer().nullable().customConstraint('REFERENCES rooms_table(id)')();
-  TextColumn get sentFromName =>
-      text().customConstraint('REFERENCES room_member_table(name) NOT NULL')();
+  IntColumn get sentFromId =>
+      integer().customConstraint('REFERENCES room_member_table(id) NOT NULL')();
   IntColumn get replyToId =>
       integer().nullable().customConstraint('REFERENCES messages_table(id)')();
 
@@ -113,9 +113,27 @@ class FileTable extends Table {
 ])
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
-
+  static LazyDatabase? _lazyDatabase;
   @override
   int get schemaVersion => 1;
+
+  static Future<void> deleteUserLocalDb(AppDb Db) async {
+    print("inside the deleteUserLocalDb");
+    try {
+      await Db.batch((batch) {
+        batch.deleteAll(Db.roomsTable);
+        batch.deleteAll(Db.messagesTable);
+        batch.deleteAll(Db.usersTable);
+        batch.deleteAll(Db.fileTable);
+        batch.deleteAll(Db.pollTable);
+        batch.deleteAll(Db.pollOptionTable);
+        batch.deleteAll(Db.roomMemberTable);
+      });
+      print("All tables cleared successfully.");
+    } catch (e) {
+      print("Error clearing tables: $e");
+    }
+  }
 
   static LazyDatabase _openConnection() {
     print("Initializing LazyDatabase connection...");
@@ -125,7 +143,7 @@ class AppDb extends _$AppDb {
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
         await file.delete();
-        print("Old database Deleted.");
+        print("Old database present.");
       }
       return NativeDatabase(file);
     });
@@ -208,7 +226,7 @@ class AppDb extends _$AppDb {
       // Filter rooms based on the type being 'announcement'
       final announcements =
           rooms.where((room) => room.type == 'announcement').toList();
-
+      print("number of announcement is ${announcements.length}");
       if (announcements.isNotEmpty) {
         // print('Successfully fetched ${announcements.length} announcements');
       } else {
