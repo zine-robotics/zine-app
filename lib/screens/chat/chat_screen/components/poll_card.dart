@@ -116,6 +116,14 @@ class _PollCardState extends State<PollCard> {
                         hintText: "Description",
                       ),
                     ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    const Text(
+                      "Options",
+                      textAlign: TextAlign.left,
+                      style: TextStyle(color: greyText, fontSize: 13),
+                    ),
                     Expanded(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -176,7 +184,7 @@ class PollOption extends StatelessWidget {
             child: TextFormField(
               validator: (value) => validator(value),
               controller: controller,
-              decoration: const InputDecoration(hintText: 'Option'),
+              decoration: const InputDecoration(hintText: '+ Add'),
             ),
           ),
         ),
