@@ -8,7 +8,6 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
-import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/file_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/poll_tile.dart';
@@ -519,12 +518,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                 } else if (chats[currIndx].type == MessageType.poll &&
                     chats[currIndx].poll != null) {
                   print("TEst");
-                  return PollTile(leading: chatRoomViewModel.showProfileImage(
-                                                    chats[currIndx]
-                                                        .sentFrom!
-                                                        .dp
-                                                        .toString(),
-                                                    radius: 50.0),
+                  return PollTile(
                     chatVm: chatRoomViewModel,
                     messageIndex: currIndx,
                     isUser: isUser,

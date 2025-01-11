@@ -120,7 +120,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     final subscription = _client.subscribe(
         destination: "/room/$currRoomID/active-users",
         // headers: BackendProperties.getHeaders(),
-        headers: {'roomId':currRoomID},
+        headers: {'roomId': currRoomID},
         callback: (StompFrame frame) async {
           try {
             _activeMembers = [];
@@ -913,14 +913,6 @@ class ChatRoomViewModel extends ChangeNotifier {
   //----------------------------------------------------------POLLS----------------------------------------------------//
   int length = 0;
 
-  bool _isPollBeingCreated = false;
-
-  bool get isPollBeingCreated => _isPollBeingCreated;
-  set isPollBeingCreated(bool status) {
-    _isPollBeingCreated = status;
-    notifyListeners();
-  }
-
   //----------------------------------------------------save the image url as image path-----------------------------------------------//
   Future<String> saveImageToLocalStorage(
       String imageUrl, String userId, String fileName) async {
@@ -1017,6 +1009,15 @@ class ChatRoomViewModel extends ChangeNotifier {
     int pollIndex = messages.indexWhere(
       (element) => element.id! == messageId,
     );
+
+    if (messages[pollIndex].poll!.lastVoted != null) {
+      // remove old vote and add new vote
+      int optionIndex = messages[pollIndex].poll!.pollOptions.indexWhere(
+          (option) => option.id == messages[pollIndex].poll!.lastVoted);
+
+      messages[pollIndex].poll!.pollOptions[optionIndex].numVotes--;
+    }
+
     messages[pollIndex].poll!.lastVoted = optionId;
     print(
         "_messages LastVoted updated to ${messages[pollIndex].poll!.lastVoted}");

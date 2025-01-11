@@ -26,20 +26,26 @@ class PollTile extends StatefulWidget {
 class _PollTileState extends State<PollTile> {
   int? selectedOptionId;
 
+  int _calculateTotalVotes(List<PollOption> options) {
+    return options.fold(0, (sum, option) => sum + option.numVotes);
+  }
+
+  String _calculatePercentage(int optionVotes, int totalVotes) {
+    if (totalVotes == 0) return '0.0';
+    return ((optionVotes / totalVotes) * 100).toStringAsFixed(1);
+  }
+
   @override
   Widget build(BuildContext context) {
-    // print(widget.message.poll!.pollOptions);
-
-    // int? lastPollSelected = widget.message.poll!.lastVoted;
-    print("PollTile Rebuilt State");
     return Consumer<ChatRoomViewModel>(
       builder: (context, chatVm, child) {
         List<MessageModel> messages = chatVm.messages;
         MessageModel message = messages[widget.messageIndex];
         if (message.poll!.lastVoted != null) {
-          print("Last Volted is ${message.poll!.lastVoted}");
           selectedOptionId = message.poll!.lastVoted;
         }
+
+        final totalVotes = _calculateTotalVotes(message.poll!.pollOptions);
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -79,7 +85,7 @@ class _PollTileState extends State<PollTile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        message!.poll!.title,
+                        message.poll!.title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                             ),
@@ -97,11 +103,9 @@ class _PollTileState extends State<PollTile> {
                       const SizedBox(height: 16),
                       ...message.poll!.pollOptions.map((option) {
                         bool isSelected = (selectedOptionId == option.id);
-                        int totalVotes = 1000;
-                        final percentage = totalVotes > 0
-                            ? (option.numVotes / totalVotes * 100)
-                                .toStringAsFixed(1)
-                            : '0.0';
+                        final percentage =
+                            _calculatePercentage(option.numVotes, totalVotes);
+
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: Container(
@@ -113,7 +117,6 @@ class _PollTileState extends State<PollTile> {
                               children: [
                                 IconButton(
                                     onPressed: () {
-                                      print("Ontap ");
                                       widget.onVote(option.id);
                                       setState(() {
                                         selectedOptionId = option.id;
@@ -128,97 +131,71 @@ class _PollTileState extends State<PollTile> {
                                 Expanded(
                                   child: InkWell(
                                     onTap: () {
-                                      print("Ontap ");
                                       widget.onVote(option.id);
-
                                       setState(() {
                                         selectedOptionId = option.id;
                                       });
                                     },
-                                    child: isSelected
-                                        ? Container(
-                                            padding: const EdgeInsets.all(10),
+                                    child: Stack(
+                                      children: [
+                                        // Background white container
+                                        Container(
+                                          decoration: const BoxDecoration(
+                                              color: Colors.white30,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10))),
+                                        ),
+                                        // Percentage overlay
+                                        if (selectedOptionId != null)
+                                          Container(
                                             decoration: const BoxDecoration(
-                                                color: Colors.white,
+                                                color: Colors.white60,
                                                 borderRadius: BorderRadius.all(
                                                     Radius.circular(10))),
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(option.value),
-                                            ))
-                                        : Container(
-                                            padding: const EdgeInsets.all(10),
-                                            decoration: const BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10))),
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(option.value),
-                                            )),
+                                            width: double.parse(percentage) /
+                                                100 *
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.6,
+                                          ),
+                                        // Content
+                                        Container(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(option.value),
+                                              if (selectedOptionId != null)
+                                                Text(
+                                                  '$percentage% (${option.numVotes})',
+                                                  style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-
-                            // child: Stack(
-                            //   children: [
-                            //     if (selectedOptionId != null)
-                            //       FractionallySizedBox(
-                            //         // widthFactor: option.numVotes / totalVotes,
-                            //         widthFactor: 3,
-                            //         child: Container(
-                            //           decoration: BoxDecoration(
-                            //             borderRadius: BorderRadius.circular(8),
-                            //             color: textDarkBlue,
-                            //           ),
-                            //           height: 56,
-                            //         ),
-                            //       ),
-                            //     Padding(
-                            //       padding: const EdgeInsets.all(16.0),
-                            //       child: Row(
-                            //         mainAxisAlignment:
-                            //             MainAxisAlignment.spaceBetween,
-                            //         children: [
-                            //           Row(
-                            //             children: [
-                            //               Container(
-                            //                 width: 24,
-                            //                 height: 24,
-                            //                 decoration: BoxDecoration(
-                            //                   shape: BoxShape.circle,
-                            //                   border: Border.all(
-                            //                     color:
-                            //                         selectedOptionId == option.id
-                            //                             ? Colors.blue
-                            //                             : Colors.grey,
-                            //                   ),
-                            //                 ),
-                            //                 child: selectedOptionId == option.id
-                            //                     ? const Center(
-                            //                         child: Icon(
-                            //                           Icons.check_circle,
-                            //                           size: 22,
-                            //                           color: Colors.blue,
-                            //                         ),
-                            //                       )
-                            //                     : null,
-                            //               ),
-                            //               const SizedBox(width: 12),
-                            //               Text(option.value),
-                            //             ],
-                            //           ),
-                            //           if (selectedOptionId != null)
-                            //             Text('$percentage%'),
-                            //         ],
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
                           ),
                         );
                       }).toList(),
+                      if (selectedOptionId != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Total votes: $totalVotes',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.white.withOpacity(0.8),
+                                  ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
