@@ -142,7 +142,7 @@ class AppDb extends _$AppDb {
       // print("Database folder path: ${dbFolder.path}");
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
-        await file.delete();
+        // await file.delete();
         print("Old database present.");
       }
       return NativeDatabase(file);
@@ -329,6 +329,12 @@ class AppDb extends _$AppDb {
       print("ERROR:getUserDetailsFromLocalDb :${e}");
       return null;
     }
+  }
+
+  /// Fetch a RoomMemberDB object by ID
+  Future<RoomMemberDB?> fetchRoomMemberById(int memberId) async {
+    return (select(roomMemberTable)..where((tbl) => tbl.id.equals(memberId)))
+        .getSingleOrNull();
   }
 
   //=========================POLLS============================================

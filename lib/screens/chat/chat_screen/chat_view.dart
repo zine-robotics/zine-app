@@ -25,8 +25,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
   UserProv userVm = Provider.of<UserProv>(context, listen: true);
 
   // If there are no messages
-  // print("messages:...................... $chats");
-  // print(chats);
+
   if (chats.isEmpty) {
     return const Expanded(
       child: Center(
@@ -89,9 +88,6 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
             dynamic repliedMessage;
             // print("reply to:${chats[currIndx].replyTo}");
             if (chats[currIndx].replyToID != null) {
-              print("checking reply content:${chats[currIndx].replyToID}");
-              // repliedMessage = chats[currIndx].replyToMsg;
-              print("checking reply:${chats[currIndx].replyToMsg}");
               repliedMessage = chatRoomViewModel.userGetMessageById(
                   chats, chats[currIndx].replyToID.toString());
             }

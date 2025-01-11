@@ -59,7 +59,6 @@ class MessageModel {
     data['file'] = file?.toJson();
     data['poll'] = poll?.toJson();
     data['timestamp'] = timestamp;
-
     data['sentFrom'] = sentFrom?.toJson();
     data['replyToID'] = replyToID;
     data['replyToMsg'] = replyToMsg?.toJson();

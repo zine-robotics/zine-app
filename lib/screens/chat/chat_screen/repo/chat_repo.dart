@@ -10,55 +10,35 @@ import 'package:zineapp2023/models/newUser.dart';
 import '../../../../models/events.dart';
 import '../../../../models/rooms.dart';
 import '../../../../models/user.dart';
+import 'package:logger/logger.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
 
 class ChatRepo {
 //=====================================================NEWER CODE================================================================//
 
 //------------------------------------Fetching_all_messages_through_RoomId-------------------------------------------//
   Future<List<MessageModel>> getChatMessages(String tempRoomId) async {
-    // print("\n ----------getchatMessage Called------------------ \n");
-    // String groupID='352';
     try {
       Uri url = BackendProperties.roomMessageUri(tempRoomId);
-      //     "http://172.20.10.4:8080/messages/roomMsg?roomId=$TemproomId";
-
       final response =
           await http.get(url, headers: BackendProperties.getHeaders());
-      // print("checking :${jsonDecode(response.body)}");
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = jsonDecode(response.body);
-        print("jsonResponse: $jsonResponse");
+        // logger.d(jsonResponse);
         List<MessageModel> messages = jsonResponse
             .where((json) => json != null && json is Map<String, dynamic>)
             .map((json) => MessageModel.fromJson(json as Map<String, dynamic>))
             .toList();
-        print("inside the chat_repo and message:${messages.toList().length}");
-        // print("inside the chat_repo and message:${messages.toList()}");
-        // for (var message in messages) {
-        //   print("------------Message Details:---------------");
-        //   print("ID: ${message.id}");
-        //   print("Text: ${message.text}");R
-        //   print("Type: ${message.type}");
-        //   print("Timestamp: ${message.timestamp}");
-        //   print("Sent From: ${message.sentFrom?.name ?? 'Unknown'}");
-        //   print("Poll: ${message.poll?.pollOptions?? 'No Poll'}");
-        //   print("File: ${message.file?.uri ?? 'No File'}");
-        //   print("Reply To: ${message.replyTo ?? 'No Reply'}");
-        //   print("----------------------------");
-        // }
         return messages;
       } else {
-        print("Failed to load messages: ${response.statusCode}");
+        logger.w("Failed to load messages: ${response.statusCode}");
         return [];
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(
-            '==============================ERROR in getChatMessages =============');
-        print(e);
-        print(
-            '====================================================================');
-      }
+      logger.e(e);
       return [];
     }
   }
