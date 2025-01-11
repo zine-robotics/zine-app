@@ -26,6 +26,11 @@ import '../repo/chat_repo.dart';
 import 'package:http/http.dart' as http;
 import 'package:zineapp2023/database/database.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:logger/logger.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
 
 class ChatRoomViewModel extends ChangeNotifier {
   final UserProv userProv;
@@ -150,6 +155,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       callback: (StompFrame frame) async {
         try {
           final Map<String, dynamic> messageData = json.decode(frame.body!);
+          logger.i("Received message: $messageData");
           if (messageData['update'] == 'poll-update' &&
               messageData['pollUpdate'] != null) {
             if (kDebugMode) {
@@ -173,10 +179,18 @@ class ChatRoomViewModel extends ChangeNotifier {
             //   print(messageData);
             //   print("===============================================");
             // }
+            if (messageData['body']['replyTo'] != null) {
+              messageData['body']['replyToID'] =
+                  messageData['body']['replyTo']['id'];
+            }
+
             MessageModel messageData1 =
                 MessageModel.fromJson(messageData['body']);
-            await workerToSaveMessage(messageData1, db, roomId);
             messages.add(messageData1);
+            print(" MESSAGE S ${messageData1.replyToID}");
+            print(messageData1.replyToMsg);
+            notifyListeners();
+            await workerToSaveMessage(messageData1, db, roomId);
           }
           //_messageStreamController.add(List.from(messages));
 
@@ -241,14 +255,14 @@ class ChatRoomViewModel extends ChangeNotifier {
       "type": "text",
       "sentFrom": userProv.getUserInfo.id!,
       "roomId": int.parse(_roomId),
-      "text": {"content": user_message.trim()}
+      "text": {"content": user_message.trim()},
+      "replyTo": replyTo,
     };
-    if (replyTo != null && replyUsername != null) {
-      messageData['replyTo'] = replyTo;
-    }
+
+    replyTo = null;
     // print("during sent replyTo:$replyTo \t replyusername:$replyUsername");
     final jsonBody = json.encode(messageData);
-
+    logger.i("Sending message: $jsonBody");
     try {
       _client.send(
         destination: "/app/message",
@@ -827,6 +841,9 @@ class ChatRoomViewModel extends ChangeNotifier {
             final roomDetails = await (db.select(db.roomsTable)
                   ..where((tbl) => tbl.id.equals(message.roomId!)))
                 .getSingleOrNull();
+            final sentfromDetails = await (db.select(db.roomMemberTable)
+                  ..where((tbl) => tbl.id.equals(replyMessage!.sentFromId)))
+                .getSingleOrNull();
 
             if (replyMessage != null && roomDetails != null) {
               print("replyMessage:${replyMessage}");
@@ -835,9 +852,20 @@ class ChatRoomViewModel extends ChangeNotifier {
                 type: MessageType.values.byName(replyMessage.type ?? 'text'),
                 timestamp: DateTime.fromMillisecondsSinceEpoch(
                     replyMessage.timestamp!),
-                sentFrom: null,
+                sentFrom: sentfromDetails != null
+                    ? SentFrom(
+                        id: sentfromDetails.id,
+                        name: sentfromDetails.name,
+                        email: sentfromDetails.email,
+                        type: sentfromDetails.role,
+                        registered: sentfromDetails.registered,
+                        dp: sentfromDetails.dpUrl,
+                        emailVerified: sentfromDetails.emailVerified,
+                      )
+                    : null,
                 roomId: null,
                 replyTo: null,
+                text: replyMessage.textData,
               );
             }
           } else {
@@ -865,10 +893,11 @@ class ChatRoomViewModel extends ChangeNotifier {
               replyToID:
                   replyToConstructor != null ? replyToConstructor.id : null,
               poll: pollData);
-          // print("New Message formed");
-          // print(replyToConstructor);
-          // print(temp_message.replyToID);
-          // print(temp_message.replyToMsg);
+
+          print("New Message formed");
+          print(replyToConstructor?.text);
+          print(temp_message.replyToID);
+          print(temp_message.replyToMsg);
 
           messages.add(temp_message);
         } catch (e) {
