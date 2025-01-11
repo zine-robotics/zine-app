@@ -5,6 +5,7 @@ import 'package:zineapp2023/backend_properties.dart';
 import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:http/http.dart' as http;
+import 'package:zineapp2023/models/message_response_model.dart';
 import 'package:zineapp2023/models/newUser.dart';
 
 import '../../../../models/events.dart';
@@ -20,7 +21,7 @@ class ChatRepo {
 //=====================================================NEWER CODE================================================================//
 
 //------------------------------------Fetching_all_messages_through_RoomId-------------------------------------------//
-  Future<List<MessageModel>> getChatMessages(String tempRoomId) async {
+  Future<List<MessageResponseModel>> getChatMessages(String tempRoomId) async {
     try {
       Uri url = BackendProperties.roomMessageUri(tempRoomId);
       final response =
@@ -28,9 +29,10 @@ class ChatRepo {
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = jsonDecode(response.body);
         // logger.d(jsonResponse);
-        List<MessageModel> messages = jsonResponse
+        List<MessageResponseModel> messages = jsonResponse
             .where((json) => json != null && json is Map<String, dynamic>)
-            .map((json) => MessageModel.fromJson(json as Map<String, dynamic>))
+            .map((json) =>
+                MessageResponseModel.fromJson(json as Map<String, dynamic>))
             .toList();
         return messages;
       } else {

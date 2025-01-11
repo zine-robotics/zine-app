@@ -1056,7 +1056,7 @@ class $RoomMemberTableTable extends RoomMemberTable
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, true,
+      'id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -1068,8 +1068,8 @@ class $RoomMemberTableTable extends RoomMemberTable
   static const VerificationMeta _emailMeta = const VerificationMeta('email');
   @override
   late final GeneratedColumn<String> email = GeneratedColumn<String>(
-      'email', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      'email', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
   @override
   late final GeneratedColumn<String> role = GeneratedColumn<String>(
@@ -1124,8 +1124,6 @@ class $RoomMemberTableTable extends RoomMemberTable
     if (data.containsKey('email')) {
       context.handle(
           _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
-    } else if (isInserting) {
-      context.missing(_emailMeta);
     }
     if (data.containsKey('role')) {
       context.handle(
@@ -1151,17 +1149,17 @@ class $RoomMemberTableTable extends RoomMemberTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {email};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   RoomMemberDB map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RoomMemberDB(
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       email: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}email'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}email']),
       role: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}role']),
       registered: attachedDatabase.typeMapping
@@ -1180,17 +1178,17 @@ class $RoomMemberTableTable extends RoomMemberTable
 }
 
 class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
-  final int? id;
+  final int id;
   final String name;
-  final String email;
+  final String? email;
   final String? role;
   final bool registered;
   final String dpUrl;
   final bool? emailVerified;
   const RoomMemberDB(
-      {this.id,
+      {required this.id,
       required this.name,
-      required this.email,
+      this.email,
       this.role,
       required this.registered,
       required this.dpUrl,
@@ -1198,11 +1196,11 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
+    map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['email'] = Variable<String>(email);
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
     if (!nullToAbsent || role != null) {
       map['role'] = Variable<String>(role);
     }
@@ -1216,9 +1214,10 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
 
   RoomMemberTableCompanion toCompanion(bool nullToAbsent) {
     return RoomMemberTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      id: Value(id),
       name: Value(name),
-      email: Value(email),
+      email:
+          email == null && nullToAbsent ? const Value.absent() : Value(email),
       role: role == null && nullToAbsent ? const Value.absent() : Value(role),
       registered: Value(registered),
       dpUrl: Value(dpUrl),
@@ -1232,9 +1231,9 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RoomMemberDB(
-      id: serializer.fromJson<int?>(json['id']),
+      id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      email: serializer.fromJson<String>(json['email']),
+      email: serializer.fromJson<String?>(json['email']),
       role: serializer.fromJson<String?>(json['role']),
       registered: serializer.fromJson<bool>(json['registered']),
       dpUrl: serializer.fromJson<String>(json['dpUrl']),
@@ -1245,9 +1244,9 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int?>(id),
+      'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'email': serializer.toJson<String>(email),
+      'email': serializer.toJson<String?>(email),
       'role': serializer.toJson<String?>(role),
       'registered': serializer.toJson<bool>(registered),
       'dpUrl': serializer.toJson<String>(dpUrl),
@@ -1256,17 +1255,17 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
   }
 
   RoomMemberDB copyWith(
-          {Value<int?> id = const Value.absent(),
+          {int? id,
           String? name,
-          String? email,
+          Value<String?> email = const Value.absent(),
           Value<String?> role = const Value.absent(),
           bool? registered,
           String? dpUrl,
           Value<bool?> emailVerified = const Value.absent()}) =>
       RoomMemberDB(
-        id: id.present ? id.value : this.id,
+        id: id ?? this.id,
         name: name ?? this.name,
-        email: email ?? this.email,
+        email: email.present ? email.value : this.email,
         role: role.present ? role.value : this.role,
         registered: registered ?? this.registered,
         dpUrl: dpUrl ?? this.dpUrl,
@@ -1319,14 +1318,13 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
 }
 
 class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
-  final Value<int?> id;
+  final Value<int> id;
   final Value<String> name;
-  final Value<String> email;
+  final Value<String?> email;
   final Value<String?> role;
   final Value<bool> registered;
   final Value<String> dpUrl;
   final Value<bool?> emailVerified;
-  final Value<int> rowid;
   const RoomMemberTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1335,18 +1333,16 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
     this.registered = const Value.absent(),
     this.dpUrl = const Value.absent(),
     this.emailVerified = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
   RoomMemberTableCompanion.insert({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    required String email,
+    this.email = const Value.absent(),
     this.role = const Value.absent(),
     this.registered = const Value.absent(),
     this.dpUrl = const Value.absent(),
     this.emailVerified = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : email = Value(email);
+  });
   static Insertable<RoomMemberDB> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -1355,7 +1351,6 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
     Expression<bool>? registered,
     Expression<String>? dpUrl,
     Expression<bool>? emailVerified,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1365,19 +1360,17 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
       if (registered != null) 'registered': registered,
       if (dpUrl != null) 'dp_url': dpUrl,
       if (emailVerified != null) 'email_verified': emailVerified,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
   RoomMemberTableCompanion copyWith(
-      {Value<int?>? id,
+      {Value<int>? id,
       Value<String>? name,
-      Value<String>? email,
+      Value<String?>? email,
       Value<String?>? role,
       Value<bool>? registered,
       Value<String>? dpUrl,
-      Value<bool?>? emailVerified,
-      Value<int>? rowid}) {
+      Value<bool?>? emailVerified}) {
     return RoomMemberTableCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -1386,7 +1379,6 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
       registered: registered ?? this.registered,
       dpUrl: dpUrl ?? this.dpUrl,
       emailVerified: emailVerified ?? this.emailVerified,
-      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -1414,9 +1406,6 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
     if (emailVerified.present) {
       map['email_verified'] = Variable<bool>(emailVerified.value);
     }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
     return map;
   }
 
@@ -1429,8 +1418,7 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
           ..write('role: $role, ')
           ..write('registered: $registered, ')
           ..write('dpUrl: $dpUrl, ')
-          ..write('emailVerified: $emailVerified, ')
-          ..write('rowid: $rowid')
+          ..write('emailVerified: $emailVerified')
           ..write(')'))
         .toString();
   }
@@ -3517,25 +3505,23 @@ typedef $$PollTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool messagesTableRefs, bool pollOptionTableRefs})>;
 typedef $$RoomMemberTableTableCreateCompanionBuilder = RoomMemberTableCompanion
     Function({
-  Value<int?> id,
+  Value<int> id,
   Value<String> name,
-  required String email,
+  Value<String?> email,
   Value<String?> role,
   Value<bool> registered,
   Value<String> dpUrl,
   Value<bool?> emailVerified,
-  Value<int> rowid,
 });
 typedef $$RoomMemberTableTableUpdateCompanionBuilder = RoomMemberTableCompanion
     Function({
-  Value<int?> id,
+  Value<int> id,
   Value<String> name,
-  Value<String> email,
+  Value<String?> email,
   Value<String?> role,
   Value<bool> registered,
   Value<String> dpUrl,
   Value<bool?> emailVerified,
-  Value<int> rowid,
 });
 
 final class $$RoomMemberTableTableReferences
@@ -3718,14 +3704,13 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$RoomMemberTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int?> id = const Value.absent(),
+            Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<String> email = const Value.absent(),
+            Value<String?> email = const Value.absent(),
             Value<String?> role = const Value.absent(),
             Value<bool> registered = const Value.absent(),
             Value<String> dpUrl = const Value.absent(),
             Value<bool?> emailVerified = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
           }) =>
               RoomMemberTableCompanion(
             id: id,
@@ -3735,17 +3720,15 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
             registered: registered,
             dpUrl: dpUrl,
             emailVerified: emailVerified,
-            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int?> id = const Value.absent(),
+            Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
-            required String email,
+            Value<String?> email = const Value.absent(),
             Value<String?> role = const Value.absent(),
             Value<bool> registered = const Value.absent(),
             Value<String> dpUrl = const Value.absent(),
             Value<bool?> emailVerified = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
           }) =>
               RoomMemberTableCompanion.insert(
             id: id,
@@ -3755,7 +3738,6 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
             registered: registered,
             dpUrl: dpUrl,
             emailVerified: emailVerified,
-            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

@@ -119,8 +119,8 @@ class _ChatRoomState extends State<ChatRoom> {
         bool isAllowedTyping = true;
         List<RoomMemberModel>? listOfUsers = chatVm.activeMembers;
         //
-        print("roomName: $roomName build for reply to");
-        print("replyTo: ${chatVm.replyTo}");
+        logger.d(
+            "Building room: $roomName , id : ${widget.roomDetail!.id.toString()}");
 
         if (currUser.type == 'user' && roomName == 'Announcements') {
           isAllowedTyping = false;

@@ -10,6 +10,8 @@ import '../models/user.dart';
 
 part 'database.g.dart';
 
+/// Run this in Terminal after deleting the .g file : `dart run build_runner watch` for dev and `dart run build_runner build`
+
 @DataClassName('Room')
 class RoomsTable extends Table {
   IntColumn get id => integer()(); // Setting 'id' as the primary key
@@ -35,20 +37,21 @@ class UsersTable extends Table {
   BoolColumn get registered => boolean().withDefault(Constant(false))();
   TextColumn get dp => text().withDefault(Constant(''))();
   BoolColumn get emailVerified => boolean().nullable()();
+  @override
   Set<Column> get primaryKey => {id};
 }
 
 @DataClassName('RoomMemberDB')
 class RoomMemberTable extends Table {
-  IntColumn get id => integer().nullable()();
+  IntColumn get id => integer()();
   TextColumn get name => text().withDefault(Constant('Anonymous'))();
-  TextColumn get email => text()();
+  TextColumn get email => text().nullable()();
   TextColumn get role => text().nullable()();
   BoolColumn get registered => boolean().withDefault(Constant(false))();
   TextColumn get dpUrl => text().withDefault(Constant(''))();
   BoolColumn get emailVerified => boolean().nullable()();
   @override
-  Set<Column> get primaryKey => {email};
+  Set<Column> get primaryKey => {id};
 }
 
 @DataClassName('MessageDB')
@@ -142,7 +145,7 @@ class AppDb extends _$AppDb {
       // print("Database folder path: ${dbFolder.path}");
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
-        // await file.delete();
+        await file.delete();
         print("Old database present.");
       }
       return NativeDatabase(file);

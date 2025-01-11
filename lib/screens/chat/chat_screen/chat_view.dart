@@ -71,8 +71,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
           itemBuilder: (BuildContext context, int index) {
             // print("chats[currIndx].sentFrom:${chats[index].sentFrom ==null} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
             var currIndx = chats.length - index - 1;
-            bool isUser =
-                (userVm.getUserInfo.id == chats[currIndx].sentFrom!.id);
+            bool isUser = (userVm.getUserInfo.id == chats[currIndx].sender!.id);
             var showDate = index == chats.length - 1 ||
                 (chats.length - index >= 2 &&
                     validShowDate(chats[currIndx].timestamp!) !=
@@ -80,20 +79,20 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                             chats[chats.length - index - 2].timestamp!));
 
             bool group = index > 0 &&
-                chats[currIndx].sentFrom!.id ==
-                    chats[chats.length - index].sentFrom?.id &&
+                chats[currIndx].sender!.id ==
+                    chats[chats.length - index].sender?.id &&
                 getChatDate(chats[currIndx].timestamp!) ==
                     getChatDate(chats[chats.length - index].timestamp!);
 
-            dynamic repliedMessage;
+            MessageModel? repliedMessage;
             // print("reply to:${chats[currIndx].replyTo}");
-            if (chats[currIndx].replyToID != null) {
+            if (chats[currIndx].replyToId != null) {
               repliedMessage = chatRoomViewModel.userGetMessageById(
-                  chats, chats[currIndx].replyToID.toString());
+                  chats, chats[currIndx].replyToId.toString());
             }
 
             if (chats[currIndx].type == MessageType.text) {
-              return chats[currIndx].text!.isEmpty
+              return chats[currIndx].text == null
                   ? Container()
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,13 +103,13 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                       const EdgeInsets.fromLTRB(0, 10, 0, 5),
                                   child: Padding(
                                     padding: userVm.getUserInfo.id !=
-                                            chats[currIndx].sentFrom!.id
+                                            chats[currIndx].sender!.id
                                         //currUser.name != chats[currIndx].from
                                         ? const EdgeInsets.symmetric(
                                             horizontal: 35.0)
                                         : const EdgeInsets.all(0),
                                     child: Text(
-                                      "${isUser ? "You" : chats[currIndx].sentFrom?.name} replied to ${chats[currIndx].replyToMsg?.sentFrom?.name}",
+                                      "${isUser ? "You" : chats[currIndx].sender?.name} replied to ${repliedMessage.sender?.name}",
                                       textAlign: isUser
                                           ? TextAlign.right
                                           : TextAlign.left,
@@ -170,13 +169,15 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                                       .type ==
                                                                   MessageType
                                                                       .text
-                                                          ? (repliedMessage.text
+                                                          ? (repliedMessage
+                                                                          .text!
+                                                                          .content
                                                                           .toString())
                                                                       .length >
                                                                   20
-                                                              ? '${repliedMessage.text.toString().substring(0, 20)}...'
+                                                              ? '${repliedMessage.text!.content.toString().substring(0, 20)}...'
                                                               : repliedMessage
-                                                                  .text
+                                                                  .text!.content
                                                                   .toString()
                                                           : " ",
                                                       // softWrap: true,
@@ -247,7 +248,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                                   .getUserInfo
                                                                   .id !=
                                                               chats[currIndx]
-                                                                  .sentFrom
+                                                                  .sender
                                                                   ?.id
                                                           ? const BorderRadius.only(
                                                               topRight:
@@ -272,12 +273,14 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                         const EdgeInsets.all(
                                                             12.0),
                                                     child: Text(
-                                                      repliedMessage.text
+                                                      repliedMessage
+                                                                  .text!.content
                                                                   .toString()
                                                                   .length >
                                                               20
-                                                          ? "${repliedMessage.text.toString().substring(0, 20)} . . ."
-                                                          : repliedMessage.text
+                                                          ? "${repliedMessage.text!.content.toString().substring(0, 20)} . . ."
+                                                          : repliedMessage
+                                                              .text!.content
                                                               .toString(),
                                                       textAlign:
                                                           TextAlign.right,
@@ -337,19 +340,19 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                             child: Container()),
                                       )
                                     : File(chats[currIndx]
-                                                .sentFrom!
+                                                .sender!
                                                 .dp
                                                 .toString())
                                             .existsSync()
                                         ? chatRoomViewModel.showProfileImage(
                                             chats[currIndx]
-                                                .sentFrom!
+                                                .sender!
                                                 .dp
                                                 .toString(),
                                             radius: 50.0)
                                         : chatRoomViewModel.customUserName(
                                             chats[currIndx]
-                                                .sentFrom!
+                                                .sender!
                                                 .name
                                                 .toString()), //
                                 // buildProfilePicture(chatRoomViewModel,
@@ -384,14 +387,14 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                   chats[chats.length -
                                                           index -
                                                           1]
-                                                      .sentFrom
+                                                      .sender
                                                       ?.id
                                               ? Alignment.bottomLeft
                                               : Alignment.bottomRight,
                                           child: group
                                               ? const Text("")
                                               : Text(
-                                                  "${chats[currIndx].sentFrom!.name}     ${getChatTime(chats[currIndx].timestamp!)}",
+                                                  "${chats[currIndx].sender!.name}     ${getChatTime(chats[currIndx].timestamp!)}",
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.w400,
                                                     fontSize: 10.0,
@@ -413,7 +416,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                       decoration: BoxDecoration(
                                         color: userVm.getUserInfo.id ==
                                                 chats[chats.length - index - 1]
-                                                    .sentFrom
+                                                    .sender
                                                     ?.id
                                             ? const Color(0xff68a5ca)
                                             : const Color(0xff0C72B0),
@@ -427,7 +430,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                     chats[chats.length -
                                                             index -
                                                             1]
-                                                        .sentFrom
+                                                        .sender
                                                         ?.id
                                                 ? const Radius.circular(0.0)
                                                 : const Radius.circular(15.0),
@@ -435,7 +438,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                     chats[chats.length -
                                                             index -
                                                             1]
-                                                        .sentFrom
+                                                        .sender
                                                         ?.id
                                                 ? const Radius.circular(15.0)
                                                 : const Radius.circular(0.0)),
@@ -446,7 +449,10 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                       child: Padding(
                                         padding: const EdgeInsets.all(10.0),
                                         child: SelectableLinkify(
-                                          text: chats[currIndx].text.toString(),
+                                          text: chats[currIndx]
+                                              .text!
+                                              .content
+                                              .toString(),
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w400,
                                             fontSize: 18.0,
