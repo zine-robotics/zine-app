@@ -6,8 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/components/poll_card.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/reply_card.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/poll_screen.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
@@ -224,9 +224,6 @@ class _ChatRoomState extends State<ChatRoom> {
                                   chatVm: chatVm,
                                 )
                               : Container(),
-                          (chatVm.isPollBeingCreated)
-                              ? const PollCard()
-                              : Container(),
                           (chatVm.isFileLoading)
                               ? (chatVm.isFileReady)
                                   ? Container(
@@ -290,13 +287,15 @@ class _ChatRoomState extends State<ChatRoom> {
                                     width: 15,
                                   ),
                                   IconButton(
-                                    icon: const Icon(
-                                      Icons.poll,
-                                      color: greyText,
-                                    ),
-                                    onPressed: () =>
-                                        chatVm.isPollBeingCreated = true,
-                                  ),
+                                      icon: const Icon(
+                                        Icons.poll,
+                                        color: greyText,
+                                      ),
+                                      onPressed: () => Navigator.of(context)
+                                              .push(MaterialPageRoute(
+                                            builder: (context) =>
+                                                const PollCreatorScreen(),
+                                          ))),
                                   IconButton(
                                     icon: const Icon(
                                       Icons.upload_rounded,
