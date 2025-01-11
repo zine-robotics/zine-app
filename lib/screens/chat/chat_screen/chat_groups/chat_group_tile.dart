@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../../../../models/rooms.dart';
 import '../../../../theme/color.dart';
@@ -29,7 +31,9 @@ class ChatGroupTile extends StatelessWidget {
 
     //Rooms docData=chatVm.docData;
     //print("image by fetching:${docData.image}");
+    //print("image by fetching:${docData.image}");
 
+    print(roomDetails.dpUrl);
     return Stack(
       children: [
         Positioned(
@@ -73,40 +77,59 @@ class ChatGroupTile extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.all(17.0),
-                          child:
-                              // roomDetails.dpUrl !=null ? Image.network(
-                              //   roomDetails.dpUrl.toString(),
-                              //   height: 30,
-                              //   width: 30,
-                              //   fit: BoxFit.cover,
-                              //   color: textColor.withOpacity(0.9),
-                              // ):
+                            color: Colors.white,
+                            width: 80,
+                            height: 80,
+                            padding: const EdgeInsets.all(5.0),
+                            child:
+                                // roomDetails.dpUrl !=null ? Image.network(
+                                //   roomDetails.dpUrl.toString(),
+                                //   height: 30,
+                                //   width: 30,
+                                //   fit: BoxFit.cover,
+                                //   color: textColor.withOpacity(0.9),
+                                // ):
 
-                              (roomDetails.dpUrl == null)
-                                  ? Image.asset(
-                                      "assets/images/zine_logo.png",
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                      color: textColor.withOpacity(0.9),
-                                    )
-                                  : Image.network(roomDetails.dpUrl!,
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
-                                      color: textColor.withOpacity(0.9)),
-                        ),
+                                ((roomDetails.dpUrl == null ||
+                                            roomDetails.dpUrl!.isEmpty) ||
+                                        !File(roomDetails.dpUrl.toString())
+                                            .existsSync())
+                                    ? Image.asset(
+                                        "assets/images/zine_logo.png",
+                                        height: 50,
+                                        width: 50,
+                                        fit: BoxFit.cover,
+                                        color: textColor.withOpacity(0.9),
+                                      )
+                                    : ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Image.file(
+                                          File(roomDetails.dpUrl.toString()),
+                                          fit: BoxFit
+                                              .cover, // Ensures the image covers the circle
+                                          width: 50, // Set to 2 * radius
+                                          height: 50, // Set to 2 * radius
+                                        ),
+                                      )
+
+                            // Image.file(
+                            //     File(roomDetails.dpUrl.toString()),
+                            //     height: 50,
+                            //     width: 50,
+                            //     fit: BoxFit.cover,
+                            //     color: textColor.withOpacity(0.9)),
+                            ),
                       ),
                     ),
-                    roomDetails.lastMessageTimestamp != null ?
-                    Text(
-                      getLastSeenFormat(roomDetails.lastMessageTimestamp!),
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: greyText.withOpacity(0.6)),
-                    ):const Text(""),
+                    roomDetails.lastMessageTimestamp != null
+                        ? Text(
+                            getLastSeenFormat(
+                                roomDetails.lastMessageTimestamp!),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: greyText.withOpacity(0.6)),
+                          )
+                        : const Text(""),
                     const SizedBox(
                       height: 10,
                     ),

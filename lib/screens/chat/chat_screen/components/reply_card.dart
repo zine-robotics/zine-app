@@ -17,7 +17,7 @@ class ReplyCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 3),
             child: Text(
-              "Reply To ${chatVm.selectedReplyMessage.sentFrom!.name}",
+              "Reply To ${chatVm.selectedReplyMessage.sender!.name}",
               textAlign: TextAlign.left,
               style: const TextStyle(color: greyText, fontSize: 11),
             ),
@@ -59,7 +59,7 @@ class ReplyCard extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 5, right: 5),
                     width: double.infinity,
                     child: Text(
-                      chatVm.selectedReplyMessage.text.toString(),
+                      chatVm.selectedReplyMessage.text!.content.toString(),
 
                       // softWrap: true,
                       textAlign: TextAlign.left,

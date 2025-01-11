@@ -1,21 +1,41 @@
 import 'package:zineapp2023/models/message.dart';
+import 'package:zineapp2023/models/message_response_model.dart';
 
-class MessageUpdate {
+class MessageUpdateResponseModel {
   String update;
-  MessageModel body;
+  MessageResponseModel? body;
+  PollUpdate? pollUpdate;
+  String? errorMessage;
 
-  MessageUpdate(this.update, this.body);
+  MessageUpdateResponseModel(
+      this.update, this.body, this.pollUpdate, this.errorMessage);
 
-  MessageUpdate.fromJson(Map<String, dynamic> json)
+  MessageUpdateResponseModel.fromJson(Map<String, dynamic> json)
       : update = json['update'],
-        body = MessageModel.fromJson(json['body']);
+        body = json['body'] != null
+            ? MessageResponseModel.fromJson(json['body'])
+            : null,
+        pollUpdate = json['pollUpdate'] != null
+            ? PollUpdate.fromJson(json['pollUpdate'])
+            : null,
+        errorMessage = json['errorMessage'];
 }
 
 class PollUpdate {
   int chatItemId;
-  List<Map<String, dynamic>> updateData;
+  List<PollOption> pollOptions;
+
+  PollUpdate(this.chatItemId, this.pollOptions);
 
   PollUpdate.fromJson(Map<String, dynamic> json)
       : chatItemId = json['chatItemId'] ?? -1,
-        updateData = json['PollVoteBody'] ?? {};
+        pollOptions = (json['pollOptions'] as List)
+            .map((e) => PollOption.fromJson(e))
+            .toList();
+}
+
+extension MessageUpdateResponseModelMapper on MessageUpdateResponseModel {
+  MessageModel toModel() {
+    return body!.toModel();
+  }
 }

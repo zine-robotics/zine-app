@@ -99,7 +99,15 @@ class _DashboardState extends State<Dashboard> {
                                 ],
                               ),
                               const Spacer(),
-                              File(currUser.dp!.toString()).existsSync() ? chatVm.showProfileImage(currUser.dp!.toString()):CircleAvatar(radius: 30, backgroundColor: iconTile,backgroundImage: AssetImage("assets/images/dp/${currUser.dp}.png",)),
+                              File(currUser.dp!.toString()).existsSync()
+                                  ? chatVm
+                                      .showProfileImage(currUser.dp!.toString())
+                                  : CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: iconTile,
+                                      backgroundImage: AssetImage(
+                                        "assets/images/dp/2.png",
+                                      )),
                               // buildProfilePicture(chatVm.showProfileImage(currUser.dp!.toString()), currUser.name!,
                               //     size: 30),
                               // CircleAvatar(
@@ -315,8 +323,8 @@ class _DashboardState extends State<Dashboard> {
                                                   Text(
                                                     eventVm.tempEvents.length >
                                                             0
-                                                        ? DateFormat.MMMMd().format(
-                                                            eventVm
+                                                        ? DateFormat.MMMMd()
+                                                            .format(eventVm
                                                                 .tempEvents[0]
                                                                 .startDateTime!)
                                                         : "Date",

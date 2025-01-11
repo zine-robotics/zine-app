@@ -1056,7 +1056,7 @@ class $RoomMemberTableTable extends RoomMemberTable
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, true,
+      'id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -1068,8 +1068,8 @@ class $RoomMemberTableTable extends RoomMemberTable
   static const VerificationMeta _emailMeta = const VerificationMeta('email');
   @override
   late final GeneratedColumn<String> email = GeneratedColumn<String>(
-      'email', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+      'email', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
   @override
   late final GeneratedColumn<String> role = GeneratedColumn<String>(
@@ -1124,8 +1124,6 @@ class $RoomMemberTableTable extends RoomMemberTable
     if (data.containsKey('email')) {
       context.handle(
           _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
-    } else if (isInserting) {
-      context.missing(_emailMeta);
     }
     if (data.containsKey('role')) {
       context.handle(
@@ -1151,17 +1149,17 @@ class $RoomMemberTableTable extends RoomMemberTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {email};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   RoomMemberDB map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RoomMemberDB(
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       email: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}email'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}email']),
       role: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}role']),
       registered: attachedDatabase.typeMapping
@@ -1180,17 +1178,17 @@ class $RoomMemberTableTable extends RoomMemberTable
 }
 
 class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
-  final int? id;
+  final int id;
   final String name;
-  final String email;
+  final String? email;
   final String? role;
   final bool registered;
   final String dpUrl;
   final bool? emailVerified;
   const RoomMemberDB(
-      {this.id,
+      {required this.id,
       required this.name,
-      required this.email,
+      this.email,
       this.role,
       required this.registered,
       required this.dpUrl,
@@ -1198,11 +1196,11 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
+    map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['email'] = Variable<String>(email);
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
     if (!nullToAbsent || role != null) {
       map['role'] = Variable<String>(role);
     }
@@ -1216,9 +1214,10 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
 
   RoomMemberTableCompanion toCompanion(bool nullToAbsent) {
     return RoomMemberTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      id: Value(id),
       name: Value(name),
-      email: Value(email),
+      email:
+          email == null && nullToAbsent ? const Value.absent() : Value(email),
       role: role == null && nullToAbsent ? const Value.absent() : Value(role),
       registered: Value(registered),
       dpUrl: Value(dpUrl),
@@ -1232,9 +1231,9 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RoomMemberDB(
-      id: serializer.fromJson<int?>(json['id']),
+      id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      email: serializer.fromJson<String>(json['email']),
+      email: serializer.fromJson<String?>(json['email']),
       role: serializer.fromJson<String?>(json['role']),
       registered: serializer.fromJson<bool>(json['registered']),
       dpUrl: serializer.fromJson<String>(json['dpUrl']),
@@ -1245,9 +1244,9 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int?>(id),
+      'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'email': serializer.toJson<String>(email),
+      'email': serializer.toJson<String?>(email),
       'role': serializer.toJson<String?>(role),
       'registered': serializer.toJson<bool>(registered),
       'dpUrl': serializer.toJson<String>(dpUrl),
@@ -1256,17 +1255,17 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
   }
 
   RoomMemberDB copyWith(
-          {Value<int?> id = const Value.absent(),
+          {int? id,
           String? name,
-          String? email,
+          Value<String?> email = const Value.absent(),
           Value<String?> role = const Value.absent(),
           bool? registered,
           String? dpUrl,
           Value<bool?> emailVerified = const Value.absent()}) =>
       RoomMemberDB(
-        id: id.present ? id.value : this.id,
+        id: id ?? this.id,
         name: name ?? this.name,
-        email: email ?? this.email,
+        email: email.present ? email.value : this.email,
         role: role.present ? role.value : this.role,
         registered: registered ?? this.registered,
         dpUrl: dpUrl ?? this.dpUrl,
@@ -1319,14 +1318,13 @@ class RoomMemberDB extends DataClass implements Insertable<RoomMemberDB> {
 }
 
 class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
-  final Value<int?> id;
+  final Value<int> id;
   final Value<String> name;
-  final Value<String> email;
+  final Value<String?> email;
   final Value<String?> role;
   final Value<bool> registered;
   final Value<String> dpUrl;
   final Value<bool?> emailVerified;
-  final Value<int> rowid;
   const RoomMemberTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1335,18 +1333,16 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
     this.registered = const Value.absent(),
     this.dpUrl = const Value.absent(),
     this.emailVerified = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
   RoomMemberTableCompanion.insert({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    required String email,
+    this.email = const Value.absent(),
     this.role = const Value.absent(),
     this.registered = const Value.absent(),
     this.dpUrl = const Value.absent(),
     this.emailVerified = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : email = Value(email);
+  });
   static Insertable<RoomMemberDB> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -1355,7 +1351,6 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
     Expression<bool>? registered,
     Expression<String>? dpUrl,
     Expression<bool>? emailVerified,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1365,19 +1360,17 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
       if (registered != null) 'registered': registered,
       if (dpUrl != null) 'dp_url': dpUrl,
       if (emailVerified != null) 'email_verified': emailVerified,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
   RoomMemberTableCompanion copyWith(
-      {Value<int?>? id,
+      {Value<int>? id,
       Value<String>? name,
-      Value<String>? email,
+      Value<String?>? email,
       Value<String?>? role,
       Value<bool>? registered,
       Value<String>? dpUrl,
-      Value<bool?>? emailVerified,
-      Value<int>? rowid}) {
+      Value<bool?>? emailVerified}) {
     return RoomMemberTableCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -1386,7 +1379,6 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
       registered: registered ?? this.registered,
       dpUrl: dpUrl ?? this.dpUrl,
       emailVerified: emailVerified ?? this.emailVerified,
-      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -1414,9 +1406,6 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
     if (emailVerified.present) {
       map['email_verified'] = Variable<bool>(emailVerified.value);
     }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
     return map;
   }
 
@@ -1429,8 +1418,7 @@ class RoomMemberTableCompanion extends UpdateCompanion<RoomMemberDB> {
           ..write('role: $role, ')
           ..write('registered: $registered, ')
           ..write('dpUrl: $dpUrl, ')
-          ..write('emailVerified: $emailVerified, ')
-          ..write('rowid: $rowid')
+          ..write('emailVerified: $emailVerified')
           ..write(')'))
         .toString();
   }
@@ -1495,14 +1483,14 @@ class $MessagesTableTable extends MessagesTable
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       $customConstraints: 'REFERENCES rooms_table(id)');
-  static const VerificationMeta _sentFromNameMeta =
-      const VerificationMeta('sentFromName');
+  static const VerificationMeta _sentFromIdMeta =
+      const VerificationMeta('sentFromId');
   @override
-  late final GeneratedColumn<String> sentFromName = GeneratedColumn<String>(
-      'sent_from_name', aliasedName, false,
-      type: DriftSqlType.string,
+  late final GeneratedColumn<int> sentFromId = GeneratedColumn<int>(
+      'sent_from_id', aliasedName, false,
+      type: DriftSqlType.int,
       requiredDuringInsert: true,
-      $customConstraints: 'REFERENCES room_member_table(name) NOT NULL');
+      $customConstraints: 'REFERENCES room_member_table(id) NOT NULL');
   static const VerificationMeta _replyToIdMeta =
       const VerificationMeta('replyToId');
   @override
@@ -1521,7 +1509,7 @@ class $MessagesTableTable extends MessagesTable
         timestamp,
         isSynced,
         roomId,
-        sentFromName,
+        sentFromId,
         replyToId
       ];
   @override
@@ -1565,13 +1553,13 @@ class $MessagesTableTable extends MessagesTable
       context.handle(_roomIdMeta,
           roomId.isAcceptableOrUnknown(data['room_id']!, _roomIdMeta));
     }
-    if (data.containsKey('sent_from_name')) {
+    if (data.containsKey('sent_from_id')) {
       context.handle(
-          _sentFromNameMeta,
-          sentFromName.isAcceptableOrUnknown(
-              data['sent_from_name']!, _sentFromNameMeta));
+          _sentFromIdMeta,
+          sentFromId.isAcceptableOrUnknown(
+              data['sent_from_id']!, _sentFromIdMeta));
     } else if (isInserting) {
-      context.missing(_sentFromNameMeta);
+      context.missing(_sentFromIdMeta);
     }
     if (data.containsKey('reply_to_id')) {
       context.handle(
@@ -1604,8 +1592,8 @@ class $MessagesTableTable extends MessagesTable
           .read(DriftSqlType.bool, data['${effectivePrefix}is_synced'])!,
       roomId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}room_id']),
-      sentFromName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}sent_from_name'])!,
+      sentFromId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sent_from_id'])!,
       replyToId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}reply_to_id']),
     );
@@ -1626,7 +1614,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
   final int? timestamp;
   final bool isSynced;
   final int? roomId;
-  final String sentFromName;
+  final int sentFromId;
   final int? replyToId;
   const MessageDB(
       {required this.id,
@@ -1637,7 +1625,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
       this.timestamp,
       required this.isSynced,
       this.roomId,
-      required this.sentFromName,
+      required this.sentFromId,
       this.replyToId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1662,7 +1650,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
     if (!nullToAbsent || roomId != null) {
       map['room_id'] = Variable<int>(roomId);
     }
-    map['sent_from_name'] = Variable<String>(sentFromName);
+    map['sent_from_id'] = Variable<int>(sentFromId);
     if (!nullToAbsent || replyToId != null) {
       map['reply_to_id'] = Variable<int>(replyToId);
     }
@@ -1686,7 +1674,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
       isSynced: Value(isSynced),
       roomId:
           roomId == null && nullToAbsent ? const Value.absent() : Value(roomId),
-      sentFromName: Value(sentFromName),
+      sentFromId: Value(sentFromId),
       replyToId: replyToId == null && nullToAbsent
           ? const Value.absent()
           : Value(replyToId),
@@ -1705,7 +1693,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
       timestamp: serializer.fromJson<int?>(json['timestamp']),
       isSynced: serializer.fromJson<bool>(json['isSynced']),
       roomId: serializer.fromJson<int?>(json['roomId']),
-      sentFromName: serializer.fromJson<String>(json['sentFromName']),
+      sentFromId: serializer.fromJson<int>(json['sentFromId']),
       replyToId: serializer.fromJson<int?>(json['replyToId']),
     );
   }
@@ -1721,7 +1709,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
       'timestamp': serializer.toJson<int?>(timestamp),
       'isSynced': serializer.toJson<bool>(isSynced),
       'roomId': serializer.toJson<int?>(roomId),
-      'sentFromName': serializer.toJson<String>(sentFromName),
+      'sentFromId': serializer.toJson<int>(sentFromId),
       'replyToId': serializer.toJson<int?>(replyToId),
     };
   }
@@ -1735,7 +1723,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
           Value<int?> timestamp = const Value.absent(),
           bool? isSynced,
           Value<int?> roomId = const Value.absent(),
-          String? sentFromName,
+          int? sentFromId,
           Value<int?> replyToId = const Value.absent()}) =>
       MessageDB(
         id: id ?? this.id,
@@ -1746,7 +1734,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
         timestamp: timestamp.present ? timestamp.value : this.timestamp,
         isSynced: isSynced ?? this.isSynced,
         roomId: roomId.present ? roomId.value : this.roomId,
-        sentFromName: sentFromName ?? this.sentFromName,
+        sentFromId: sentFromId ?? this.sentFromId,
         replyToId: replyToId.present ? replyToId.value : this.replyToId,
       );
   MessageDB copyWithCompanion(MessagesTableCompanion data) {
@@ -1759,9 +1747,8 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
       isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
       roomId: data.roomId.present ? data.roomId.value : this.roomId,
-      sentFromName: data.sentFromName.present
-          ? data.sentFromName.value
-          : this.sentFromName,
+      sentFromId:
+          data.sentFromId.present ? data.sentFromId.value : this.sentFromId,
       replyToId: data.replyToId.present ? data.replyToId.value : this.replyToId,
     );
   }
@@ -1777,7 +1764,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
           ..write('timestamp: $timestamp, ')
           ..write('isSynced: $isSynced, ')
           ..write('roomId: $roomId, ')
-          ..write('sentFromName: $sentFromName, ')
+          ..write('sentFromId: $sentFromId, ')
           ..write('replyToId: $replyToId')
           ..write(')'))
         .toString();
@@ -1785,7 +1772,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
 
   @override
   int get hashCode => Object.hash(id, type, textData, fileId, pollId, timestamp,
-      isSynced, roomId, sentFromName, replyToId);
+      isSynced, roomId, sentFromId, replyToId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1798,7 +1785,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
           other.timestamp == this.timestamp &&
           other.isSynced == this.isSynced &&
           other.roomId == this.roomId &&
-          other.sentFromName == this.sentFromName &&
+          other.sentFromId == this.sentFromId &&
           other.replyToId == this.replyToId);
 }
 
@@ -1811,7 +1798,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
   final Value<int?> timestamp;
   final Value<bool> isSynced;
   final Value<int?> roomId;
-  final Value<String> sentFromName;
+  final Value<int> sentFromId;
   final Value<int?> replyToId;
   const MessagesTableCompanion({
     this.id = const Value.absent(),
@@ -1822,7 +1809,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
     this.timestamp = const Value.absent(),
     this.isSynced = const Value.absent(),
     this.roomId = const Value.absent(),
-    this.sentFromName = const Value.absent(),
+    this.sentFromId = const Value.absent(),
     this.replyToId = const Value.absent(),
   });
   MessagesTableCompanion.insert({
@@ -1834,9 +1821,9 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
     this.timestamp = const Value.absent(),
     this.isSynced = const Value.absent(),
     this.roomId = const Value.absent(),
-    required String sentFromName,
+    required int sentFromId,
     this.replyToId = const Value.absent(),
-  }) : sentFromName = Value(sentFromName);
+  }) : sentFromId = Value(sentFromId);
   static Insertable<MessageDB> custom({
     Expression<int>? id,
     Expression<String>? type,
@@ -1846,7 +1833,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
     Expression<int>? timestamp,
     Expression<bool>? isSynced,
     Expression<int>? roomId,
-    Expression<String>? sentFromName,
+    Expression<int>? sentFromId,
     Expression<int>? replyToId,
   }) {
     return RawValuesInsertable({
@@ -1858,7 +1845,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
       if (timestamp != null) 'timestamp': timestamp,
       if (isSynced != null) 'is_synced': isSynced,
       if (roomId != null) 'room_id': roomId,
-      if (sentFromName != null) 'sent_from_name': sentFromName,
+      if (sentFromId != null) 'sent_from_id': sentFromId,
       if (replyToId != null) 'reply_to_id': replyToId,
     });
   }
@@ -1872,7 +1859,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
       Value<int?>? timestamp,
       Value<bool>? isSynced,
       Value<int?>? roomId,
-      Value<String>? sentFromName,
+      Value<int>? sentFromId,
       Value<int?>? replyToId}) {
     return MessagesTableCompanion(
       id: id ?? this.id,
@@ -1883,7 +1870,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
       timestamp: timestamp ?? this.timestamp,
       isSynced: isSynced ?? this.isSynced,
       roomId: roomId ?? this.roomId,
-      sentFromName: sentFromName ?? this.sentFromName,
+      sentFromId: sentFromId ?? this.sentFromId,
       replyToId: replyToId ?? this.replyToId,
     );
   }
@@ -1915,8 +1902,8 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
     if (roomId.present) {
       map['room_id'] = Variable<int>(roomId.value);
     }
-    if (sentFromName.present) {
-      map['sent_from_name'] = Variable<String>(sentFromName.value);
+    if (sentFromId.present) {
+      map['sent_from_id'] = Variable<int>(sentFromId.value);
     }
     if (replyToId.present) {
       map['reply_to_id'] = Variable<int>(replyToId.value);
@@ -1935,7 +1922,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
           ..write('timestamp: $timestamp, ')
           ..write('isSynced: $isSynced, ')
           ..write('roomId: $roomId, ')
-          ..write('sentFromName: $sentFromName, ')
+          ..write('sentFromId: $sentFromId, ')
           ..write('replyToId: $replyToId')
           ..write(')'))
         .toString();
@@ -3518,25 +3505,23 @@ typedef $$PollTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool messagesTableRefs, bool pollOptionTableRefs})>;
 typedef $$RoomMemberTableTableCreateCompanionBuilder = RoomMemberTableCompanion
     Function({
-  Value<int?> id,
+  Value<int> id,
   Value<String> name,
-  required String email,
+  Value<String?> email,
   Value<String?> role,
   Value<bool> registered,
   Value<String> dpUrl,
   Value<bool?> emailVerified,
-  Value<int> rowid,
 });
 typedef $$RoomMemberTableTableUpdateCompanionBuilder = RoomMemberTableCompanion
     Function({
-  Value<int?> id,
+  Value<int> id,
   Value<String> name,
-  Value<String> email,
+  Value<String?> email,
   Value<String?> role,
   Value<bool> registered,
   Value<String> dpUrl,
   Value<bool?> emailVerified,
-  Value<int> rowid,
 });
 
 final class $$RoomMemberTableTableReferences
@@ -3548,11 +3533,11 @@ final class $$RoomMemberTableTableReferences
       _messagesTableRefsTable(_$AppDb db) =>
           MultiTypedResultKey.fromTable(db.messagesTable,
               aliasName: $_aliasNameGenerator(
-                  db.roomMemberTable.name, db.messagesTable.sentFromName));
+                  db.roomMemberTable.id, db.messagesTable.sentFromId));
 
   $$MessagesTableTableProcessedTableManager get messagesTableRefs {
     final manager = $$MessagesTableTableTableManager($_db, $_db.messagesTable)
-        .filter((f) => f.sentFromName.name($_item.name));
+        .filter((f) => f.sentFromId.id($_item.id));
 
     final cache = $_typedResult.readTableOrNull(_messagesTableRefsTable($_db));
     return ProcessedTableManager(
@@ -3594,9 +3579,9 @@ class $$RoomMemberTableTableFilterComposer
       Expression<bool> Function($$MessagesTableTableFilterComposer f) f) {
     final $$MessagesTableTableFilterComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.name,
+        getCurrentColumn: (t) => t.id,
         referencedTable: $db.messagesTable,
-        getReferencedColumn: (t) => t.sentFromName,
+        getReferencedColumn: (t) => t.sentFromId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -3678,9 +3663,9 @@ class $$RoomMemberTableTableAnnotationComposer
       Expression<T> Function($$MessagesTableTableAnnotationComposer a) f) {
     final $$MessagesTableTableAnnotationComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.name,
+        getCurrentColumn: (t) => t.id,
         referencedTable: $db.messagesTable,
-        getReferencedColumn: (t) => t.sentFromName,
+        getReferencedColumn: (t) => t.sentFromId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -3719,14 +3704,13 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$RoomMemberTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int?> id = const Value.absent(),
+            Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<String> email = const Value.absent(),
+            Value<String?> email = const Value.absent(),
             Value<String?> role = const Value.absent(),
             Value<bool> registered = const Value.absent(),
             Value<String> dpUrl = const Value.absent(),
             Value<bool?> emailVerified = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
           }) =>
               RoomMemberTableCompanion(
             id: id,
@@ -3736,17 +3720,15 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
             registered: registered,
             dpUrl: dpUrl,
             emailVerified: emailVerified,
-            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int?> id = const Value.absent(),
+            Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
-            required String email,
+            Value<String?> email = const Value.absent(),
             Value<String?> role = const Value.absent(),
             Value<bool> registered = const Value.absent(),
             Value<String> dpUrl = const Value.absent(),
             Value<bool?> emailVerified = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
           }) =>
               RoomMemberTableCompanion.insert(
             id: id,
@@ -3756,7 +3738,6 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
             registered: registered,
             dpUrl: dpUrl,
             emailVerified: emailVerified,
-            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -3783,7 +3764,7 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
                                 .messagesTableRefs,
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
-                                .where((e) => e.sentFromName == item.name),
+                                .where((e) => e.sentFromId == item.id),
                         typedResults: items)
                 ];
               },
@@ -3814,7 +3795,7 @@ typedef $$MessagesTableTableCreateCompanionBuilder = MessagesTableCompanion
   Value<int?> timestamp,
   Value<bool> isSynced,
   Value<int?> roomId,
-  required String sentFromName,
+  required int sentFromId,
   Value<int?> replyToId,
 });
 typedef $$MessagesTableTableUpdateCompanionBuilder = MessagesTableCompanion
@@ -3827,7 +3808,7 @@ typedef $$MessagesTableTableUpdateCompanionBuilder = MessagesTableCompanion
   Value<int?> timestamp,
   Value<bool> isSynced,
   Value<int?> roomId,
-  Value<String> sentFromName,
+  Value<int> sentFromId,
   Value<int?> replyToId,
 });
 
@@ -3875,15 +3856,15 @@ final class $$MessagesTableTableReferences
         manager.$state.copyWith(prefetchedData: [item]));
   }
 
-  static $RoomMemberTableTable _sentFromNameTable(_$AppDb db) =>
+  static $RoomMemberTableTable _sentFromIdTable(_$AppDb db) =>
       db.roomMemberTable.createAlias($_aliasNameGenerator(
-          db.messagesTable.sentFromName, db.roomMemberTable.name));
+          db.messagesTable.sentFromId, db.roomMemberTable.id));
 
-  $$RoomMemberTableTableProcessedTableManager get sentFromName {
+  $$RoomMemberTableTableProcessedTableManager get sentFromId {
     final manager =
         $$RoomMemberTableTableTableManager($_db, $_db.roomMemberTable)
-            .filter((f) => f.name($_item.sentFromName));
-    final item = $_typedResult.readTableOrNull(_sentFromNameTable($_db));
+            .filter((f) => f.id($_item.sentFromId));
+    final item = $_typedResult.readTableOrNull(_sentFromIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -3977,12 +3958,12 @@ class $$MessagesTableTableFilterComposer
     return composer;
   }
 
-  $$RoomMemberTableTableFilterComposer get sentFromName {
+  $$RoomMemberTableTableFilterComposer get sentFromId {
     final $$RoomMemberTableTableFilterComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.sentFromName,
+        getCurrentColumn: (t) => t.sentFromId,
         referencedTable: $db.roomMemberTable,
-        getReferencedColumn: (t) => t.name,
+        getReferencedColumn: (t) => t.id,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -4085,12 +4066,12 @@ class $$MessagesTableTableOrderingComposer
     return composer;
   }
 
-  $$RoomMemberTableTableOrderingComposer get sentFromName {
+  $$RoomMemberTableTableOrderingComposer get sentFromId {
     final $$RoomMemberTableTableOrderingComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.sentFromName,
+        getCurrentColumn: (t) => t.sentFromId,
         referencedTable: $db.roomMemberTable,
-        getReferencedColumn: (t) => t.name,
+        getReferencedColumn: (t) => t.id,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -4193,12 +4174,12 @@ class $$MessagesTableTableAnnotationComposer
     return composer;
   }
 
-  $$RoomMemberTableTableAnnotationComposer get sentFromName {
+  $$RoomMemberTableTableAnnotationComposer get sentFromId {
     final $$RoomMemberTableTableAnnotationComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.sentFromName,
+        getCurrentColumn: (t) => t.sentFromId,
         referencedTable: $db.roomMemberTable,
-        getReferencedColumn: (t) => t.name,
+        getReferencedColumn: (t) => t.id,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -4226,7 +4207,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
     (MessageDB, $$MessagesTableTableReferences),
     MessageDB,
     PrefetchHooks Function(
-        {bool fileId, bool pollId, bool roomId, bool sentFromName})> {
+        {bool fileId, bool pollId, bool roomId, bool sentFromId})> {
   $$MessagesTableTableTableManager(_$AppDb db, $MessagesTableTable table)
       : super(TableManagerState(
           db: db,
@@ -4246,7 +4227,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
             Value<int?> timestamp = const Value.absent(),
             Value<bool> isSynced = const Value.absent(),
             Value<int?> roomId = const Value.absent(),
-            Value<String> sentFromName = const Value.absent(),
+            Value<int> sentFromId = const Value.absent(),
             Value<int?> replyToId = const Value.absent(),
           }) =>
               MessagesTableCompanion(
@@ -4258,7 +4239,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
             timestamp: timestamp,
             isSynced: isSynced,
             roomId: roomId,
-            sentFromName: sentFromName,
+            sentFromId: sentFromId,
             replyToId: replyToId,
           ),
           createCompanionCallback: ({
@@ -4270,7 +4251,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
             Value<int?> timestamp = const Value.absent(),
             Value<bool> isSynced = const Value.absent(),
             Value<int?> roomId = const Value.absent(),
-            required String sentFromName,
+            required int sentFromId,
             Value<int?> replyToId = const Value.absent(),
           }) =>
               MessagesTableCompanion.insert(
@@ -4282,7 +4263,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
             timestamp: timestamp,
             isSynced: isSynced,
             roomId: roomId,
-            sentFromName: sentFromName,
+            sentFromId: sentFromId,
             replyToId: replyToId,
           ),
           withReferenceMapper: (p0) => p0
@@ -4295,7 +4276,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
               {fileId = false,
               pollId = false,
               roomId = false,
-              sentFromName = false}) {
+              sentFromId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -4342,15 +4323,14 @@ class $$MessagesTableTableTableManager extends RootTableManager<
                         $$MessagesTableTableReferences._roomIdTable(db).id,
                   ) as T;
                 }
-                if (sentFromName) {
+                if (sentFromId) {
                   state = state.withJoin(
                     currentTable: table,
-                    currentColumn: table.sentFromName,
+                    currentColumn: table.sentFromId,
                     referencedTable:
-                        $$MessagesTableTableReferences._sentFromNameTable(db),
-                    referencedColumn: $$MessagesTableTableReferences
-                        ._sentFromNameTable(db)
-                        .name,
+                        $$MessagesTableTableReferences._sentFromIdTable(db),
+                    referencedColumn:
+                        $$MessagesTableTableReferences._sentFromIdTable(db).id,
                   ) as T;
                 }
 
@@ -4376,7 +4356,7 @@ typedef $$MessagesTableTableProcessedTableManager = ProcessedTableManager<
     (MessageDB, $$MessagesTableTableReferences),
     MessageDB,
     PrefetchHooks Function(
-        {bool fileId, bool pollId, bool roomId, bool sentFromName})>;
+        {bool fileId, bool pollId, bool roomId, bool sentFromId})>;
 typedef $$UsersTableTableCreateCompanionBuilder = UsersTableCompanion Function({
   Value<int> id,
   Value<String> name,

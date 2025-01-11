@@ -51,17 +51,11 @@ class _ChatRoomState extends State<ChatRoom> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
-      widget.roomDetail?.id != null
-          ? chatRoomView.staticMessagePipeline(
-              db,
-              widget.roomDetail!.id
-                  .toString()) //chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
-          : "";
-      widget.roomDetail?.id != null
-          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db)
-          : "";
-
-      // chatRoomView.getTotalActiveMember(db,widget.roomDetail!.id.toString());
+      if (widget.roomDetail?.id != null) {
+        chatRoomView.staticMessagePipeline(
+            db, widget.roomDetail!.id.toString());
+        chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db);
+      }
     });
 
     _focusNode = FocusNode(
@@ -146,6 +140,8 @@ class _ChatRoomState extends State<ChatRoom> {
         bool isAllowedTyping = true;
         List<RoomMemberModel>? listOfUsers = chatVm.activeMembers;
         //
+        logger.d(
+            "Building room: $roomName , id : ${widget.roomDetail!.id.toString()}");
 
         if (currUser.type == 'user' && roomName == 'Announcements') {
           isAllowedTyping = false;
@@ -211,15 +207,15 @@ class _ChatRoomState extends State<ChatRoom> {
                   children: [
                     // chatV(data, currUser, dashVm, chatVm.replyText,
                     //     chatVm.updateMessage, context),
-                    chatV(context, chatVm.messageStream, dashVm,
-                        chatVm.userReplyText, _scrollController),
+                    chatV(context, dashVm, chatVm.userReplyText),
 
                     if (isAllowedTyping)
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          chatVm.replyfocus.hasFocus && chatVm.replyTo != null
+                          //  chatVm.replyTo != null
+                          chatVm.replyTo != null
                               ? ReplyCard(
                                   chatVm: chatVm,
                                 )

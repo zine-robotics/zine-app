@@ -11,6 +11,7 @@ import 'package:zineapp2023/screens/explore/coming_soon.dart';
 import '../../../theme/color.dart';
 import '../../components/gradient.dart';
 import '../../models/user.dart';
+import 'coming_soon.dart';
 
 class WorkshopScreen extends StatelessWidget {
   const WorkshopScreen({super.key});

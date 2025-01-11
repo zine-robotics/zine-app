@@ -5,10 +5,12 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/models/newUser.dart';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 part 'database.g.dart';
+
+/// Run this in Terminal after deleting the .g file : `dart run build_runner watch` for dev and `dart run build_runner build`
 
 @DataClassName('Room')
 class RoomsTable extends Table {
@@ -35,20 +37,21 @@ class UsersTable extends Table {
   BoolColumn get registered => boolean().withDefault(Constant(false))();
   TextColumn get dp => text().withDefault(Constant(''))();
   BoolColumn get emailVerified => boolean().nullable()();
+  @override
   Set<Column> get primaryKey => {id};
 }
 
 @DataClassName('RoomMemberDB')
 class RoomMemberTable extends Table {
-  IntColumn get id => integer().nullable()();
+  IntColumn get id => integer()();
   TextColumn get name => text().withDefault(Constant('Anonymous'))();
-  TextColumn get email => text()();
+  TextColumn get email => text().nullable()();
   TextColumn get role => text().nullable()();
   BoolColumn get registered => boolean().withDefault(Constant(false))();
   TextColumn get dpUrl => text().withDefault(Constant(''))();
   BoolColumn get emailVerified => boolean().nullable()();
   @override
-  Set<Column> get primaryKey => {email};
+  Set<Column> get primaryKey => {id};
 }
 
 @DataClassName('MessageDB')
@@ -64,8 +67,8 @@ class MessagesTable extends Table {
   BoolColumn get isSynced => boolean().withDefault(Constant(false))();
   IntColumn get roomId =>
       integer().nullable().customConstraint('REFERENCES rooms_table(id)')();
-  TextColumn get sentFromName =>
-      text().customConstraint('REFERENCES room_member_table(name) NOT NULL')();
+  IntColumn get sentFromId =>
+      integer().customConstraint('REFERENCES room_member_table(id) NOT NULL')();
   IntColumn get replyToId =>
       integer().nullable().customConstraint('REFERENCES messages_table(id)')();
 
@@ -78,14 +81,15 @@ class PollTable extends Table {
   IntColumn get id => integer()();
   TextColumn get title => text()();
   TextColumn get description => text().nullable()();
-  IntColumn get lastVoted =>integer().nullable()();
+  IntColumn get lastVoted => integer().nullable()();
   @override
   Set<Column> get primaryKey => {id};
 }
 
 @DataClassName('PollOptionDB')
 class PollOptionTable extends Table {
-  IntColumn get pollId => integer().customConstraint('REFERENCES poll_table(id) NOT NULL')();
+  IntColumn get pollId =>
+      integer().customConstraint('REFERENCES poll_table(id) NOT NULL')();
   IntColumn get id => integer().nullable()();
   TextColumn get value => text()();
   IntColumn get numVotes => integer()();
@@ -99,7 +103,6 @@ class FileTable extends Table {
   TextColumn get title => text()();
   TextColumn get description => text().nullable()();
   TextColumn get name => text()();
-
 }
 
 @DriftDatabase(tables: [
@@ -113,9 +116,27 @@ class FileTable extends Table {
 ])
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
-
+  static LazyDatabase? _lazyDatabase;
   @override
   int get schemaVersion => 1;
+
+  static Future<void> deleteUserLocalDb(AppDb Db) async {
+    print("inside the deleteUserLocalDb");
+    try {
+      await Db.batch((batch) {
+        batch.deleteAll(Db.roomsTable);
+        batch.deleteAll(Db.messagesTable);
+        batch.deleteAll(Db.usersTable);
+        batch.deleteAll(Db.fileTable);
+        batch.deleteAll(Db.pollTable);
+        batch.deleteAll(Db.pollOptionTable);
+        batch.deleteAll(Db.roomMemberTable);
+      });
+      print("All tables cleared successfully.");
+    } catch (e) {
+      print("Error clearing tables: $e");
+    }
+  }
 
   static LazyDatabase _openConnection() {
     print("Initializing LazyDatabase connection...");
@@ -125,7 +146,7 @@ class AppDb extends _$AppDb {
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
         await file.delete();
-        print("Old database Deleted.");
+        print("Old database present.");
       }
       return NativeDatabase(file);
     });
@@ -186,7 +207,8 @@ class AppDb extends _$AppDb {
     try {
       final rooms = await select(roomsTable).get();
       // Filter rooms based on the type being 'project'
-      final projects = rooms.where((room) => room.type == 'project').toList();
+      final projects =
+          rooms.where((room) => room.type != 'announcement').toList();
 
       if (projects.isNotEmpty) {
         // print('Successfully fetched ${projects.length} projects');
@@ -197,15 +219,17 @@ class AppDb extends _$AppDb {
       return projects; // Returning the filtered list of projects
     } catch (e) {
       // print('Error fetching projects: $e');
-      return [];  // Return an empty list in case of error
+      return []; // Return an empty list in case of error
     }
   }
+
   Future<List<Room>> getAllAnnouncementsDB() async {
     try {
       final rooms = await select(roomsTable).get();
       // Filter rooms based on the type being 'announcement'
-      final announcements = rooms.where((room) => room.type == 'announcement').toList();
-
+      final announcements =
+          rooms.where((room) => room.type == 'announcement').toList();
+      print("number of announcement is ${announcements.length}");
       if (announcements.isNotEmpty) {
         // print('Successfully fetched ${announcements.length} announcements');
       } else {
@@ -218,9 +242,12 @@ class AppDb extends _$AppDb {
       return [];
     }
   }
+
   Future<int> deleteUnsyncedRooms() async {
     try {
-      final unsyncedRooms = await (select(roomsTable)..where((t) => t.isSynced.equals(false))).get();
+      final unsyncedRooms = await (select(roomsTable)
+            ..where((t) => t.isSynced.equals(false)))
+          .get();
       if (unsyncedRooms.isNotEmpty) {
         for (var room in unsyncedRooms) {
           // print("Deleting unsynced room with ID: ${room.id}");
@@ -237,10 +264,9 @@ class AppDb extends _$AppDb {
       return 0;
     }
   }
-  Future<String> createUserImagePath(NewUserModel userData)
-  async
-  {
-    try{
+
+  Future<String> createUserImagePath(NewUserModel userData) async {
+    try {
       final sanitizedUrl = Uri.encodeFull(userData.dp!.trim());
 
       final response = await http.get(Uri.parse(sanitizedUrl));
@@ -253,32 +279,36 @@ class AppDb extends _$AppDb {
           '${directory.path}/${userData.name}/${userData.id}';
       final userDirectory = Directory(userDirectoryPath);
       if (!await userDirectory.exists()) {
-      await userDirectory.create(recursive: true);
-  }
-    final filePath = '${userDirectory.path}/dp.png';
-    final file = File(filePath);
-    userData.dp != null ? await file.writeAsBytes(imageBytes) : '';
-    return filePath;
-  }catch(e)
-    {
-    print("error in creating userDp path:$e");
-    return '';
+        await userDirectory.create(recursive: true);
+      }
+      final filePath = '${userDirectory.path}/dp.png';
+      final file = File(filePath);
+      userData.dp != null ? await file.writeAsBytes(imageBytes) : '';
+      return filePath;
+    } catch (e) {
+      print("error in creating userDp path:$e");
+      return '';
     }
   }
+
   Future<int> upsertUserDB(NewUserModel userData) async {
-    String filePath= userData.dp !=null ? await createUserImagePath(userData):"";
+    String filePath =
+        userData.dp != null ? await createUserImagePath(userData) : "";
     final userCompanion = UsersTableCompanion(
       id: Value(userData.id!),
       name: Value(userData.name!),
       email: Value(userData.email),
       type: Value(userData.type),
       dp: Value(filePath),
-      registered: Value(userData.registered !=null ?userData.registered!:false ),
+      registered:
+          Value(userData.registered != null ? userData.registered! : false),
       emailVerified: Value(userData.registered), // Adjust based on your data
-      pushToken: Value(userData.pushToken !=null ? userData.pushToken! : null), // Example
+      pushToken: Value(
+          userData.pushToken != null ? userData.pushToken! : null), // Example
     );
     try {
-      final insertedId = await into(usersTable).insert(userCompanion, mode: InsertMode.replace);
+      final insertedId = await into(usersTable)
+          .insert(userCompanion, mode: InsertMode.replace);
       // print('User upserted successfully with ID: ${userCompanion.id.value}');
       return insertedId;
     } catch (e) {
@@ -287,8 +317,8 @@ class AppDb extends _$AppDb {
     }
   }
 
-  Future<UserDB?> getUserDetailsFromLocalDB(String emailId) async{
-    try{
+  Future<UserDB?> getUserDetailsFromLocalDB(String emailId) async {
+    try {
       final user = await (select(usersTable)
             ..where((t) => t.email.equals(emailId)))
           .getSingleOrNull();
@@ -297,20 +327,18 @@ class AppDb extends _$AppDb {
       } else {
         print("user not found");
       }
-    return user;
-    }
-    catch(e)
-    {
+      return user;
+    } catch (e) {
       print("ERROR:getUserDetailsFromLocalDb :${e}");
-    return null;
+      return null;
     }
-
   }
 
-
-
-
-
+  /// Fetch a RoomMemberDB object by ID
+  Future<RoomMemberDB?> fetchRoomMemberById(int memberId) async {
+    return (select(roomMemberTable)..where((tbl) => tbl.id.equals(memberId)))
+        .getSingleOrNull();
+  }
 
   //=========================POLLS============================================
 }
