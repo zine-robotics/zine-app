@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/theme/color.dart';
@@ -133,35 +134,35 @@ class _PollCardState extends State<PollCard> {
                             validator: validator),
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          flex: 3,
-                          child: InkWell(
-                            onTap: () {
-                              if (kDebugMode) {
-                                print('inSendPoll');
-                              }
-                              // Filter out empty controllers when sending
-                              final nonEmptyControllers = _controllers
-                                  .where((controller) =>
-                                      controller.text.trim().isNotEmpty)
-                                  .map((controller) => controller.text)
-                                  .toList();
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: InkWell(
+                        onTap: () {
+                          if (kDebugMode) {
+                            print('inSendPoll');
+                          }
+                          final nonEmptyControllers = _controllers
+                              .where((controller) =>
+                                  controller.text.trim().isNotEmpty)
+                              .map((controller) => controller.text)
+                              .toList();
 
-                              chatVm.sendPoll(_titleController.text,
-                                  nonEmptyControllers, _descController.text);
+                          chatVm.sendPoll(_titleController.text,
+                              nonEmptyControllers, _descController.text);
 
-                              Navigator.of(context).pop();
-                            },
-                            child: const SizedBox(
-                              height: 50,
-                              child: Center(child: Text('Send Poll')),
-                            ),
-                          ),
+                          Navigator.of(context).pop();
+                        },
+                        child: Container(
+                          height: 60,
+                          width: 60,
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: blurBlue),
+                          child: const Icon(Icons.send),
                         ),
-                      ],
+                      ),
                     )
                   ]),
             ));
@@ -176,19 +177,15 @@ class PollOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              validator: (value) => validator(value),
-              controller: controller,
-              decoration: const InputDecoration(hintText: '+ Add'),
-            ),
-          ),
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextFormField(
+          validator: (value) => validator(value),
+          controller: controller,
+          decoration: const InputDecoration(hintText: '+ Add'),
         ),
-      ],
+      ),
     );
   }
 }
