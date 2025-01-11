@@ -47,15 +47,17 @@ class _PollTileState extends State<PollTile> {
 
         final totalVotes = _calculateTotalVotes(message.poll!.pollOptions);
 
+        var isUser = widget.isUser;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Container(
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.2),
+            width: MediaQuery.of(context).size.width * 0.8,
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: widget.isUser
-                  ? const Color(0xff68a5ca)
-                  : const Color(0xff0C72B0),
-              borderRadius: widget.isUser
+              color: isUser ? const Color(0xff68a5ca) : const Color(0xff0C72B0),
+              borderRadius: isUser
                   ? const BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
@@ -147,17 +149,16 @@ class _PollTileState extends State<PollTile> {
                                         ),
                                         // Percentage overlay
                                         if (selectedOptionId != null)
-                                          Container(
-                                            decoration: const BoxDecoration(
-                                                color: Colors.white60,
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10))),
-                                            width: double.parse(percentage) /
-                                                100 *
-                                                MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.6,
+                                          FractionallySizedBox(
+                                            widthFactor:
+                                                double.parse(percentage) / 100,
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                  color: Colors.white60,
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(10))),
+                                            ),
                                           ),
                                         // Content
                                         Container(
