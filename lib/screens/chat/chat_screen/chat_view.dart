@@ -88,9 +88,12 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
 
             dynamic repliedMessage;
             // print("reply to:${chats[currIndx].replyTo}");
-            if (chats[currIndx].replyToMsg != null) {
-              repliedMessage = chats[currIndx].replyToMsg;
-              // print("checking reply content:${chats[currIndx].content}");
+            if (chats[currIndx].replyToID != null) {
+              print("checking reply content:${chats[currIndx].replyToID}");
+              // repliedMessage = chats[currIndx].replyToMsg;
+              print("checking reply:${chats[currIndx].replyToMsg}");
+              repliedMessage = chatRoomViewModel.userGetMessageById(
+                  chats, chats[currIndx].replyToID.toString());
             }
 
             if (chats[currIndx].type == MessageType.text) {
@@ -111,7 +114,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                             horizontal: 35.0)
                                         : const EdgeInsets.all(0),
                                     child: Text(
-                                      "${isUser ? "You" : chats[currIndx].sentFrom?.id} replied to ${chats[currIndx].replyToMsg?.sentFrom?.id}",
+                                      "${isUser ? "You" : chats[currIndx].sentFrom?.name} replied to ${chats[currIndx].replyToMsg?.sentFrom?.name}",
                                       textAlign: isUser
                                           ? TextAlign.right
                                           : TextAlign.left,
@@ -166,15 +169,18 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                         const EdgeInsets.all(
                                                             12.0),
                                                     child: Text(
-                                                      repliedMessage != null
-                                                          ? (repliedMessage
-                                                                          .content
+                                                      repliedMessage != null &&
+                                                              repliedMessage
+                                                                      .type ==
+                                                                  MessageType
+                                                                      .text
+                                                          ? (repliedMessage.text
                                                                           .toString())
                                                                       .length >
                                                                   20
-                                                              ? '${repliedMessage.content.toString().substring(0, 20)}...'
+                                                              ? '${repliedMessage.text.toString().substring(0, 20)}...'
                                                               : repliedMessage
-                                                                  .content
+                                                                  .text
                                                                   .toString()
                                                           : " ",
                                                       // softWrap: true,
@@ -270,13 +276,12 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                         const EdgeInsets.all(
                                                             12.0),
                                                     child: Text(
-                                                      repliedMessage.content
+                                                      repliedMessage.text
                                                                   .toString()
                                                                   .length >
                                                               20
-                                                          ? "${repliedMessage.content.toString().substring(0, 20)} . . ."
-                                                          : repliedMessage
-                                                              .content
+                                                          ? "${repliedMessage.text.toString().substring(0, 20)} . . ."
+                                                          : repliedMessage.text
                                                               .toString(),
                                                       textAlign:
                                                           TextAlign.right,

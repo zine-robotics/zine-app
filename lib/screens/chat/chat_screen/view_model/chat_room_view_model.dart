@@ -26,6 +26,11 @@ import '../repo/chat_repo.dart';
 import 'package:http/http.dart' as http;
 import 'package:zineapp2023/database/database.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:logger/logger.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(),
+);
 
 import 'package:logger/logger.dart';
 
@@ -156,6 +161,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       callback: (StompFrame frame) async {
         try {
           final Map<String, dynamic> messageData = json.decode(frame.body!);
+          logger.i("Received message: $messageData");
           if (messageData['update'] == 'poll-update' &&
               messageData['pollUpdate'] != null) {
             if (kDebugMode) {
@@ -179,10 +185,18 @@ class ChatRoomViewModel extends ChangeNotifier {
             //   print(messageData);
             //   print("===============================================");
             // }
+            if (messageData['body']['replyTo'] != null) {
+              messageData['body']['replyToID'] =
+                  messageData['body']['replyTo']['id'];
+            }
+
             MessageModel messageData1 =
                 MessageModel.fromJson(messageData['body']);
-            await workerToSaveMessage(messageData1, db, roomId);
             messages.add(messageData1);
+            print(" MESSAGE S ${messageData1.replyToID}");
+            print(messageData1.replyToMsg);
+            notifyListeners();
+            await workerToSaveMessage(messageData1, db, roomId);
           }
           //_messageStreamController.add(List.from(messages));
 
@@ -236,6 +250,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   void sendMessage(String user_message, String roomName) async {
+    notifyListeners();
     // int? roomId=roomNameToId[roomName];
     if (!_client.connected) {
       print("Not connected to the WebSocket server.");
@@ -246,14 +261,14 @@ class ChatRoomViewModel extends ChangeNotifier {
       "type": "text",
       "sentFrom": userProv.getUserInfo.id!,
       "roomId": int.parse(_roomId),
-      "text": {"content": user_message.trim()}
+      "text": {"content": user_message.trim()},
+      "replyTo": replyTo,
     };
-    if (replyTo != null && replyUsername != null) {
-      messageData['replyTo'] = replyTo;
-    }
+
+    replyTo = null;
     // print("during sent replyTo:$replyTo \t replyusername:$replyUsername");
     final jsonBody = json.encode(messageData);
-
+    logger.i("Sending message: $jsonBody");
     try {
       _client.send(
         destination: "/app/message",
@@ -679,10 +694,8 @@ class ChatRoomViewModel extends ChangeNotifier {
       print("priya mc $roomID");
       List<MessageModel>? allMessages =
           roomID != null ? await chatP.getChatMessages(roomID) : [];
-      print("priya mc ${allMessages.length}");
-      messages = allMessages!;
-      notifyListeners();
-
+      // print("priya mc ${allMessages.length}");
+      // messages = allMessages!;
       print(allMessages);
       if (allMessages!.isEmpty) {
         return [];
@@ -690,6 +703,9 @@ class ChatRoomViewModel extends ChangeNotifier {
       for (MessageModel message in allMessages) {
         await workerToSaveMessage(message, db, roomID);
       }
+      messages = await fetchAllMessagesFromLocalDB(db, roomID);
+      notifyListeners();
+
       return allMessages;
     } catch (e) {
       print('Error saving message to local DB: $e');
@@ -740,7 +756,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           // print("Poll: ${user.pollId?? 'No Poll'}");
           // print("File: ${user.fileId ?? 'No File'}");
           // print("Reply To: ${user.replyToId ?? 'No Reply'}");
-          print("----------------------------");
+          //print("----------------------------");
         }
         PollData? pollData;
         List<PollOption> pollOptionData = [];
@@ -770,7 +786,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           print("error in pollOption fetching:$e");
         }
         try {
-          ReplyTo? replyTo;
+          ReplyTo? replyToConstructor;
           if (message.replyToId != null) {
             // Fetch the referenced message for replyTo
             final replyMessage = await (db.select(db.messagesTable)
@@ -779,41 +795,38 @@ class ChatRoomViewModel extends ChangeNotifier {
             final roomDetails = await (db.select(db.roomsTable)
                   ..where((tbl) => tbl.id.equals(message.roomId!)))
                 .getSingleOrNull();
+            final sentfromDetails = await (db.select(db.roomMemberTable)
+                  ..where((tbl) => tbl.id.equals(replyMessage!.sentFromId)))
+                .getSingleOrNull();
+
             if (replyMessage != null && roomDetails != null) {
-              replyTo = ReplyTo(
+              print("replyMessage:${replyMessage}");
+              replyToConstructor = ReplyTo(
                 id: replyMessage.id,
                 type: MessageType.values.byName(replyMessage.type ?? 'text'),
-
                 timestamp: DateTime.fromMillisecondsSinceEpoch(
                     replyMessage.timestamp!),
-                sentFrom: user != null
+                sentFrom: sentfromDetails != null
                     ? SentFrom(
-                        id: user.id,
-                        name: user.name,
-                        email: user.email,
-                        type: user.role,
-                        registered: user.registered,
-                        dp: user.dpUrl,
-                        emailVerified: user.emailVerified,
+                        id: sentfromDetails.id,
+                        name: sentfromDetails.name,
+                        email: sentfromDetails.email,
+                        type: sentfromDetails.role,
+                        registered: sentfromDetails.registered,
+                        dp: sentfromDetails.dpUrl,
+                        emailVerified: sentfromDetails.emailVerified,
                       )
                     : null,
-                roomId: RoomId(
-                    id: roomDetails!.id,
-                    description: roomDetails!.description,
-                    dpUrl: roomDetails!.dpUrl,
-                    name: roomDetails!.name,
-                    timestamp: roomDetails!.timestamp,
-                    type: roomDetails!.type),
-                replyTo: null, // Root of reply chain
+                roomId: null,
+                replyTo: null,
+                text: replyMessage.textData,
               );
             }
+          } else {
+            replyToConstructor = null;
           }
-        } catch (e) {
-          print("Error fetching replyTo:$e");
-        }
-        // Add the constructed MessageModel to the list
-        try {
-          messages.add(MessageModel(
+
+          MessageModel temp_message = MessageModel(
               id: message.id,
               text: message.textData,
               type: MessageType.values.byName(message.type!),
@@ -830,11 +843,19 @@ class ChatRoomViewModel extends ChangeNotifier {
                       emailVerified: user.emailVerified,
                     )
                   : null,
-              replyToMsg: replyTo != null ? replyTo! : null,
-              replyToID: replyTo != null ? replyTo!.id : null,
-              poll: pollData));
+              replyToMsg: replyToConstructor,
+              replyToID:
+                  replyToConstructor != null ? replyToConstructor.id : null,
+              poll: pollData);
+
+          print("New Message formed");
+          print(replyToConstructor?.text);
+          print(temp_message.replyToID);
+          print(temp_message.replyToMsg);
+
+          messages.add(temp_message);
         } catch (e) {
-          print("problem in this :$e");
+          print("Error fetching replyTo:$e");
         }
       }
 
@@ -854,6 +875,13 @@ class ChatRoomViewModel extends ChangeNotifier {
       messages = await fetchAllMessagesFromLocalDB(db, roomID);
       // print("\n\ncheck:${_messages}\n\n");
       print("stage1 done:MessagePipeline");
+      print(messages.toList());
+      print(messages.where((messages) => messages.replyToID != null).toList());
+      // Print the message model in JSON format where the condition is met
+      messages.where((message) => message.replyToID != null).forEach((message) {
+        print("our response");
+        // print(jsonEncode(message.toJson()));
+      });
       //  _messageStreamController.add(messages);
     } catch (e) {
       print("Error in stage1:messagePIPELINE: $e");
