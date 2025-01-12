@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
@@ -19,11 +20,11 @@ class _PollCardState extends State<PollCard> {
   ];
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    // Add listeners to initial controllers
     for (var controller in _controllers) {
       _addControllerListener(controller);
     }
@@ -31,7 +32,6 @@ class _PollCardState extends State<PollCard> {
 
   void _addControllerListener(TextEditingController controller) {
     controller.addListener(() {
-      // Use post-frame callback to safely modify controllers
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handleControllerChange();
       });
@@ -42,10 +42,8 @@ class _PollCardState extends State<PollCard> {
     if (!mounted) return;
 
     setState(() {
-      // Create a list of controllers to remove
       final controllersToRemove = <int>[];
 
-      // Check for empty controllers between filled ones
       for (int i = _controllers.length - 2; i >= 0; i--) {
         if (_controllers[i].text.isEmpty &&
             _controllers[i + 1].text.isNotEmpty &&
@@ -54,19 +52,43 @@ class _PollCardState extends State<PollCard> {
         }
       }
 
-      // Remove controllers safely
       for (var index in controllersToRemove.reversed) {
         _controllers[index].removeListener(_handleControllerChange);
         _controllers.removeAt(index);
       }
 
-      // Add new controller if last one is filled
       if (_controllers.isNotEmpty && _controllers.last.text.isNotEmpty) {
         var newController = TextEditingController();
         _addControllerListener(newController);
         _controllers.add(newController);
       }
     });
+  }
+
+  bool _validatePoll() {
+    if (_titleController.text.trim().isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Please enter a title for the poll",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return false;
+    }
+
+    final nonEmptyOptions = _controllers
+        .where((controller) => controller.text.trim().isNotEmpty)
+        .toList();
+
+    if (nonEmptyOptions.length < 2) {
+      Fluttertoast.showToast(
+        msg: "Please add at least 2 options",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      return false;
+    }
+
+    return true;
   }
 
   @override
@@ -85,106 +107,110 @@ class _PollCardState extends State<PollCard> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ChatRoomViewModel>(
-        builder: (context, chatVm, child) => Container(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Question",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: greyText, fontSize: 13),
-                    ),
-                    TextFormField(
-                      controller: _titleController,
-                      validator: (value) => validator(value),
-                      decoration: const InputDecoration(
-                        hintText: "Title",
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    const Text(
-                      "Description",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: greyText, fontSize: 13),
-                    ),
-                    TextFormField(
-                      controller: _descController,
-                      validator: (value) => validator(value),
-                      decoration: const InputDecoration(
-                        hintText: "Description",
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    const Text(
-                      "Options",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: greyText, fontSize: 13),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _controllers.length,
-                        itemBuilder: (context, index) => PollOption(
-                            controller: _controllers[index],
-                            validator: validator),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        onTap: () {
-                          if (kDebugMode) {
-                            print('inSendPoll');
-                          }
-                          final nonEmptyControllers = _controllers
-                              .where((controller) =>
-                                  controller.text.trim().isNotEmpty)
-                              .map((controller) => controller.text)
-                              .toList();
+      builder: (context, chatVm, child) => Container(
+        padding: const EdgeInsets.all(10),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Question",
+                textAlign: TextAlign.left,
+                style: TextStyle(color: greyText, fontSize: 13),
+              ),
+              TextFormField(
+                controller: _titleController,
+                validator: validator,
+                decoration: const InputDecoration(
+                  hintText: "Title",
+                ),
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                "Description",
+                textAlign: TextAlign.left,
+                style: TextStyle(color: greyText, fontSize: 13),
+              ),
+              TextFormField(
+                controller: _descController,
+                decoration: const InputDecoration(
+                  hintText: "Description",
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                "Options",
+                textAlign: TextAlign.left,
+                style: TextStyle(color: greyText, fontSize: 13),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _controllers.length,
+                  itemBuilder: (context, index) => PollOption(
+                    controller: _controllers[index],
+                    validator: validator,
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: () {
+                    if (_validatePoll()) {
+                      final nonEmptyControllers = _controllers
+                          .where(
+                              (controller) => controller.text.trim().isNotEmpty)
+                          .map((controller) => controller.text)
+                          .toList();
 
-                          chatVm.sendPoll(_titleController.text,
-                              nonEmptyControllers, _descController.text);
-
-                          Navigator.of(context).pop();
-                        },
-                        child: Container(
-                          height: 60,
-                          width: 60,
-                          decoration: const BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                              color: blurBlue),
-                          child: const Icon(Icons.send),
-                        ),
-                      ),
-                    )
-                  ]),
-            ));
+                      chatVm.sendPoll(
+                        _titleController.text,
+                        nonEmptyControllers,
+                        _descController.text,
+                      );
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Container(
+                    height: 60,
+                    width: 60,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: blurBlue,
+                    ),
+                    child: const Icon(Icons.send),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class PollOption extends StatelessWidget {
   final TextEditingController controller;
   final Function(String?) validator;
-  const PollOption(
-      {super.key, required this.controller, required this.validator});
+
+  const PollOption({
+    super.key,
+    required this.controller,
+    required this.validator,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextFormField(
-          validator: (value) => validator(value),
-          controller: controller,
-          decoration: const InputDecoration(hintText: '+ Add'),
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        validator: (value) => validator(value),
+        controller: controller,
+        decoration: const InputDecoration(hintText: '+ Add'),
       ),
     );
   }

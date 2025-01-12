@@ -511,7 +511,6 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
-
   //-------PIPELINE:1.localDBfetch -->fetchFromApi -->updateLocalDBwithNewData --> UpdateUI ------------------------------------------//
   ///STAGE 1:localDB
   Future<void> fetchAllRoomDataFromLocalDB(AppDb db) async {
@@ -600,6 +599,21 @@ class ChatRoomViewModel extends ChangeNotifier {
                 .insertOnConflictUpdate(pollOptionCompanion);
             // print("Success: PollOptionCompanion saved!!");
           }
+        }
+        try {
+          if (message.file != null) {
+            final fileCompanion = FileTableCompanion(
+              id: drift.Value(message.id),
+              uri: drift.Value(await saveImageToLocalStorage(
+                  message.file!.uri.toString(),
+                  message.id.toString(),
+                  message.file!.name.toString())),
+              name: drift.Value(message.file!.name),
+            );
+            await db.into(db.fileTable).insertOnConflictUpdate(fileCompanion);
+          }
+        } catch (e) {
+          print("ERROR on saving fileOnDB:$e");
         }
         try {
           final roomMemberCompanion = RoomMemberTableCompanion(
@@ -696,6 +710,18 @@ class ChatRoomViewModel extends ChangeNotifier {
         final pollOptionQuery = db.select(db.pollOptionTable)
           ..where((tbl) => tbl.pollId.equals(message.id));
         final pollOptionQueryData = await pollOptionQuery.get();
+        FileData? fileData;
+        try {
+          final fileQuery = db.select(db.fileTable)
+            ..where((tbl) => tbl.id.equals(message.id));
+          final fileQueryData = await fileQuery.getSingleOrNull();
+          fileData = FileData(
+              uri: Uri.parse(fileQueryData!.uri),
+              description: fileQueryData!.description!,
+              name: fileQueryData.name);
+        } catch (e) {
+          print("fileLoad Error");
+        }
         PollData? pollData;
         List<PollOption> pollOptionData = [];
         try {
@@ -736,6 +762,7 @@ class ChatRoomViewModel extends ChangeNotifier {
                     )
                   : null,
               replyToId: message.replyToId,
+              file: fileData,
               poll: pollData);
 
           messages.add(temp_message);
@@ -909,7 +936,6 @@ class ChatRoomViewModel extends ChangeNotifier {
       }
       return;
     }
-    _messageStreamController.add(messages);
 
     final messageData = {
       "chatId": messageId,
@@ -1011,9 +1037,11 @@ class ChatRoomViewModel extends ChangeNotifier {
   String _fileUri = '';
   String _fileName = '';
   String _publicId = '';
+  String _filePath = '';
 
   String get fileUri => _fileUri;
   String get fileName => _fileName;
+  String get filePath => _filePath;
 
   bool get isFileLoading => _isFileLoading;
   bool get isUploading => _isUploading;
@@ -1034,11 +1062,11 @@ class ChatRoomViewModel extends ChangeNotifier {
             msg: 'An Error Occured during upload',
             backgroundColor: Colors.red,
             textColor: Colors.white);
-
         _isFileLoading = false;
         notifyListeners();
       }
 
+      _filePath = file.path;
       _fileUri = fileUri.toString();
       _fileName = basename(file.path);
 

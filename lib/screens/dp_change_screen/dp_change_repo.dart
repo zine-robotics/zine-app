@@ -4,13 +4,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:path/path.dart' as path;
 
 class DPUpdateRepo {
-  static Future<String> saveFile({
+  static Future<String?> saveFile({
     required File file,
     String? filename,
     String? directory,
@@ -21,7 +22,7 @@ class DPUpdateRepo {
     // Create full directory path including optional subdirectory
     String savePath = appDir.path;
     if (directory != null) {
-      savePath = path.join(savePath, directory);
+      savePath = path.join(savePath, 'pp', directory);
       // Create subdirectory if it doesn't exist
       final Directory saveDir = Directory(savePath);
       if (!await saveDir.exists()) {
@@ -40,7 +41,7 @@ class DPUpdateRepo {
       final File savedFile = await file.copy(filePath);
       return savedFile.path;
     } catch (e) {
-      throw Exception('Failed to save file: $e');
+      return null;
     }
   }
 
@@ -96,12 +97,13 @@ class DPUpdateRepo {
     }
   }
 
-  static void upload(Function updateDp, String uid) async {
+  static void upload(Function updateDp, String uid, String id) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
-      Uri? fileUri =
-          await uploadDP(file: File(result.files.single.path!), uid: uid);
+      var path2 = result.files.single.path!;
+      print("Got Path $path2");
+      Uri? fileUri = await uploadDP(file: File(path2), uid: uid);
       if (fileUri == null) {
         Fluttertoast.showToast(
             msg: 'An Error Occured during upload',
@@ -110,7 +112,15 @@ class DPUpdateRepo {
         return;
       }
 
-      updateDp(fileUri.toString());
+      String? savePath = await saveFile(
+          file: File(result.files.single.path!), filename: id.toString());
+
+      if (savePath != null) {
+        if (kDebugMode) {
+          print("Updating DP $savePath");
+        }
+        updateDp(savePath);
+      }
     }
   }
 }

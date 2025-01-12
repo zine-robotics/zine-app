@@ -170,7 +170,7 @@ class FileData {
 
   FileData.fromJson(Map<String, dynamic> json)
       : uri = Uri.parse(json['url'] ??
-            'https://zine.co.in/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fzine1.eacd1990.png&w=1920&q=75'),
+          'https://zine.co.in/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fzine1.eacd1990.png&w=1920&q=75'),
         description = json['description'] ?? '',
         name = json['name'] ?? '';
 

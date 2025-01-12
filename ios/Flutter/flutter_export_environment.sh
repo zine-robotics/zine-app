@@ -1,8 +1,9 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=D:\programs\flutter\flutter"
-export "FLUTTER_APPLICATION_PATH=D:\Documents\projects\zine_app_2023"
+export "FLUTTER_ROOT=C:\ShmokeD\flutter"
+export "FLUTTER_APPLICATION_PATH=C:\ShmokeD\Projects\Zine\zine_app_2023"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
+export "FLUTTER_TARGET=lib\main.dart"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=3.2.0"
 export "FLUTTER_BUILD_NUMBER=16"
