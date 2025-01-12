@@ -1,3 +1,5 @@
+import 'package:zineapp2023/database/database.dart';
+
 class NewUserModel {
   int? id;
   String? name;
@@ -11,14 +13,14 @@ class NewUserModel {
 
   NewUserModel(
       {this.id,
-        this.name,
-        this.email,
-        this.type,
-        this.pushToken,
-        this.registered,
-        this.dp,
-        this.imagePath,
-        this.emailVerified});
+      this.name,
+      this.email,
+      this.type,
+      this.pushToken,
+      this.registered,
+      this.dp,
+      this.imagePath,
+      this.emailVerified});
 
   NewUserModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -46,30 +48,44 @@ class NewUserModel {
     return data;
   }
 }
+
 class RoomMemberModel {
   String? name;
   String? email;
   String? role;
   String? dpUrl;
-  int? userId;
+  late int id;
 
-  RoomMemberModel({this.name,this.userId ,this.email, this.role, this.dpUrl});
+  RoomMemberModel(
+      {this.name, required this.id, this.email, this.role, this.dpUrl});
 
   RoomMemberModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     email = json['email'];
     role = json['role'];
     dpUrl = json['dpUrl'];
-    userId=json['id'];
+    id = json['id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['role'] = this.role;
-    data['dpUrl'] = this.dpUrl;
-    data['userId']=this.userId;
+    data['name'] = name;
+    data['email'] = email;
+    data['role'] = role;
+    data['dpUrl'] = dpUrl;
+    data['id'] = id;
     return data;
+  }
+}
+
+extension RoomMemberModelMapper on RoomMemberDB {
+  RoomMemberModel toModel() {
+    return RoomMemberModel(
+      name: name,
+      email: email,
+      role: role,
+      dpUrl: dpUrl,
+      id: id,
+    );
   }
 }

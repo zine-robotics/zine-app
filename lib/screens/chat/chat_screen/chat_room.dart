@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,8 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/components/poll_card.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/reply_card.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/file_selector_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/poll_screen.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
@@ -30,46 +33,52 @@ class ChatRoom extends StatefulWidget {
 }
 
 class _ChatRoomState extends State<ChatRoom> {
+  final ScrollController _scrollController = ScrollController();
+
+  // Store the last known scroll position
+  double? _lastScrollOffset;
+
   late ChatRoomViewModel chatRoomView;
   late final FocusNode _focusNode;
   final TextEditingController _messageController = TextEditingController();
   @override
   void initState() {
     super.initState();
+
     _saveRoomNameToPreferences();
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients) {
+        _lastScrollOffset = _scrollController.offset;
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
-      widget.roomDetail?.id != null
-          ? chatRoomView.staticMessagePipeline(
-              db,
-              widget.roomDetail!.id
-                  .toString()) //chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
-          : "";
-      widget.roomDetail?.id != null
-          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(),db)
-          : "";
-      // chatRoomView.getTotalActiveMember(db,widget.roomDetail!.id.toString());
+      if (widget.roomDetail?.id != null) {
+        chatRoomView.staticMessagePipeline(
+            db, widget.roomDetail!.id.toString());
+        chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db);
+      }
     });
 
     _focusNode = FocusNode(
       onKeyEvent: (FocusNode node, KeyEvent evt) {
         bool is_enter = evt.logicalKey == LogicalKeyboardKey.enter;
 
-        bool is_shift = HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.shiftLeft) ||
-            HardwareKeyboard.instance.logicalKeysPressed.contains(LogicalKeyboardKey.shiftRight);
+        bool is_shift = HardwareKeyboard.instance.logicalKeysPressed
+                .contains(LogicalKeyboardKey.shiftLeft) ||
+            HardwareKeyboard.instance.logicalKeysPressed
+                .contains(LogicalKeyboardKey.shiftRight);
 
         if (!is_shift && is_enter) {
           if (evt is KeyDownEvent) {
             _sendMessage();
           }
           return KeyEventResult.handled;
-        }
-
-        else if (HardwareKeyboard.instance.physicalKeysPressed
-            .contains(PhysicalKeyboardKey.shiftLeft) &&
+        } else if (HardwareKeyboard.instance.physicalKeysPressed
+                .contains(PhysicalKeyboardKey.shiftLeft) &&
             evt.logicalKey.keyLabel == 'Enter') {
-            _messageController.text += "\n";
+          _messageController.text += "\n";
 
           return KeyEventResult.handled;
         }
@@ -103,7 +112,6 @@ class _ChatRoomState extends State<ChatRoom> {
         // chatRoomView.loadRooms();
       });
     }
-
   }
 
   Future<void> _saveRoomNameToPreferences() async {
@@ -118,6 +126,16 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
+        if (_lastScrollOffset != null && _scrollController.hasClients) {
+          // Defer the scroll to the next frame
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_scrollController.hasClients &&
+                _lastScrollOffset! <=
+                    _scrollController.position.maxScrollExtent) {
+              _scrollController.jumpTo(_lastScrollOffset!);
+            }
+          });
+        }
         final roomName = widget.roomDetail!.name.toString();
         final image = widget.roomDetail!.dpUrl.toString();
         // print("\n\ninside chat_room,image:$image\n\n");
@@ -125,6 +143,8 @@ class _ChatRoomState extends State<ChatRoom> {
         bool isAllowedTyping = true;
         List<RoomMemberModel>? listOfUsers = chatVm.activeMembers;
         //
+        logger.d(
+            "Building room: $roomName , id : ${widget.roomDetail!.id.toString()}");
 
         if (currUser.type == 'user' && roomName == 'Announcements') {
           isAllowedTyping = false;
@@ -153,7 +173,9 @@ class _ChatRoomState extends State<ChatRoom> {
                       .push(CupertinoPageRoute(builder: (BuildContext context) {
                     // return Text("chatDesctiption remove");
                     return ChatDescription(
-                        roomName: roomName, image: image, data: listOfUsers !=null ? listOfUsers :[] );
+                        roomName: roomName,
+                        image: image,
+                        data: listOfUsers ?? []);
                   }));
                 },
                 child: Text(
@@ -188,38 +210,22 @@ class _ChatRoomState extends State<ChatRoom> {
                   children: [
                     // chatV(data, currUser, dashVm, chatVm.replyText,
                     //     chatVm.updateMessage, context),
-                    chatV(context, chatVm.messageStream, dashVm,
-                        chatVm.userReplyText),
+                    chatV(context, dashVm, chatVm.userReplyText),
 
                     if (isAllowedTyping)
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          chatVm.replyfocus.hasFocus && chatVm.replyTo != null
+                          //  chatVm.replyTo != null
+                          chatVm.replyTo != null
                               ? ReplyCard(
                                   chatVm: chatVm,
                                 )
                               : Container(),
-                          (chatVm.isPollBeingCreated)
-                              ? const PollCard()
-                              : Container(),
                           (chatVm.isFileLoading)
                               ? (chatVm.isFileReady)
-                                  ? Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(chatVm.fileName),
-                                          IconButton(
-                                              onPressed: () =>
-                                                  chatVm.cancelUpload(),
-                                              icon: const Icon(
-                                                  Icons.cancel_outlined))
-                                        ],
-                                      ),
-                                    )
+                                  ? FileSelectorTile(chatVm)
                                   : Container(
                                       child: LinearProgressIndicator(),
                                       color: Colors.green,
@@ -249,7 +255,8 @@ class _ChatRoomState extends State<ChatRoom> {
                                     flex: 1,
                                     child: TextField(
                                       keyboardType: TextInputType.multiline,
-                                      focusNode: _focusNode,//chatVm.replyfocus,
+                                      focusNode:
+                                          _focusNode, //chatVm.replyfocus,
                                       maxLines: null,
                                       minLines: 1,
                                       controller: _messageController,
@@ -265,42 +272,23 @@ class _ChatRoomState extends State<ChatRoom> {
                                   const SizedBox(
                                     width: 15,
                                   ),
-                                  PopupMenuButton(
-                                    offset: const Offset(0, -30),
-                                    position: PopupMenuPosition.over,
-                                    popUpAnimationStyle: AnimationStyle(
-                                      curve: Curves.bounceIn,
-                                    ),
-                                    itemBuilder: (context) => [
-                                      PopupMenuItem(
-                                        onTap: () {
-                                          chatVm.isPollBeingCreated = true;
-                                        },
-                                        child: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Icon(Icons.menu),
-                                            Text('Poll')
-                                          ],
-                                        ),
+                                  IconButton(
+                                      icon: const Icon(
+                                        Icons.poll,
+                                        color: greyText,
                                       ),
-                                      PopupMenuItem(
-                                        onTap: () {
-                                          chatVm.startFileSelect();
-                                        },
-                                        child: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Icon(Icons.menu),
-                                            Text('File')
-                                          ],
-                                        ),
-                                      )
-                                    ],
+                                      onPressed: () => Navigator.of(context)
+                                              .push(MaterialPageRoute(
+                                            builder: (context) =>
+                                                const PollCreatorScreen(),
+                                          ))),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.upload_rounded,
+                                      color: greyText,
+                                    ),
+                                    onPressed: () => chatVm.startFileSelect(),
                                   ),
-
                                   IconButton(
                                     splashRadius: 30.0,
                                     visualDensity: const VisualDensity(
@@ -311,10 +299,10 @@ class _ChatRoomState extends State<ChatRoom> {
                                         chatVm
                                             .sendFile(_messageController.text);
                                       } else {
-                                                _sendMessage();
-                                              // chatVm.sendMessage(
-                                              // _messageController.text, roomName);
-                                              // _messageController.text = "";
+                                        _sendMessage();
+                                        // chatVm.sendMessage(
+                                        // _messageController.text, roomName);
+                                        // _messageController.text = "";
                                         chatVm.replyTo = null;
                                       }
                                     },

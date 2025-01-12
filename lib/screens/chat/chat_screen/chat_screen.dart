@@ -17,17 +17,13 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
-      // chatRoomView.loadRooms();
-      //pipeline
-      chatRoomView.fetchAllRoomDataFromLocalDB(db);
-      chatRoomView.fetchAllRoomDataFromApi(db);
+      chatRoomView.fetchAllRoomDataFromApiAndSyncWithDB(db);
     });
   }
 
@@ -52,7 +48,11 @@ class _ChatScreenState extends State<ChatScreen> {
       List<Rooms>? projectDetails = chatVm.userProjects;
       List<Rooms>? announcementDetails = chatVm.announcement;
       List<Rooms>? workshopDetails = chatVm.userWorkshop;
-      print("\nscreen Rebuild\n");
+      print("\nscreen Rebuild\n${chatVm.userWorkshop}");
+
+      if (!chatVm.isRoomLoaded) {
+        return const Center(child: CircularProgressIndicator());
+      }
       return chatVm.isRoomLoaded
           ? Container(
               color: backgroundGrey,
@@ -64,26 +64,32 @@ class _ChatScreenState extends State<ChatScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       //--------------------Channels-------------------------------
-                      headingText("Channels"),
+                      announcementDetails != null &&
+                              announcementDetails.isNotEmpty
+                          ? headingText("Channels")
+                          : Container(),
 
-                      announcementDetails !=null && announcementDetails.isNotEmpty ?
-                      Channel(
-                        // name: "Announcements",
-                        // roomId: "452",
-                        // roomDetail: [name:"Announcements",roomId:"452"],
-                        roomDetail: announcementDetails![0],
-                      ):Container(),
+                      announcementDetails != null &&
+                              announcementDetails.isNotEmpty
+                          ? Channel(
+                              // name: "Announcements",
+                              // roomId: "452",
+                              // roomDetail: [name:"Announcements",roomId:"452"],
+                              roomDetail: announcementDetails![0],
+                            )
+                          : Container(),
+
                       //--------------------Workshop-------------------------------------
-                      // workshopDetails != null && workshopDetails.isNotEmpty
-                      //     ? headingText("Workshop")
-                      //     : Container(),
-                      // workshopDetails != null && workshopDetails.isNotEmpty
-                      //     ? ChatGroups(roomDetails: workshopDetails)
-                      //     : Container(),
-                      //
-                      // const SizedBox(
-                      //   height: 20,
-                      // ),
+                      workshopDetails != null && workshopDetails.isNotEmpty
+                          ? headingText("Workshop")
+                          : Container(),
+                      workshopDetails != null && workshopDetails.isNotEmpty
+                          ? ChatGroups(roomDetails: workshopDetails)
+                          : Container(),
+
+                      const SizedBox(
+                        height: 20,
+                      ),
 
                       //--------------------Projects-----------------------------------R
                       projectDetails != null && projectDetails.isNotEmpty
