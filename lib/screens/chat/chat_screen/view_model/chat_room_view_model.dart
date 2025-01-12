@@ -715,12 +715,21 @@ class ChatRoomViewModel extends ChangeNotifier {
           final fileQuery = db.select(db.fileTable)
             ..where((tbl) => tbl.id.equals(message.id));
           final fileQueryData = await fileQuery.getSingleOrNull();
-          fileData = FileData(
-              uri: Uri.parse(fileQueryData!.uri),
-              description: fileQueryData!.description!,
-              name: fileQueryData.name);
+
+          if(fileQueryData !=null && fileQueryData.uri !=null){
+            fileData = FileData(
+                uri: Uri.parse(fileQueryData!.uri),
+                description: fileQueryData?.description,
+                name: fileQueryData!.name);
+            print("data inside the fileTable :${await db.select(db.fileTable).get()} \t message id:${message.id}\n");
+          }
+          else
+            {
+              fileData=null;
+            }
+          // print("check:FileQueryData present or not:$fileQueryData and message id:${message.id}");
         } catch (e) {
-          print("fileLoad Error");
+          print("fileLoad Error$e");
         }
         PollData? pollData;
         List<PollOption> pollOptionData = [];

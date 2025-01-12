@@ -492,6 +492,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                 isUser: isUser,
               );
             }
+            else{ return Container();}
           },
         ),
       ),

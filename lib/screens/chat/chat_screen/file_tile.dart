@@ -61,10 +61,10 @@ class _FileTileState extends State<FileTile> {
                     topLeft: Radius.circular(15),
                     topRight: Radius.circular(15),
                     bottomRight: Radius.circular(15)),
-            child: Placeholder(),
+            child: File(widget.message.file!.uri.toString()).existsSync() ? Image.file(File(widget.message.file!.uri.toString()) ):Icon(Icons.photo) //Image.network(widget.message.file!.uri.toString())),
           )
           // child: Image.network(widget.message.file!.uri.toString())),
-          ),
-    );
+
+    ));
   }
 }
