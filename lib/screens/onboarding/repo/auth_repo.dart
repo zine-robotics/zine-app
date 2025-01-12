@@ -118,23 +118,7 @@ class AuthRepo {
       Map<String, dynamic> user = jsonDecode(res.body);
       NewUserModel userData = NewUserModel.fromJson(user);
       await db.upsertUserDB(userData);
-      //USER DOES NOT HAVE TASKIDS, ENDPOINT FOR QUERYING USER'S TASK IDS
-
-      // var rooms = await getRoomIds(uid);
-
-      // var roomDetails = getRoomMap(rooms);
-
-      // // List<Future<void>> futures = [];
-      // // for (var e in tasks!) {
-      // futures.add(getTemp(e).then((value) => e.template = value));
-      // // }
-
-      // await Future.wait(futures);
-
-      // // print(tasks);
-
-      // Above code just set User's links to empty, if the key wasnt created
-
+      
       UserModel userMod = UserModel(
           uid: uid,
           id: user['id'],

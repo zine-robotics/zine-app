@@ -528,10 +528,10 @@ class $FileTableTable extends FileTable
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
       'id', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  static const VerificationMeta _uriMeta = const VerificationMeta('uri');
   @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-      'title', aliasedName, false,
+  late final GeneratedColumn<String> uri = GeneratedColumn<String>(
+      'uri', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
@@ -545,7 +545,7 @@ class $FileTableTable extends FileTable
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, title, description, name];
+  List<GeneratedColumn> get $columns => [id, uri, description, name];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -559,11 +559,11 @@ class $FileTableTable extends FileTable
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('title')) {
+    if (data.containsKey('uri')) {
       context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+          _uriMeta, uri.isAcceptableOrUnknown(data['uri']!, _uriMeta));
     } else if (isInserting) {
-      context.missing(_titleMeta);
+      context.missing(_uriMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -581,15 +581,15 @@ class $FileTableTable extends FileTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   FileDB map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return FileDB(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id']),
-      title: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      uri: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uri'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
       name: attachedDatabase.typeMapping
@@ -605,18 +605,18 @@ class $FileTableTable extends FileTable
 
 class FileDB extends DataClass implements Insertable<FileDB> {
   final int? id;
-  final String title;
+  final String uri;
   final String? description;
   final String name;
   const FileDB(
-      {this.id, required this.title, this.description, required this.name});
+      {this.id, required this.uri, this.description, required this.name});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (!nullToAbsent || id != null) {
       map['id'] = Variable<int>(id);
     }
-    map['title'] = Variable<String>(title);
+    map['uri'] = Variable<String>(uri);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
@@ -627,7 +627,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   FileTableCompanion toCompanion(bool nullToAbsent) {
     return FileTableCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      title: Value(title),
+      uri: Value(uri),
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
@@ -640,7 +640,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return FileDB(
       id: serializer.fromJson<int?>(json['id']),
-      title: serializer.fromJson<String>(json['title']),
+      uri: serializer.fromJson<String>(json['uri']),
       description: serializer.fromJson<String?>(json['description']),
       name: serializer.fromJson<String>(json['name']),
     );
@@ -650,7 +650,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int?>(id),
-      'title': serializer.toJson<String>(title),
+      'uri': serializer.toJson<String>(uri),
       'description': serializer.toJson<String?>(description),
       'name': serializer.toJson<String>(name),
     };
@@ -658,19 +658,19 @@ class FileDB extends DataClass implements Insertable<FileDB> {
 
   FileDB copyWith(
           {Value<int?> id = const Value.absent(),
-          String? title,
+          String? uri,
           Value<String?> description = const Value.absent(),
           String? name}) =>
       FileDB(
         id: id.present ? id.value : this.id,
-        title: title ?? this.title,
+        uri: uri ?? this.uri,
         description: description.present ? description.value : this.description,
         name: name ?? this.name,
       );
   FileDB copyWithCompanion(FileTableCompanion data) {
     return FileDB(
       id: data.id.present ? data.id.value : this.id,
-      title: data.title.present ? data.title.value : this.title,
+      uri: data.uri.present ? data.uri.value : this.uri,
       description:
           data.description.present ? data.description.value : this.description,
       name: data.name.present ? data.name.value : this.name,
@@ -681,7 +681,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   String toString() {
     return (StringBuffer('FileDB(')
           ..write('id: $id, ')
-          ..write('title: $title, ')
+          ..write('uri: $uri, ')
           ..write('description: $description, ')
           ..write('name: $name')
           ..write(')'))
@@ -689,66 +689,59 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, name);
+  int get hashCode => Object.hash(id, uri, description, name);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is FileDB &&
           other.id == this.id &&
-          other.title == this.title &&
+          other.uri == this.uri &&
           other.description == this.description &&
           other.name == this.name);
 }
 
 class FileTableCompanion extends UpdateCompanion<FileDB> {
   final Value<int?> id;
-  final Value<String> title;
+  final Value<String> uri;
   final Value<String?> description;
   final Value<String> name;
-  final Value<int> rowid;
   const FileTableCompanion({
     this.id = const Value.absent(),
-    this.title = const Value.absent(),
+    this.uri = const Value.absent(),
     this.description = const Value.absent(),
     this.name = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
   FileTableCompanion.insert({
     this.id = const Value.absent(),
-    required String title,
+    required String uri,
     this.description = const Value.absent(),
     required String name,
-    this.rowid = const Value.absent(),
-  })  : title = Value(title),
+  })  : uri = Value(uri),
         name = Value(name);
   static Insertable<FileDB> custom({
     Expression<int>? id,
-    Expression<String>? title,
+    Expression<String>? uri,
     Expression<String>? description,
     Expression<String>? name,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (title != null) 'title': title,
+      if (uri != null) 'uri': uri,
       if (description != null) 'description': description,
       if (name != null) 'name': name,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
   FileTableCompanion copyWith(
       {Value<int?>? id,
-      Value<String>? title,
+      Value<String>? uri,
       Value<String?>? description,
-      Value<String>? name,
-      Value<int>? rowid}) {
+      Value<String>? name}) {
     return FileTableCompanion(
       id: id ?? this.id,
-      title: title ?? this.title,
+      uri: uri ?? this.uri,
       description: description ?? this.description,
       name: name ?? this.name,
-      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -758,17 +751,14 @@ class FileTableCompanion extends UpdateCompanion<FileDB> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
+    if (uri.present) {
+      map['uri'] = Variable<String>(uri.value);
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -777,10 +767,9 @@ class FileTableCompanion extends UpdateCompanion<FileDB> {
   String toString() {
     return (StringBuffer('FileTableCompanion(')
           ..write('id: $id, ')
-          ..write('title: $title, ')
+          ..write('uri: $uri, ')
           ..write('description: $description, ')
-          ..write('name: $name, ')
-          ..write('rowid: $rowid')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
@@ -2959,17 +2948,15 @@ typedef $$RoomsTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool messagesTableRefs})>;
 typedef $$FileTableTableCreateCompanionBuilder = FileTableCompanion Function({
   Value<int?> id,
-  required String title,
+  required String uri,
   Value<String?> description,
   required String name,
-  Value<int> rowid,
 });
 typedef $$FileTableTableUpdateCompanionBuilder = FileTableCompanion Function({
   Value<int?> id,
-  Value<String> title,
+  Value<String> uri,
   Value<String?> description,
   Value<String> name,
-  Value<int> rowid,
 });
 
 final class $$FileTableTableReferences
@@ -3004,8 +2991,8 @@ class $$FileTableTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get title => $composableBuilder(
-      column: $table.title, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get uri => $composableBuilder(
+      column: $table.uri, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
@@ -3047,8 +3034,8 @@ class $$FileTableTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get title => $composableBuilder(
-      column: $table.title, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get uri => $composableBuilder(
+      column: $table.uri, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
@@ -3069,8 +3056,8 @@ class $$FileTableTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
+  GeneratedColumn<String> get uri =>
+      $composableBuilder(column: $table.uri, builder: (column) => column);
 
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
@@ -3124,31 +3111,27 @@ class $$FileTableTableTableManager extends RootTableManager<
               $$FileTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int?> id = const Value.absent(),
-            Value<String> title = const Value.absent(),
+            Value<String> uri = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
           }) =>
               FileTableCompanion(
             id: id,
-            title: title,
+            uri: uri,
             description: description,
             name: name,
-            rowid: rowid,
           ),
           createCompanionCallback: ({
             Value<int?> id = const Value.absent(),
-            required String title,
+            required String uri,
             Value<String?> description = const Value.absent(),
             required String name,
-            Value<int> rowid = const Value.absent(),
           }) =>
               FileTableCompanion.insert(
             id: id,
-            title: title,
+            uri: uri,
             description: description,
             name: name,
-            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

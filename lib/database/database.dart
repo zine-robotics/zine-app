@@ -100,13 +100,14 @@ class PollOptionTable extends Table {
 @DataClassName('FileDB')
 class FileTable extends Table {
   IntColumn get id => integer().nullable()();
-  TextColumn get title => text()();
+  TextColumn get uri => text()();
   TextColumn get description => text().nullable()();
   TextColumn get name => text()();
+  Set<Column> get primaryKey =>{id};
 }
 
 @DriftDatabase(tables: [
-  RoomsTable,
+RoomsTable,
   MessagesTable,
   UsersTable,
   FileTable,

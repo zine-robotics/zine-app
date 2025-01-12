@@ -8,10 +8,9 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
-import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/providers/user_info.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/file_tile.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/poll_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/file_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/poll_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
 import '../../../models/message.dart';
@@ -23,7 +22,6 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
       Provider.of<ChatRoomViewModel>(context, listen: true);
   List<MessageModel> chats = chatRoomViewModel.messages;
   UserProv userVm = Provider.of<UserProv>(context, listen: true);
-
   // If there are no messages
 
   if (chats.isEmpty) {
@@ -69,7 +67,8 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
           key: UniqueKey(),
           itemCount: chats.length,
           itemBuilder: (BuildContext context, int index) {
-            // print("chats[currIndx].sentFrom:${chats[index].sentFrom ==null} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
+            print(
+                "chats length:${index} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
             var currIndx = chats.length - index - 1;
             bool isUser = (userVm.getUserInfo.id == chats[currIndx].sender!.id);
             var showDate = index == chats.length - 1 ||
@@ -477,17 +476,23 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
             } else if (chats[currIndx].type == MessageType.poll &&
                 chats[currIndx].poll != null) {
               return PollTile(
+                group: group,
+                chatVm: chatRoomViewModel,
                 message: chats[currIndx],
-                isUser: isUser,
+                isUser: chats[currIndx].sender!.id == userVm.getUserInfo.id,
                 onVote: (optionId) => chatRoomViewModel.sendPollResponse(
                     chats[currIndx].id!, optionId),
               );
             } else if (chats[currIndx].type == MessageType.file &&
                 chats[currIndx].file != null) {
               return FileTile(
+                chatRoomViewModel: chatRoomViewModel,
+                group: group,
                 message: chats[currIndx],
                 isUser: isUser,
               );
+            } else {
+              return Container();
             }
           },
         ),

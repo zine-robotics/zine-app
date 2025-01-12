@@ -7,7 +7,7 @@ import '../../../models/rooms.dart';
 import '../../../providers/user_info.dart';
 import '../../../theme/color.dart';
 import 'chat_groups/chats_group.dart';
-import 'channel_tile.dart';
+import 'components/channel_tile.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
