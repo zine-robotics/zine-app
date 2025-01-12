@@ -600,8 +600,9 @@ class ChatRoomViewModel extends ChangeNotifier {
             // print("Success: PollOptionCompanion saved!!");
           }
         }
+        // print("checking the filedata present ?:${message.file?.uri}");
         try {
-          if (message.file != null) {
+          if (message.file?.uri != null && message.file?.uri != "") {
             final fileCompanion = FileTableCompanion(
               id: drift.Value(message.id),
               uri: drift.Value(await saveImageToLocalStorage(
@@ -611,6 +612,7 @@ class ChatRoomViewModel extends ChangeNotifier {
               name: drift.Value(message.file!.name),
             );
             await db.into(db.fileTable).insertOnConflictUpdate(fileCompanion);
+            print("sucess fileData!!");
           }
         } catch (e) {
           print("ERROR on saving fileOnDB:$e");
@@ -715,13 +717,17 @@ class ChatRoomViewModel extends ChangeNotifier {
           final fileQuery = db.select(db.fileTable)
             ..where((tbl) => tbl.id.equals(message.id));
           final fileQueryData = await fileQuery.getSingleOrNull();
-          fileData = FileData(
-              uri: Uri.parse(fileQueryData!.uri),
-              description: fileQueryData!.description!,
-              name: fileQueryData.name);
+          fileData = fileQueryData != null
+              ? FileData(
+                  uri: Uri.parse(fileQueryData!.uri),
+                  description: fileQueryData!.description!,
+                  name: fileQueryData.name)
+              : null;
+          print("\n\ninside the fileQuery: file name\n\n");
         } catch (e) {
           print("fileLoad Error");
         }
+        // print("\n\nfiledata length:${fileData?.name}\n");
         PollData? pollData;
         List<PollOption> pollOptionData = [];
         try {
@@ -764,7 +770,7 @@ class ChatRoomViewModel extends ChangeNotifier {
               replyToId: message.replyToId,
               file: fileData,
               poll: pollData);
-
+          print("\n\n\nfileData :${fileData?.name}\n");
           messages.add(temp_message);
         } catch (e) {
           print("Error fetching replyTo:$e");
