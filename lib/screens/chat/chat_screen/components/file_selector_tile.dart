@@ -30,16 +30,24 @@ class FileSelectorTile extends StatelessWidget {
       child: Column(
         children: [
           if (isImage)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(File(chatVm.filePath)),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: 100,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  fit: BoxFit.fill,
+                  image:FileImage(File(chatVm.filePath)),//Image.file(chatVm.filePath),
+                ),
+              ),
             ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(chatVm.fileName),
               IconButton(
-                  onPressed: () => chatVm.cancelUpload(),
+                  onPressed: () {
+                    chatVm.cancelUpload();
+                    },
                   icon: const Icon(Icons.cancel_outlined))
             ],
           ),
