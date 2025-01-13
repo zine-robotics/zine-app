@@ -233,10 +233,37 @@ class _ChatRoomState extends State<ChatRoom> {
                                   ? FileSelectorTile(chatVm)
                                   : Container(
                                       padding: const EdgeInsets.all(10),
-                                      child: LinearProgressIndicator(),
-                                      color: Colors.green,
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(
+                                            0.1), // Subtle background color
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const LinearProgressIndicator(
+                                            backgroundColor: Colors.white,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.blue),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            'Uploading...',
+                                            style: TextStyle(
+                                              color: Colors.blue.shade700,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     )
-                              : Container(),
+                              : const SizedBox(), // Use SizedBox instead of an empty Container for better performance
+
                           Align(
                             alignment: Alignment.bottomLeft,
                             child: Container(
