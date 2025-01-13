@@ -54,6 +54,7 @@ class RoomMemberModel {
   String? email;
   String? role;
   String? dpUrl;
+  bool isActive = false;
   late int id;
 
   RoomMemberModel(
@@ -65,6 +66,7 @@ class RoomMemberModel {
     role = json['role'];
     dpUrl = json['dpUrl'];
     id = json['id'];
+    isActive = json['isActive'] ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -74,6 +76,7 @@ class RoomMemberModel {
     data['role'] = role;
     data['dpUrl'] = dpUrl;
     data['id'] = id;
+    data['isActive'] = isActive;
     return data;
   }
 }

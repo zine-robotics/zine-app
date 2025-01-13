@@ -58,6 +58,7 @@ class ChatRepo {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
       List<Rooms> roomData =
           jsonResponse.map((json) => Rooms.fromJson(json)).toList();
+      // logger.d(jsonResponse);
       // roomData.forEach((room) {
       //   print("Room ID: ${room.id}");
       //   print("Room Name: ${room.name}");

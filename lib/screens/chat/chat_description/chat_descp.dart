@@ -26,11 +26,10 @@ class ChatDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(data);
+    ChatRoomViewModel chatVm =
+        Provider.of<ChatRoomViewModel>(context, listen: true);
     print("image in active member is :${image}");
-    return Consumer<ChatRoomViewModel>(
-        builder: (context,chatVm, _)
-    {
+    return Consumer<ChatRoomViewModel>(builder: (context, chatVm, _) {
       return Scaffold(
         backgroundColor: backgroundGrey,
         appBar: AppBar(
@@ -58,136 +57,163 @@ class ChatDescription extends StatelessWidget {
                   child: Container(
                       color: Colors.transparent,
                       padding: const EdgeInsets.all(10.0),
-                      child:  File(image).existsSync() ?chatVm.showProfileImage(image,height: 100.0,width: 100.0)
-                      // Image.file(
-                      //   File(image),
-                      //   fit: BoxFit.cover, // Ensures the image covers the circle
-                      //   width: 70, // Set to 2 * radius
-                      //   height: 70, // Set to 2 * radius
-                      // )
-                      // Image.network(
-                      //   image['dpUrl'],
-                      //   height: 50,
-                      //   width: 50,
-                      //   fit: BoxFit.cover,
-                      //   color: textColor.withOpacity(0.9),
-                      // )
+                      child: File(image).existsSync()
+                          ? chatVm.showProfileImage(image,
+                              height: 100.0, width: 100.0)
+                          // Image.file(
+                          //   File(image),
+                          //   fit: BoxFit.cover, // Ensures the image covers the circle
+                          //   width: 70, // Set to 2 * radius
+                          //   height: 70, // Set to 2 * radius
+                          // )
+                          // Image.network(
+                          //   image['dpUrl'],
+                          //   height: 50,
+                          //   width: 50,
+                          //   fit: BoxFit.cover,
+                          //   color: textColor.withOpacity(0.9),
+                          // )
                           : Image.asset(
-                        "assets/images/zine_logo.png",
-                        height: 50,
-                        width: 50,
-                        fit: BoxFit.cover,
-                        // color: textColor.withOpacity(0.9),
-                          )),
+                              "assets/images/zine_logo.png",
+                              height: 50,
+                              width: 50,
+                              fit: BoxFit.cover,
+                              // color: textColor.withOpacity(0.9),
+                            )),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                0,
-                20.0,
-                0,
-                0,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  0,
+                  20.0,
+                  0,
+                  0,
+                ),
+                child: Text(
+                  roomName,
+                  style: const TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 23),
+                ),
               ),
-              child: Text(
-                roomName,
-                style: const TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 23),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 10, 0, 10),
+                child: Text(
+                  "Total Members: ${chatVm.currentRoomMembers.length} ",
+                  style: const TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 10, 0, 10),
-              child: Text(
-                "${data?.length} Active Members",
-                style: const TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                // physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: data !=null ?data?.length:0,
-                itemBuilder: (context, index) {
-                  return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 0),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        elevation: 0,
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Container(
+              Expanded(
+                child: FutureBuilder(
+                  future: Future.value(
+                    chatVm.currentRoomMembers.values.toList()
+                      ..sort((a, b) => b.isActive ? 1 : -1),
+                  ),
+                  builder:
+                      (context, AsyncSnapshot<List<RoomMemberModel>> snapshot) {
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text("No members found."));
+                    }
+
+                    final sortedRoomMembers = snapshot.data!;
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: sortedRoomMembers.length,
+                      itemBuilder: (context, index) {
+                        final roomMember = sortedRoomMembers[index];
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 0),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Container(
                                       color: Colors.transparent,
                                       padding: const EdgeInsets.all(5.0),
-                                      child:File(data![index].dpUrl.toString()).existsSync() ? chatVm.showProfileImage(data![index].dpUrl.toString()):chatVm.customUserName(data![index].name.toString())
-
-                                    // buildProfilePicture(
-                                    //     data[index].dpUrl, data[index].name,
-                                    //     size: 22.5)
+                                      child: File(roomMember.dpUrl.toString())
+                                              .existsSync()
+                                          ? chatVm.showProfileImage(
+                                              roomMember.dpUrl.toString())
+                                          : chatVm.customUserName(
+                                              roomMember.name ?? "User"),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    data![index].name.toString(),
-                                    style: TextStyle(
-                                        fontSize: MediaQuery
-                                            .of(context)
-                                            .textScaleFactor *
+                                const SizedBox(width: 5),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      roomMember.name ?? "Anonymous",
+                                      style: TextStyle(
+                                        fontSize: MediaQuery.of(context)
+                                                .textScaleFactor *
                                             15,
                                         fontWeight: FontWeight.bold,
-                                        color: textDarkBlue),
-                                  ),
-                                  const SizedBox(
-                                    height: 4,
-                                  ),
-                                  Text(
-                                    data![index].email.toString(),
-                                    style: TextStyle(
-                                        fontSize: MediaQuery
-                                            .of(context)
-                                            .textScaleFactor *
+                                        color: textDarkBlue,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      roomMember.email ?? "email@example.com",
+                                      style: TextStyle(
+                                        fontSize: MediaQuery.of(context)
+                                                .textScaleFactor *
                                             12.5,
-                                        color: textDarkBlue),
-                                  )
+                                        color: textDarkBlue,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(width: 10),
+                                const Spacer(),
+                                if (roomMember.isActive) ...[
+                                  Icon(
+                                    Icons.circle_rounded,
+                                    color: Colors.green,
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    "Online",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                ] else ...[
+                                  Icon(
+                                    Icons.circle_rounded,
+                                    color: Colors.grey,
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    "Offline",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w500),
+                                  ),
                                 ],
-                              ),
-                              SizedBox(width: 10,),
-                              const Spacer(),
-                              Icon(Icons.circle_rounded,color: Colors.green,size: 15,),
-                              Text("Online",style: TextStyle(fontWeight: FontWeight.w500),),
-                              SizedBox(width: 20,),
-                              // Padding(
-                              //   padding:
-                              //       const EdgeInsets.fromLTRB(8.0, 16, 16, 0),
-                              //   child: Text(
-                              //     "",
-                              //     style: TextStyle(
-                              //         color: textColor,
-                              //         fontSize:
-                              //             MediaQuery.of(context).textScaleFactor *
-                              //                 13),
-                              //   ),
-                              // )
-                            ],
+                                const SizedBox(width: 20),
+                              ],
+                            ),
                           ),
-                        ));
+                        );
+                      },
+                    );
                   },
                 ),
               ),
@@ -198,8 +224,7 @@ class ChatDescription extends StatelessWidget {
           ),
         ),
       );
-    }
-    );
+    });
   }
 }
 

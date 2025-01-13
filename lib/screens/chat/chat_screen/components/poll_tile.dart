@@ -42,6 +42,7 @@ class _PollTileState extends State<PollTile> {
   @override
   Widget build(BuildContext context) {
     MessageModel message = widget.message;
+    logger.d('PollTile: ${message.poll!.lastVoted}');
     if (message.poll!.lastVoted != null) {
       selectedOptionId = message.poll!.lastVoted;
     }
