@@ -226,7 +226,7 @@ class _ChatRoomState extends State<ChatRoom> {
                           (chatVm.isFileLoading)
                               ? (chatVm.isFileReady)
                                   ? FileSelectorTile(chatVm)
-                                  : Container(
+                                  : Container(padding: const EdgeInsets.all(10),
                                       child: LinearProgressIndicator(),
                                       color: Colors.green,
                                     )
@@ -298,6 +298,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                       if (chatVm.isFileReady) {
                                         chatVm
                                             .sendFile(_messageController.text);
+                                        chatVm.cancelUpload();
                                       } else {
                                         _sendMessage();
                                         // chatVm.sendMessage(

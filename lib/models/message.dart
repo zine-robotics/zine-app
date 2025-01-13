@@ -163,10 +163,10 @@ enum MessageType { file, text, poll }
 
 class FileData {
   Uri uri;
-  String description;
+  String? description;
   String name;
 
-  FileData({required this.uri, required this.description, required this.name});
+  FileData({required this.uri, this.description, required this.name});
 
   FileData.fromJson(Map<String, dynamic> json)
       : uri = Uri.parse(json['url'] ??

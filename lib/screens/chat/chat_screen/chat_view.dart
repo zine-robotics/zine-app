@@ -494,6 +494,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
             } else {
               return Container();
             }
+            // else{ return Container();}
           },
         ),
       ),
