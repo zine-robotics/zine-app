@@ -9,7 +9,7 @@ import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/reply_card.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/file_selector_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/file_selector_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/poll_screen.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
@@ -298,6 +298,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                       if (chatVm.isFileReady) {
                                         chatVm
                                             .sendFile(_messageController.text);
+                                        chatVm.cancelUpload();
                                       } else {
                                         _sendMessage();
                                         // chatVm.sendMessage(

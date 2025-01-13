@@ -7,10 +7,10 @@ import 'package:provider/provider.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
-import '../../../models/rooms.dart';
-import '../../../models/user.dart';
-import '../../../utilities/date_time.dart';
-import 'chat_room.dart';
+import '../../../../models/rooms.dart';
+import '../../../../models/user.dart';
+import '../../../../utilities/date_time.dart';
+import '../chat_room.dart';
 
 class Channel extends StatelessWidget {
   final Rooms roomDetail;

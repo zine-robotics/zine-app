@@ -45,7 +45,9 @@ class FileSelectorTile extends StatelessWidget {
             children: [
               Text(chatVm.fileName),
               IconButton(
-                  onPressed: () => chatVm.cancelUpload(),
+                  onPressed: () {
+                    chatVm.cancelUpload();
+                    },
                   icon: const Icon(Icons.cancel_outlined))
             ],
           ),

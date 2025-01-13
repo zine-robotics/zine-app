@@ -9,8 +9,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:zineapp2023/providers/user_info.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/file_tile.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/poll_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/file_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/poll_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
 import '../../../models/message.dart';
@@ -491,8 +491,10 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                 message: chats[currIndx],
                 isUser: isUser,
               );
+            } else {
+              return Container();
             }
-            else{ return Container();}
+            // else{ return Container();}
           },
         ),
       ),
