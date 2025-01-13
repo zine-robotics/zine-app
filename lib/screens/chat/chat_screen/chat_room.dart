@@ -90,7 +90,7 @@ class _ChatRoomState extends State<ChatRoom> {
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isNotEmpty) {
-      chatRoomView.sendMessage(text, widget.roomDetail!.name.toString());
+      chatRoomView.sendMessage(text, widget.roomDetail!.id.toString());
       _messageController.clear();
     }
   }
@@ -98,6 +98,7 @@ class _ChatRoomState extends State<ChatRoom> {
   @override
   void dispose() {
     super.dispose();
+    // chatRoomView.currRoomId = "";
     if (chatRoomView.messages.isNotEmpty) {
       Future.microtask(() async {
         await chatRoomView.updateSeen(
@@ -138,15 +139,17 @@ class _ChatRoomState extends State<ChatRoom> {
         }
         final roomName = widget.roomDetail!.name.toString();
         final image = widget.roomDetail!.dpUrl.toString();
+        // chatVm.room = widget.roomDetail!.id.toString();
         // print("\n\ninside chat_room,image:$image\n\n");
         UserModel currUser = userProv.getUserInfo;
         bool isAllowedTyping = true;
         List<RoomMemberModel>? listOfUsers = chatVm.activeMembers;
         //
-        logger.d(
-            "Building room: $roomName , id : ${widget.roomDetail!.id.toString()}");
+        // logger.d(
+        //     "Building room: $roomName , id : ${widget.roomDetail!.id.toString()}");
 
-        if (currUser.type == 'user' && roomName == 'Announcements') {
+        if (currUser.type == 'user' &&
+            widget.roomDetail!.type.toString() == 'announcement') {
           isAllowedTyping = false;
         }
 
@@ -169,14 +172,16 @@ class _ChatRoomState extends State<ChatRoom> {
               toolbarHeight: MediaQuery.of(context).size.height * 0.1,
               title: GestureDetector(
                 onTap: () {
-                  Navigator.of(context)
-                      .push(CupertinoPageRoute(builder: (BuildContext context) {
-                    // return Text("chatDesctiption remove");
-                    return ChatDescription(
-                        roomName: roomName,
-                        image: image,
-                        data: listOfUsers ?? []);
-                  }));
+                  if (widget.roomDetail!.type.toString() != 'announcement') {
+                    Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (BuildContext context) {
+                      // return Text("chatDesctiption remove");
+                      return ChatDescription(
+                          roomName: roomName,
+                          image: image,
+                          data: listOfUsers != null ? listOfUsers : []);
+                    }));
+                  }
                 },
                 child: Text(
                   roomName,
@@ -226,7 +231,8 @@ class _ChatRoomState extends State<ChatRoom> {
                           (chatVm.isFileLoading)
                               ? (chatVm.isFileReady)
                                   ? FileSelectorTile(chatVm)
-                                  : Container(padding: const EdgeInsets.all(10),
+                                  : Container(
+                                      padding: const EdgeInsets.all(10),
                                       child: LinearProgressIndicator(),
                                       color: Colors.green,
                                     )

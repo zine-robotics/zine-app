@@ -67,6 +67,9 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
           key: UniqueKey(),
           itemCount: chats.length,
           itemBuilder: (BuildContext context, int index) {
+            chats[index].timestamp = chats[index].timestamp!.toLocal();
+            // print(
+            //     "chats length:${index} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
             var currIndx = chats.length - index - 1;
             bool isUser = (userVm.getUserInfo.id == chats[currIndx].sender!.id);
             var showDate = index == chats.length - 1 ||

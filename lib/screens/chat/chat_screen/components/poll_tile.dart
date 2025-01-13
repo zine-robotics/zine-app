@@ -43,7 +43,10 @@ class _PollTileState extends State<PollTile> {
   Widget build(BuildContext context) {
     MessageModel message = widget.message;
     if (message.poll!.pollOptions.isNotEmpty) {
-      selectedOptionId =  message.poll!.pollOptions.where((element) => element.voterIds!.isNotEmpty).firstOrNull?.id; // ? message.poll!.lastVoted;
+      selectedOptionId = message.poll!.pollOptions
+          .where((element) => element.voterIds!.isNotEmpty)
+          .firstOrNull
+          ?.id; // ? message.poll!.lastVoted;
     }
     final width = MediaQuery.of(context).size.width;
     final totalVotes = _calculateTotalVotes(message.poll!.pollOptions);
@@ -54,18 +57,18 @@ class _PollTileState extends State<PollTile> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Expanded(
             child: Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left: width*0.12),
+                  padding: EdgeInsets.only(left: width * 0.12),
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
                     margin: const EdgeInsets.only(left: 8.0),
                     decoration: BoxDecoration(
-                      color:
-                          isUser ? const Color(0xff68a5ca) : const Color(0xff0C72B0),
+                      color: isUser
+                          ? const Color(0xff68a5ca)
+                          : const Color(0xff0C72B0),
                       borderRadius: isUser
                           ? const BorderRadius.only(
                               topLeft: Radius.circular(12),
@@ -81,15 +84,19 @@ class _PollTileState extends State<PollTile> {
                       children: [
                         Text(
                           message.poll!.title,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Colors.white,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Colors.white,
+                                  ),
                         ),
                         if (message.poll!.description.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Text(
                             message.poll!.description,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
                                   color: Colors.white.withOpacity(0.8),
                                 ),
                           ),
@@ -141,26 +148,31 @@ class _PollTileState extends State<PollTile> {
                                           if (selectedOptionId != null)
                                             FractionallySizedBox(
                                               widthFactor:
-                                                  double.parse(percentage) / 100,
+                                                  double.parse(percentage) /
+                                                      100,
                                               child: Container(
                                                 decoration: const BoxDecoration(
                                                     color: Colors.white60,
-                                                    borderRadius: BorderRadius.all(
-                                                        Radius.circular(10))),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10))),
                                               ),
                                             ),
                                           Container(
                                             padding: const EdgeInsets.all(10),
                                             child: Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(option.value),
                                                 if (selectedOptionId != null)
                                                   Text(
                                                     '$percentage% (${option.numVotes})',
                                                     style: const TextStyle(
-                                                        fontWeight: FontWeight.bold),
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
                                               ],
                                             ),
@@ -178,9 +190,10 @@ class _PollTileState extends State<PollTile> {
                           const SizedBox(height: 8),
                           Text(
                             'Total votes: $totalVotes',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.white.withOpacity(0.8),
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.white.withOpacity(0.8),
+                                    ),
                           ),
                         ],
                       ],
@@ -192,17 +205,19 @@ class _PollTileState extends State<PollTile> {
                   left: 0.0,
                   child: isUser || widget.group
                       ? CircleAvatar(
-                    backgroundColor: const Color.fromARGB(15, 255, 255, 255),
-                    radius: 25,
-                    child: Padding(
-                        padding: const EdgeInsets.all(20.0), child: Container()),
-                  )
+                          backgroundColor:
+                              const Color.fromARGB(15, 255, 255, 255),
+                          radius: 25,
+                          child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Container()),
+                        )
                       : File(message.sender!.dp.toString()).existsSync()
-                      ? widget.chatVm.showProfileImage(
-                      message.sender!.dp.toString(),
-                      radius: 50.0)
-                      : widget.chatVm
-                      .customUserName(message.sender!.name.toString()),
+                          ? widget.chatVm.showProfileImage(
+                              message.sender!.dp.toString(),
+                              radius: 50.0)
+                          : widget.chatVm
+                              .customUserName(message.sender!.name.toString()),
                 ),
               ],
             ),

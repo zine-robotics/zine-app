@@ -54,6 +54,17 @@ class RoomMemberTable extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@DataClassName('RoomMemberMapping')
+class RoomMemberMappingTable extends Table {
+  IntColumn get roomId =>
+      integer().customConstraint('REFERENCES rooms_table(id) NOT NULL')();
+  IntColumn get memberId =>
+      integer().customConstraint('REFERENCES room_member_table(id) NOT NULL')();
+
+  @override
+  Set<Column> get primaryKey => {roomId, memberId};
+}
+
 @DataClassName('MessageDB')
 class MessagesTable extends Table {
   IntColumn get id => integer()();
@@ -115,7 +126,8 @@ class FileTable extends Table {
   FileTable,
   PollTable,
   PollOptionTable,
-  RoomMemberTable
+  RoomMemberTable,
+  RoomMemberMappingTable
 ])
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
@@ -341,6 +353,59 @@ class AppDb extends _$AppDb {
   Future<RoomMemberDB?> fetchRoomMemberById(int memberId) async {
     return (select(roomMemberTable)..where((tbl) => tbl.id.equals(memberId)))
         .getSingleOrNull();
+  }
+
+  Future<void> saveRoomMemberMapping(int roomId, List<int> memberIds) async {
+    try {
+      await batch((batch) {
+        // Prepare the batch insert for multiple members
+        for (final memberId in memberIds) {
+          batch.insert(
+            roomMemberMappingTable,
+            RoomMemberMappingTableCompanion.insert(
+              roomId: roomId,
+              memberId: memberId,
+            ),
+            mode: InsertMode.insertOrIgnore, // Avoid duplicates
+          );
+        }
+      });
+      print("Room member mappings saved successfully for room ID: $roomId");
+    } catch (e) {
+      print("Error saving room member mappings: $e");
+    }
+  }
+
+  Future<Map<String, RoomMemberModel>> getRoomMembersByRoomId(
+      int roomId) async {
+    try {
+      final query = select(roomMemberTable).join([
+        innerJoin(
+          roomMemberMappingTable,
+          roomMemberMappingTable.memberId.equalsExp(roomMemberTable.id),
+        )
+      ])
+        ..where(roomMemberMappingTable.roomId.equals(roomId));
+
+      final results = await query.get();
+
+      // Map the results to a Map<int, RoomMemberModel>
+      final roomMembersMap = {
+        for (var row in results)
+          row.readTable(roomMemberTable).id.toString(): RoomMemberModel(
+            id: row.readTable(roomMemberTable).id,
+            name: row.readTable(roomMemberTable).name,
+            email: row.readTable(roomMemberTable).email,
+            role: row.readTable(roomMemberTable).role,
+            dpUrl: row.readTable(roomMemberTable).dpUrl,
+          )
+      };
+
+      return roomMembersMap;
+    } catch (e) {
+      print("Error fetching room members by room ID: $e");
+      return {};
+    }
   }
 
   //=========================POLLS============================================
