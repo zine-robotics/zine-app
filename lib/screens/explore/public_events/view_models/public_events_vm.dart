@@ -90,8 +90,6 @@ class PublicEventsVM extends ChangeNotifier {
     return (evCopy.last.startDateTime!);
   }
 
-  List<Events> getEvents(DateTime day) => _events
-      .where((event) => isSameDay(
-          (event.startDateTime!), day))
-      .toList();
+  List<Events> getEvents(DateTime day) =>
+      _events.where((event) => isSameDay((event.startDateTime!), day)).toList();
 }

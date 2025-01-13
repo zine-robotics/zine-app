@@ -106,7 +106,7 @@ class _DashboardState extends State<Dashboard> {
                                       radius: 30,
                                       backgroundColor: iconTile,
                                       backgroundImage: AssetImage(
-                                        "assets/images/dp/2.png",
+                                        "assets/images/dp/${currUser.dp}.png",
                                       )),
                               // buildProfilePicture(chatVm.showProfileImage(currUser.dp!.toString()), currUser.name!,
                               //     size: 30),

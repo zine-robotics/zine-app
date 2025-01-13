@@ -78,6 +78,11 @@ class UserProv extends ChangeNotifier {
 
   UserModel get getUserInfo => _currUser;
 
+  void updateDpUrl(String url) {
+    _currUser.dp = url;
+    notifyListeners();
+  }
+
   void updateLast(String name) {
     _currUser.lastSeen[name] = DateTime.now();
   }

@@ -9,6 +9,7 @@ version:
   channel: "[user-branch]"
 =======
   revision: "80c2e84975bbd28ecf5f8d4bd4ca5a2490bfc819"
+  revision: "603104015dd692ea3403755b55d07813d5cf8965"
   channel: "stable"
 >>>>>>> 0725d9dcfacc065a42f9421533202204d6c327eb
 
@@ -61,6 +62,17 @@ migration:
       create_revision: 80c2e84975bbd28ecf5f8d4bd4ca5a2490bfc819
       base_revision: 80c2e84975bbd28ecf5f8d4bd4ca5a2490bfc819
 >>>>>>> 0725d9dcfacc065a42f9421533202204d6c327eb
+      create_revision: 603104015dd692ea3403755b55d07813d5cf8965
+      base_revision: 603104015dd692ea3403755b55d07813d5cf8965
+    - platform: android
+      create_revision: 603104015dd692ea3403755b55d07813d5cf8965
+      base_revision: 603104015dd692ea3403755b55d07813d5cf8965
+    - platform: linux
+      create_revision: 603104015dd692ea3403755b55d07813d5cf8965
+      base_revision: 603104015dd692ea3403755b55d07813d5cf8965
+    - platform: macos
+      create_revision: 603104015dd692ea3403755b55d07813d5cf8965
+      base_revision: 603104015dd692ea3403755b55d07813d5cf8965
 
   # User provided section
 

@@ -390,6 +390,8 @@ class ChatRoomViewModel extends ChangeNotifier {
           }
         });
       }
+      print("Completed");
+      notifyListeners();
     } catch (e) {
       logger.e("ERROR in saveRoomMemberToLocalDb: $e");
     }
@@ -509,6 +511,8 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
+  //-------PIPELINE:1.localDBfetch -->fetchFromApi -->updateLocalDBwithNewData --> UpdateUI ------------------------------------------//
+  ///STAGE 1:localDB
   Future<void> fetchAllRoomDataFromLocalDB(AppDb db) async {
     try {
       allrooms = await fetchRoomDataFromLocalDB(db);
@@ -595,6 +599,23 @@ class ChatRoomViewModel extends ChangeNotifier {
                 .insertOnConflictUpdate(pollOptionCompanion);
             // print("Success: PollOptionCompanion saved!!");
           }
+        }
+        // print("checking the filedata present ?:${message.file?.uri}");
+        try {
+          if (message.file?.uri != null && message.file?.uri != "") {
+            final fileCompanion = FileTableCompanion(
+              id: drift.Value(message.id),
+              uri: drift.Value(await saveImageToLocalStorage(
+                  message.file!.uri.toString(),
+                  message.id.toString(),
+                  message.file!.name.toString())),
+              name: drift.Value(message.file!.name),
+            );
+            await db.into(db.fileTable).insertOnConflictUpdate(fileCompanion);
+            print("sucess fileData!!");
+          }
+        } catch (e) {
+          print("ERROR on saving fileOnDB:$e");
         }
         try {
           final roomMemberCompanion = RoomMemberTableCompanion(
@@ -691,6 +712,22 @@ class ChatRoomViewModel extends ChangeNotifier {
         final pollOptionQuery = db.select(db.pollOptionTable)
           ..where((tbl) => tbl.pollId.equals(message.id));
         final pollOptionQueryData = await pollOptionQuery.get();
+        FileData? fileData;
+        try {
+          final fileQuery = db.select(db.fileTable)
+            ..where((tbl) => tbl.id.equals(message.id));
+          final fileQueryData = await fileQuery.getSingleOrNull();
+          fileData = fileQueryData != null
+              ? FileData(
+                  uri: Uri.parse(fileQueryData!.uri),
+                  description: fileQueryData!.description!,
+                  name: fileQueryData.name)
+              : null;
+          print("\n\ninside the fileQuery: file name\n\n");
+        } catch (e) {
+          print("fileLoad Error");
+        }
+        // print("\n\nfiledata length:${fileData?.name}\n");
         PollData? pollData;
         List<PollOption> pollOptionData = [];
         try {
@@ -731,8 +768,9 @@ class ChatRoomViewModel extends ChangeNotifier {
                     )
                   : null,
               replyToId: message.replyToId,
+              file: fileData,
               poll: pollData);
-
+          print("\n\n\nfileData :${fileData?.name}\n");
           messages.add(temp_message);
         } catch (e) {
           print("Error fetching replyTo:$e");
@@ -743,6 +781,8 @@ class ChatRoomViewModel extends ChangeNotifier {
     } catch (e) {
       print('Error fetching messages from local DB: $e');
       return [];
+    } finally {
+      notifyListeners();
     }
   }
 
@@ -908,6 +948,28 @@ class ChatRoomViewModel extends ChangeNotifier {
       "voterId": userProv.getUserInfo.id!,
       "optionId": optionId,
     };
+    int pollIndex = messages.indexWhere(
+      (element) => element.id! == messageId,
+    );
+
+    if (messages[pollIndex].poll!.lastVoted != null) {
+      // remove old vote and add new vote
+      int optionIndex = messages[pollIndex].poll!.pollOptions.indexWhere(
+          (option) => option.id == messages[pollIndex].poll!.lastVoted);
+
+      messages[pollIndex].poll!.pollOptions[optionIndex].numVotes--;
+    }
+
+    messages[pollIndex].poll!.lastVoted = optionId;
+    print(
+        "_messages LastVoted updated to ${messages[pollIndex].poll!.lastVoted}");
+    int optionIndex = messages[pollIndex].poll!.pollOptions.indexWhere(
+          (element) => element.id == optionId,
+        );
+    messages[pollIndex].poll!.pollOptions[optionIndex].numVotes++;
+
+    // _messageStreamController.add(messages);
+    notifyListeners();
 
     final jsonBody = json.encode(messageData);
     if (kDebugMode) {
@@ -981,9 +1043,11 @@ class ChatRoomViewModel extends ChangeNotifier {
   String _fileUri = '';
   String _fileName = '';
   String _publicId = '';
+  String _filePath = '';
 
   String get fileUri => _fileUri;
   String get fileName => _fileName;
+  String get filePath => _filePath;
 
   bool get isFileLoading => _isFileLoading;
   bool get isUploading => _isUploading;
@@ -1004,11 +1068,11 @@ class ChatRoomViewModel extends ChangeNotifier {
             msg: 'An Error Occured during upload',
             backgroundColor: Colors.red,
             textColor: Colors.white);
-
         _isFileLoading = false;
         notifyListeners();
       }
 
+      _filePath = file.path;
       _fileUri = fileUri.toString();
       _fileName = basename(file.path);
 
