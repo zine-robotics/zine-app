@@ -579,9 +579,10 @@ class ChatRoomViewModel extends ChangeNotifier {
           final pollCompanion = PollTableCompanion(
             id: drift.Value(message.id!),
             title: drift.Value(message.poll!.title),
-            description: drift.Value(message.poll!.description ?? ''),
-            lastVoted: drift.Value(message.poll!.lastVoted ?? null),
+            description: drift.Value(message.poll!.description),
+            lastVoted: drift.Value(message.poll!.lastVoted),
           );
+          print("message poll-lastvoted:${message.poll?.lastVoted}");
 
           // Insert poll data
           await db.into(db.pollTable).insertOnConflictUpdate(pollCompanion);
@@ -707,6 +708,9 @@ class ChatRoomViewModel extends ChangeNotifier {
         final pollQuery = db.select(db.pollTable)
           ..where((tbl) => tbl.id.equals(message.id));
         final pollQueryData = await pollQuery.getSingleOrNull();
+        print(
+            "\npollqueryData lastvoted dueing fetchdb:${pollQueryData?.lastVoted}");
+
         final pollOptionQuery = db.select(db.pollOptionTable)
           ..where((tbl) => tbl.pollId.equals(message.id));
         final pollOptionQueryData = await pollOptionQuery.get();
@@ -718,7 +722,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           print("fileQueryData:${fileQueryData}");
           fileData = fileQueryData != null
               ? FileData(
-                  uri: Uri.parse(fileQueryData!.uri),
+                  uri: Uri.parse(fileQueryData.uri),
                   description: fileQueryData.description,
                   name: fileQueryData.name)
               : null;
@@ -1107,6 +1111,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
       // Attach the description as form-data
       request.fields['description'] = description;
+      request.fields['folder'] = 'chat-file';
 
       // Send the request
       var response = await request.send();
@@ -1203,6 +1208,11 @@ class ChatRoomViewModel extends ChangeNotifier {
         print('Not connected to the WebSocket server.$e');
       }
     }
+    _fileName = '';
+    _fileUri = '';
+    _isFileReady = false;
+    _isFileLoading = false;
+    notifyListeners();
   }
 
   //=====================================================older code===================================================================//
