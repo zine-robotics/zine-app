@@ -93,6 +93,7 @@ class PollOptionTable extends Table {
   IntColumn get id => integer().nullable()();
   TextColumn get value => text()();
   IntColumn get numVotes => integer()();
+  BoolColumn get voterID=>boolean().withDefault(Constant(false))();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -146,7 +147,7 @@ class AppDb extends _$AppDb {
       // print("Database folder path: ${dbFolder.path}");
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
-        await file.delete();
+        // await file.delete();
         print("Old database present.");
       }
       return NativeDatabase(file);

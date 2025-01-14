@@ -116,8 +116,8 @@ class ChatRoomViewModel extends ChangeNotifier {
             final List<dynamic> activeMemberData = json.decode(frame.body!);
             final List<String> activeMemberList =
                 activeMemberData.map((item) => item.toString()).toList();
-            logger.d(
-                "\n newly created websocket acive user data:${activeMemberList}");
+            // logger.d(
+            //     "\n newly created websocket acive user data:${activeMemberList}");
             List<RoomMemberModel>? roomMemberData =
                 await fetchRoomMemberDetailsFromLocalDb(db, activeMemberList);
             _activeMembers = List<RoomMemberModel>.from(roomMemberData ?? []);
@@ -594,7 +594,16 @@ class ChatRoomViewModel extends ChangeNotifier {
               pollId: drift.Value(message.id!),
               value: drift.Value(option.value),
               numVotes: drift.Value(option.numVotes),
+              voterID: option.voterIds !=null? option.voterIds!.contains(userProv.getUserInfo.id) ? drift.Value(true): drift.Value(false) :drift.Value(false)
             );
+            // if(option.voterIds !=null){
+            //   option.voterIds!.forEach((i) {
+            //     print("user id: $i and userprov id :${userProv.getUserInfo.id} bool ${option.voterIds!.contains(userProv.getUserInfo.id)} check ${drift.Value.absent}");
+            //
+            //   });
+            // }
+            print("pollOptioncompanion:${pollOptionCompanion.voterID}");
+
             await db
                 .into(db.pollOptionTable)
                 .insertOnConflictUpdate(pollOptionCompanion);
@@ -714,6 +723,9 @@ class ChatRoomViewModel extends ChangeNotifier {
         final pollOptionQuery = db.select(db.pollOptionTable)
           ..where((tbl) => tbl.pollId.equals(message.id));
         final pollOptionQueryData = await pollOptionQuery.get();
+        print("Poll Options fetched: ${pollOptionQueryData.map((e) => e.voterID)}");
+
+        logger.i(pollOptionQueryData);
         FileData? fileData;
         try {
           final fileQuery = db.select(db.fileTable)
@@ -740,7 +752,11 @@ class ChatRoomViewModel extends ChangeNotifier {
               pollOptionData.add(PollOption(
                   id: pollOptionRow.id!,
                   value: pollOptionRow.value,
-                  numVotes: pollOptionRow.numVotes));
+                  numVotes: pollOptionRow.numVotes,
+                  voterIds: (pollOptionRow.voterID == true) ? [userProv.getUserInfo.id!]:[]
+              ),
+              );
+              print("\n\n inside the polloptions:${pollOptionRow.voterID.toString()} \n");
             }
           }
           if (pollQueryData != null) {
@@ -773,7 +789,6 @@ class ChatRoomViewModel extends ChangeNotifier {
               replyToId: message.replyToId,
               file: fileData,
               poll: pollData);
-          print("\n\n\nfileData :${fileData?.name}\n");
           messages.add(temp_message);
         } catch (e) {
           print("Error fetching replyTo:$e");
