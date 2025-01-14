@@ -27,14 +27,13 @@ class EventTile extends StatefulWidget {
 class _EventTileState extends State<EventTile> {
   @override
   Widget build(BuildContext context) {
-    DateTime startTime =
-        (widget.event.startDateTime!);
+    DateTime startTime = (widget.event.startDateTime!);
     // DateTime endTime =
     //     (widget.event.endDateTime!);
 
     double availableHeight = MediaQuery.of(context).size.height -
         (kBottomNavigationBarHeight + kToolbarHeight);
-    double compressedHeight = availableHeight / 7;
+    double compressedHeight = availableHeight / 6;
     double expandedHeight = availableHeight / 3.2;
     bool isEventPast = widget.event.startDateTime != null
         ? isPastEvent(widget.event.startDateTime!)
@@ -43,7 +42,7 @@ class _EventTileState extends State<EventTile> {
 
     const duration = Duration(milliseconds: 250);
     return AnimatedContainer(
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      // padding: EdgeInsets.symmetric(horizontal: 10),
       height: expanded ? compressedHeight : expandedHeight,
       duration: duration,
       width: double.maxFinite,
@@ -80,17 +79,13 @@ class _EventTileState extends State<EventTile> {
                 const Expanded(
                   child: SolidLineConnector(),
                 ),
-                isEventPast ? Indicator.dot() : Indicator.outlined(),
+                !isEventPast ? Indicator.dot() : Indicator.outlined(),
                 const Expanded(child: SolidLineConnector())
               ])),
           Flexible(
               flex: 5,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  widget.evm.selectEventIndex(widget.index);
-                  setState(() {});
-                },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Card(
                   margin: const EdgeInsets.fromLTRB(5, 10, 25, 5),
                   color: Colors.white,
@@ -99,13 +94,7 @@ class _EventTileState extends State<EventTile> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25)),
                   child: AnimatedContainer(
-                    // decoration: BoxDecoration(image: DecorationImage(image: AssetImage(bundle: ))),
                     duration: duration,
-                    // width: double.maxFinite,
-                    // constraints: BoxConstraints(
-                    //     maxWidth: double.maxFinite,
-                    //     minHeight: compressedHeight,
-                    //     maxHeight: expandedHeight),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(
                           25), // Ensure the radius matches the card
@@ -121,73 +110,80 @@ class _EventTileState extends State<EventTile> {
                       //       )
                       //     : null,
                     ),
-                    child: Stack(alignment: Alignment.center, children: [
-                      Positioned(
-                          top: 20,
-                          // left: widget.index.isEven ? null : 20,
-                          // right: widget.index.isEven ? 20 : null,
-                          right: 20,
-                          child: AutoSizeText(
-                            widget.event.name!,
-                            textAlign: TextAlign.center,
-                            maxFontSize: 28,
-                            minFontSize: 16,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: textDarkBlue),
-                            // color: expanded ? Colors.white : textDarkBlue),
-                          )),
-                      Positioned(
-                          top: 60,
-                          // left: widget.index.isEven ? null : 20,
-                          // right: widget.index.isEven ? 20 : null,
-                          right: 20,
-                          child: Text(
-                            widget.event.venue!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 15,
-                                // color: expanded ? Colors.white : blurBlue),
-                                color: blurBlue),
-                          )),
-                      Positioned(
-                          top: 100,
-                          // left: widget.index.isEven ? null : 20,
-                          // right: widget.index.isEven ? 20 : null,
-                          right: 0,
-                          child: AnimatedContainer(
-                            duration: duration,
-                            height: expanded ? 0 : 140,
-                            width: MediaQuery.of(context).size.width - 170,
-                            child: Column(
-                              children: [
-                                Flexible(
-                                  fit: FlexFit.loose,
-                                  child: Text(
-                                    utf8.decode((widget.event.description!)
-                                        .runes
-                                        .toList()),
-                                    overflow: TextOverflow.fade,
-                                    style:
-                                        const TextStyle(fontFamily: 'Roboto'),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        widget.evm.selectEventIndex(widget.index);
+                        setState(() {});
+                      },
+                      child: Stack(alignment: Alignment.center, children: [
+                        Positioned(
+                            top: 20,
+                            // left: widget.index.isEven ? null : 20,
+                            // right: widget.index.isEven ? 20 : null,
+                            right: 20,
+                            child: AutoSizeText(
+                              widget.event.name!,
+                              textAlign: TextAlign.center,
+                              maxFontSize: 28,
+                              minFontSize: 16,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: textDarkBlue),
+                              // color: expanded ? Colors.white : textDarkBlue),
+                            )),
+                        Positioned(
+                            top: 60,
+                            // left: widget.index.isEven ? null : 20,
+                            // right: widget.index.isEven ? 20 : null,
+                            right: 20,
+                            child: Text(
+                              widget.event.venue!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  // color: expanded ? Colors.white : blurBlue),
+                                  color: blurBlue),
+                            )),
+                        Positioned(
+                            top: 100,
+                            // left: widget.index.isEven ? null : 20,
+                            // right: widget.index.isEven ? 20 : null,
+                            right: 0,
+                            child: AnimatedContainer(
+                              duration: duration,
+                              height: expanded ? 0 : 140,
+                              width: MediaQuery.of(context).size.width - 170,
+                              child: Column(
+                                children: [
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: Text(
+                                      utf8.decode((widget.event.description!)
+                                          .runes
+                                          .toList()),
+                                      overflow: TextOverflow.fade,
+                                      style:
+                                          const TextStyle(fontFamily: 'Roboto'),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                // Center(
-                                //   child: ElevatedButton(
-                                //       clipBehavior: Clip.hardEdge,
-                                //       onPressed: () {},
-                                //       child: Icon(
-                                //         Icons.calendar_today,
-                                //         color: textColor,
-                                //       )),
-                                // )
-                              ],
-                            ),
-                          ))
-                    ]),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  // Center(
+                                  //   child: ElevatedButton(
+                                  //       clipBehavior: Clip.hardEdge,
+                                  //       onPressed: () {},
+                                  //       child: Icon(
+                                  //         Icons.calendar_today,
+                                  //         color: textColor,
+                                  //       )),
+                                  // )
+                                ],
+                              ),
+                            ))
+                      ]),
+                    ),
                   ),
                 ),
               )),

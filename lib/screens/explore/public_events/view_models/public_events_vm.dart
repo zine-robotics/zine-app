@@ -24,7 +24,7 @@ class PublicEventsVM extends ChangeNotifier {
       List<Events> tempEvents = await eventsRepo.fetchEvents();
       // List<Events> tempEvents = dummyEvents;
 
-      tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
+      tempEvents.sort((a, b) => a.startDateTime!.compareTo(b.startDateTime!));
       _events = tempEvents;
       for (var event in _events) {
         DateTime eventDate = event.startDateTime!;
