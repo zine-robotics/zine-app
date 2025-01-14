@@ -148,20 +148,20 @@ class WorkshopTile extends StatelessWidget {
                   backgroundColor: iconTile,
                   radius: 30.0,
                   child:
-                      /*  AssetImage(
-                      "assets/images/timeline/${i == 1 ? events[index].name!.toLowerCase() : image[i].toString().toLowerCase()}.png"),
-              */
+                      //  AssetImage(
+                      // "assets/images/timeline/${i == 1 ? events[index].name!.toLowerCase() : image[i].toString().toLowerCase()}.png"),
+                      //
 
-                      // event[index].image!.isNotEmpty
-                      //     ? Image.network(
-                      //         event[index].image.toString(),
-                      //         color: Colors.black,
-                      //         width: 35,
-                      //       )
-                      //     :
+                      event[index].eventDp !=null
+                          ? Image.network(
+                              event[index].eventDp.toString(),
+                              color: Colors.black,
+                              width: 35,
+                            )
+                          :
                       Image.asset(
                     'assets/images/zine_logo.png',
-                    color: Colors.black,
+                    // color: Colors.transparent,
                     width: 45,
                   )),
             ),

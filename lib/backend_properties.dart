@@ -72,4 +72,5 @@ class BackendProperties {
       .replace(path: '/file/delete', queryParameters: {'publicKey': publicId});
 
   static Uri updateDp = baseUrl.replace(path: '/user/update-dp');
+  static String recruitmentUri ="https://zine.co.in/login";
 }

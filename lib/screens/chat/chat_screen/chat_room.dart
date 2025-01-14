@@ -298,7 +298,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                       if (chatVm.isFileReady) {
                                         chatVm
                                             .sendFile(_messageController.text);
-                                        chatVm.cancelUpload();
+                                        // chatVm.cancelUpload();
                                       } else {
                                         _sendMessage();
                                         // chatVm.sendMessage(

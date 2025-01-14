@@ -232,24 +232,29 @@ class PollOption {
   int id;
   String value;
   int numVotes;
+  List<int>? voterIds;
 
   // Constructor
   PollOption({
     required this.id,
     required this.value,
     required this.numVotes,
+    this.voterIds,
   });
 
   PollOption.fromJson(Map<String, dynamic> json)
       : id = json['id'] ?? 0,
         value = json['value'] ?? '',
-        numVotes = json['numVotes'] ?? 0;
+        numVotes = json['numVotes'] ?? 0,
+        voterIds = List<int>.from(json['voterIds'] ?? []);
+
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'value': value,
       'numVotes': numVotes,
+      'voterIds':voterIds,
     };
   }
 

@@ -2361,8 +2361,18 @@ class $PollOptionTableTable extends PollOptionTable
   late final GeneratedColumn<int> numVotes = GeneratedColumn<int>(
       'num_votes', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _voterIDMeta =
+      const VerificationMeta('voterID');
   @override
-  List<GeneratedColumn> get $columns => [pollId, id, value, numVotes];
+  late final GeneratedColumn<bool> voterID = GeneratedColumn<bool>(
+      'voter_i_d', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("voter_i_d" IN (0, 1))'),
+      defaultValue: Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [pollId, id, value, numVotes, voterID];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2394,6 +2404,10 @@ class $PollOptionTableTable extends PollOptionTable
     } else if (isInserting) {
       context.missing(_numVotesMeta);
     }
+    if (data.containsKey('voter_i_d')) {
+      context.handle(_voterIDMeta,
+          voterID.isAcceptableOrUnknown(data['voter_i_d']!, _voterIDMeta));
+    }
     return context;
   }
 
@@ -2411,6 +2425,8 @@ class $PollOptionTableTable extends PollOptionTable
           .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
       numVotes: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}num_votes'])!,
+      voterID: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}voter_i_d'])!,
     );
   }
 
@@ -2425,11 +2441,13 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
   final int? id;
   final String value;
   final int numVotes;
+  final bool voterID;
   const PollOptionDB(
       {required this.pollId,
       this.id,
       required this.value,
-      required this.numVotes});
+      required this.numVotes,
+      required this.voterID});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2439,6 +2457,7 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
     }
     map['value'] = Variable<String>(value);
     map['num_votes'] = Variable<int>(numVotes);
+    map['voter_i_d'] = Variable<bool>(voterID);
     return map;
   }
 
@@ -2448,6 +2467,7 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       value: Value(value),
       numVotes: Value(numVotes),
+      voterID: Value(voterID),
     );
   }
 
@@ -2459,6 +2479,7 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
       id: serializer.fromJson<int?>(json['id']),
       value: serializer.fromJson<String>(json['value']),
       numVotes: serializer.fromJson<int>(json['numVotes']),
+      voterID: serializer.fromJson<bool>(json['voterID']),
     );
   }
   @override
@@ -2469,6 +2490,7 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
       'id': serializer.toJson<int?>(id),
       'value': serializer.toJson<String>(value),
       'numVotes': serializer.toJson<int>(numVotes),
+      'voterID': serializer.toJson<bool>(voterID),
     };
   }
 
@@ -2476,12 +2498,14 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
           {int? pollId,
           Value<int?> id = const Value.absent(),
           String? value,
-          int? numVotes}) =>
+          int? numVotes,
+          bool? voterID}) =>
       PollOptionDB(
         pollId: pollId ?? this.pollId,
         id: id.present ? id.value : this.id,
         value: value ?? this.value,
         numVotes: numVotes ?? this.numVotes,
+        voterID: voterID ?? this.voterID,
       );
   PollOptionDB copyWithCompanion(PollOptionTableCompanion data) {
     return PollOptionDB(
@@ -2489,6 +2513,7 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
       id: data.id.present ? data.id.value : this.id,
       value: data.value.present ? data.value.value : this.value,
       numVotes: data.numVotes.present ? data.numVotes.value : this.numVotes,
+      voterID: data.voterID.present ? data.voterID.value : this.voterID,
     );
   }
 
@@ -2498,13 +2523,14 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
           ..write('pollId: $pollId, ')
           ..write('id: $id, ')
           ..write('value: $value, ')
-          ..write('numVotes: $numVotes')
+          ..write('numVotes: $numVotes, ')
+          ..write('voterID: $voterID')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(pollId, id, value, numVotes);
+  int get hashCode => Object.hash(pollId, id, value, numVotes, voterID);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2512,7 +2538,8 @@ class PollOptionDB extends DataClass implements Insertable<PollOptionDB> {
           other.pollId == this.pollId &&
           other.id == this.id &&
           other.value == this.value &&
-          other.numVotes == this.numVotes);
+          other.numVotes == this.numVotes &&
+          other.voterID == this.voterID);
 }
 
 class PollOptionTableCompanion extends UpdateCompanion<PollOptionDB> {
@@ -2520,17 +2547,20 @@ class PollOptionTableCompanion extends UpdateCompanion<PollOptionDB> {
   final Value<int?> id;
   final Value<String> value;
   final Value<int> numVotes;
+  final Value<bool> voterID;
   const PollOptionTableCompanion({
     this.pollId = const Value.absent(),
     this.id = const Value.absent(),
     this.value = const Value.absent(),
     this.numVotes = const Value.absent(),
+    this.voterID = const Value.absent(),
   });
   PollOptionTableCompanion.insert({
     required int pollId,
     this.id = const Value.absent(),
     required String value,
     required int numVotes,
+    this.voterID = const Value.absent(),
   })  : pollId = Value(pollId),
         value = Value(value),
         numVotes = Value(numVotes);
@@ -2539,12 +2569,14 @@ class PollOptionTableCompanion extends UpdateCompanion<PollOptionDB> {
     Expression<int>? id,
     Expression<String>? value,
     Expression<int>? numVotes,
+    Expression<bool>? voterID,
   }) {
     return RawValuesInsertable({
       if (pollId != null) 'poll_id': pollId,
       if (id != null) 'id': id,
       if (value != null) 'value': value,
       if (numVotes != null) 'num_votes': numVotes,
+      if (voterID != null) 'voter_i_d': voterID,
     });
   }
 
@@ -2552,12 +2584,14 @@ class PollOptionTableCompanion extends UpdateCompanion<PollOptionDB> {
       {Value<int>? pollId,
       Value<int?>? id,
       Value<String>? value,
-      Value<int>? numVotes}) {
+      Value<int>? numVotes,
+      Value<bool>? voterID}) {
     return PollOptionTableCompanion(
       pollId: pollId ?? this.pollId,
       id: id ?? this.id,
       value: value ?? this.value,
       numVotes: numVotes ?? this.numVotes,
+      voterID: voterID ?? this.voterID,
     );
   }
 
@@ -2576,6 +2610,9 @@ class PollOptionTableCompanion extends UpdateCompanion<PollOptionDB> {
     if (numVotes.present) {
       map['num_votes'] = Variable<int>(numVotes.value);
     }
+    if (voterID.present) {
+      map['voter_i_d'] = Variable<bool>(voterID.value);
+    }
     return map;
   }
 
@@ -2585,7 +2622,8 @@ class PollOptionTableCompanion extends UpdateCompanion<PollOptionDB> {
           ..write('pollId: $pollId, ')
           ..write('id: $id, ')
           ..write('value: $value, ')
-          ..write('numVotes: $numVotes')
+          ..write('numVotes: $numVotes, ')
+          ..write('voterID: $voterID')
           ..write(')'))
         .toString();
   }
@@ -4551,6 +4589,7 @@ typedef $$PollOptionTableTableCreateCompanionBuilder = PollOptionTableCompanion
   Value<int?> id,
   required String value,
   required int numVotes,
+  Value<bool> voterID,
 });
 typedef $$PollOptionTableTableUpdateCompanionBuilder = PollOptionTableCompanion
     Function({
@@ -4558,6 +4597,7 @@ typedef $$PollOptionTableTableUpdateCompanionBuilder = PollOptionTableCompanion
   Value<int?> id,
   Value<String> value,
   Value<int> numVotes,
+  Value<bool> voterID,
 });
 
 final class $$PollOptionTableTableReferences
@@ -4595,6 +4635,9 @@ class $$PollOptionTableTableFilterComposer
 
   ColumnFilters<int> get numVotes => $composableBuilder(
       column: $table.numVotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get voterID => $composableBuilder(
+      column: $table.voterID, builder: (column) => ColumnFilters(column));
 
   $$PollTableTableFilterComposer get pollId {
     final $$PollTableTableFilterComposer composer = $composerBuilder(
@@ -4635,6 +4678,9 @@ class $$PollOptionTableTableOrderingComposer
   ColumnOrderings<int> get numVotes => $composableBuilder(
       column: $table.numVotes, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get voterID => $composableBuilder(
+      column: $table.voterID, builder: (column) => ColumnOrderings(column));
+
   $$PollTableTableOrderingComposer get pollId {
     final $$PollTableTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -4673,6 +4719,9 @@ class $$PollOptionTableTableAnnotationComposer
 
   GeneratedColumn<int> get numVotes =>
       $composableBuilder(column: $table.numVotes, builder: (column) => column);
+
+  GeneratedColumn<bool> get voterID =>
+      $composableBuilder(column: $table.voterID, builder: (column) => column);
 
   $$PollTableTableAnnotationComposer get pollId {
     final $$PollTableTableAnnotationComposer composer = $composerBuilder(
@@ -4722,24 +4771,28 @@ class $$PollOptionTableTableTableManager extends RootTableManager<
             Value<int?> id = const Value.absent(),
             Value<String> value = const Value.absent(),
             Value<int> numVotes = const Value.absent(),
+            Value<bool> voterID = const Value.absent(),
           }) =>
               PollOptionTableCompanion(
             pollId: pollId,
             id: id,
             value: value,
             numVotes: numVotes,
+            voterID: voterID,
           ),
           createCompanionCallback: ({
             required int pollId,
             Value<int?> id = const Value.absent(),
             required String value,
             required int numVotes,
+            Value<bool> voterID = const Value.absent(),
           }) =>
               PollOptionTableCompanion.insert(
             pollId: pollId,
             id: id,
             value: value,
             numVotes: numVotes,
+            voterID: voterID,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
