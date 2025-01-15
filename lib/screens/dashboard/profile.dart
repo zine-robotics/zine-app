@@ -132,7 +132,7 @@ class ProfileScreen extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(
-                                height: 20.0,
+                                height: 10.0,
                               ),
                               Text(
                                 (currUser.email!.endsWith("@mnit.ac.in") &&
