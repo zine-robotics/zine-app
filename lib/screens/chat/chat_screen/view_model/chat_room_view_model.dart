@@ -69,7 +69,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   bool loadingAPIMessages = false;
   Set<String> activeRoomSubscriptions = {};
   int? focusMessageId;
-  final Map<int, GlobalKey> messageKeys = {};
+  Map<int, GlobalKey> messageKeys = {};
 
   bool get isLoaded => _isLoaded;
   bool get isError => _isError;
@@ -188,6 +188,7 @@ class ChatRoomViewModel extends ChangeNotifier {
                 messageRecieved.body!.timestamp!.toLocal();
             roomMessage = messageRecieved.toModel();
             messages.add(roomMessage);
+            messageKeys[roomMessage.id!] = GlobalKey();
           }
           notifyListeners();
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -254,6 +255,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   void scrollToFocusedMessage(int? messageId) {
+    // notifyListeners(); //
     print("inside the scrollToFocusedMessage $messageId");
     if (messageId == null) return;
     final key = messageKeys[messageId];
@@ -315,8 +317,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   // List<Rooms>? get userWorkshop => _userWorkshop;
   // List<Rooms>? get announcement => _announcement;
   // bool get isRoomLoaded => _isRoomLoaded;
-  int _allChatRoom = 0;
-  get allChatRoom => _allChatRoom;
+
   var fMessaging = FirebaseMessaging.instance;
 
   void userReplyText(MessageModel message) {

@@ -18,6 +18,7 @@ import '../../models/task_instance.dart';
 import '../../utilities/date_time.dart';
 import '../chat/chat_screen/chat_view.dart';
 import '../tasks/view_models/task_vm.dart';
+import 'package:zineapp2023/models/events.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -48,10 +49,11 @@ class _DashboardState extends State<Dashboard> {
       builder: (context, dashboardVm, userProv, eventVm, chatVm, taskVm, _) {
         // dashboardVm.getRecentEvent();
         UserModel currUser = userProv.getUserInfo;
-        List<UserTaskInstance> taskInstancesList = taskVm.taskInstances;
-        int allChatRoom = chatVm.allChatRoom;
+        int chatRoomsLength = chatVm.allrooms?.length ?? 0;
         // eventVm.tempGetAllEvent();
-
+        Events? recentEvent = eventVm.tempEvents.length > 0
+            ? eventVm.tempEvents[eventVm.tempEvents.length - 1]
+            : null;
         return Scaffold(
           extendBody: true,
           body: Center(
@@ -248,12 +250,10 @@ class _DashboardState extends State<Dashboard> {
                                         CrossAxisAlignment.center,
                                     children: <Widget>[
                                       const SizedBox(
-                                        height: 15,
+                                        height: 20,
                                       ),
-                                      eventVm.tempEvents.length != 0
-                                          ? Text(
-                                              eventVm.tempEvents[0].type
-                                                  .toString(),
+                                      recentEvent != null
+                                          ? Text(recentEvent.type.toString(),
                                               style: const TextStyle(
                                                   height: 0.9,
                                                   letterSpacing: 0.3,
@@ -279,13 +279,13 @@ class _DashboardState extends State<Dashboard> {
                                                 ),
                                               ),
                                             ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
                                       eventVm.tempEvents.length != 0
+                                          ? Spacer()
+                                          : Container(),
+
+                                      recentEvent != null
                                           ? Text(
-                                              eventVm.tempEvents[0].name
-                                                  .toString(),
+                                              recentEvent.name.toString(),
                                               style: const TextStyle(
                                                   fontSize: 16.0,
                                                   fontWeight: FontWeight.w700,
@@ -293,6 +293,10 @@ class _DashboardState extends State<Dashboard> {
                                               textAlign: TextAlign.center,
                                             )
                                           : Container(),
+                                      eventVm.tempEvents.length != 0
+                                          ? Spacer()
+                                          : Container(),
+
                                       // const SizedBox(
                                       //   height: 10,
                                       // ),
@@ -321,11 +325,9 @@ class _DashboardState extends State<Dashboard> {
                                                     CrossAxisAlignment.center,
                                                 children: [
                                                   Text(
-                                                    eventVm.tempEvents.length >
-                                                            0
+                                                    recentEvent != null
                                                         ? DateFormat.MMMMd()
-                                                            .format(eventVm
-                                                                .tempEvents[0]
+                                                            .format(recentEvent
                                                                 .startDateTime!)
                                                         : "Date",
                                                     style: const TextStyle(
@@ -343,10 +345,11 @@ class _DashboardState extends State<Dashboard> {
                                                     height: 10,
                                                   ),
                                                   AutoSizeText(
-                                                    eventVm.tempEvents[0]
-                                                                .startDateTime !=
-                                                            null
-                                                        ? '${DateFormat.jm().format(eventVm.tempEvents[0].startDateTime!)} \n ${eventVm.tempEvents[0].venue.toString()}'
+                                                    recentEvent != null &&
+                                                            recentEvent
+                                                                    .startDateTime !=
+                                                                null
+                                                        ? '${DateFormat.jm().format(recentEvent.startDateTime!)} \n ${recentEvent.venue.toString()}'
                                                         : '',
                                                     maxFontSize: 18,
                                                     minFontSize: 10,
@@ -458,27 +461,16 @@ class _DashboardState extends State<Dashboard> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    taskInstancesList.length != 0
-                                        ? Text(
-                                            taskInstancesList.length.toString(),
-                                            style: const TextStyle(
-                                                height: 0.9,
-                                                letterSpacing: 0.3,
-                                                fontSize: 30.0,
-                                                fontWeight: FontWeight.w600,
-                                                color: greyText),
-                                            textAlign: TextAlign.center,
-                                          )
-                                        : const Text(
-                                            "0",
-                                            style: TextStyle(
-                                                height: 0.9,
-                                                letterSpacing: 0.3,
-                                                fontSize: 30.0,
-                                                fontWeight: FontWeight.w600,
-                                                color: greyText),
-                                            textAlign: TextAlign.center,
-                                          ),
+                                    Text(
+                                      taskVm.taskInstances.length.toString(),
+                                      style: const TextStyle(
+                                          height: 0.9,
+                                          letterSpacing: 0.3,
+                                          fontSize: 30.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: greyText),
+                                      textAlign: TextAlign.center,
+                                    ),
                                     const SizedBox(
                                       height: 15,
                                     ),
@@ -510,10 +502,7 @@ class _DashboardState extends State<Dashboard> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
-                                      // userProv.currUser.roomids!.length
-                                      allChatRoom != 0
-                                          ? allChatRoom.toString()
-                                          : "0",
+                                      chatRoomsLength.toString(),
                                       style: const TextStyle(
                                           height: 0.9,
                                           letterSpacing: 0.3,

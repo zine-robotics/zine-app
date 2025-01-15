@@ -55,15 +55,6 @@ class LoginAuthViewModel with ChangeNotifier {
     _password = "";
   }
 
-  Future<void> postDetailsToFirestore(UserModel userModel) async {
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
-    await firebaseFirestore
-        .collection("users")
-        .doc(userModel.uid)
-        .set(userModel.toJson());
-  }
-
   Future<void> loginApi(BuildContext context) async {
     Map data = {
       'email': _email.trim(),
@@ -81,9 +72,8 @@ class LoginAuthViewModel with ChangeNotifier {
           pushToken: pushToken);
       print(value);
       print("pushTOken:${pushToken}");
-      userProvider.updateUserInfo(value!);
-
       setLoading(false);
+      userProvider.updateUserInfo(value!);
 
       clearValues();
 
@@ -113,12 +103,6 @@ class LoginAuthViewModel with ChangeNotifier {
           errorText = "Please Try Again Later";
           break;
         case "operation-not-allowed":
-          errorText = "Signing in with Email and Password is not enabled";
-          break;
-        case "quota-exceeded":
-          errorText = "Quota Exceeded. Please contact Team Zine.";
-          break;
-        case "timeout":
           errorText = "Please try again later";
           break;
         case "error-sending-email":
@@ -131,13 +115,10 @@ class LoginAuthViewModel with ChangeNotifier {
           errorText = "Please verify yourself (check your email)";
           break;
         default:
-          if (kDebugMode) {
-            print(
-                "Errors are probably not being proccessed probably. Check login_auth_vm.dart");
-          }
-          errorText = "An undefined Error occured";
+          errorText = e.code;
         // print("error:${e.toString()}");
-      }
+      } //     errorText = "Signing in with Email and Password is not enabled";
+
       setLoading(false);
 
       Fluttertoast.showToast(

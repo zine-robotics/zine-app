@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -74,15 +75,6 @@ class RegisterAuthViewModel extends ChangeNotifier {
     _confirmPass = "";
   }
 
-  Future<void> postDetailsToFirestore(UserModel userModel) async {
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
-    await firebaseFirestore
-        .collection("users")
-        .doc(userModel.uid)
-        .set(userModel.toJson());
-  }
-
   Future<void> signUpApi(BuildContext context) async {
     var intValue = Random().nextInt(26) + 1;
     var reg = await myRepo.isUserReg(email);
@@ -96,24 +88,26 @@ class RegisterAuthViewModel extends ChangeNotifier {
       'dp': intValue,
       'type': 'user',
       'registered': reg,
-      'pushToken' : pushToken
+      'pushToken': pushToken
     };
 
     setLoading(true);
 
     try {
-      var value = await myRepo.createUserWithEmailAndPassword(
+      await myRepo
+          .createUserWithEmailAndPassword(
         name: data['name'],
         email: data['email'],
         password: data['password'],
-      );
+      )
+          .timeout(const Duration(minutes: 1), onTimeout: () {
+        throw TimeoutException('The operation timed out after 1 minute.');
+      });
 
       setLoading(false);
 
-      String? uid = value?.uid;
-
       UserModel userModel = UserModel(
-          uid: uid,
+          uid: "",
           email: data['email'],
           name: data['name'],
           dp: data['dp'],
@@ -123,52 +117,25 @@ class RegisterAuthViewModel extends ChangeNotifier {
           roomids: [],
           registered: data['registered']);
 
-      postDetailsToFirestore(userModel);
-
       print("pushed verify email screen");
 
       await Navigator.of(NavigationService.navigatorKey.currentContext!,
               rootNavigator: true)
           .push(
               CupertinoPageRoute(builder: (ctx) => const VerifyEmailScreen()));
+    } on TimeoutException catch (e) {
+      setLoading(false);
+      print('Timeout occurred: ${e.message}');
+      // Handle timeout error, e.g., show a message to the user
+      Fluttertoast.showToast(
+          msg: 'Request timed out. Please try again.',
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.red);
     } on AuthException catch (e) {
-      // FIXME: add these codes
-      switch (e.code) {
-        case "no-connect":
-          errorText = "Connection error. Is your internet working?";
-          break;
-        case "email-already-in-use":
-          errorText = "This email is already in use, Contact Team Zine";
-          break;
-        case "internal-error":
-          errorText = "An internal error occurred. Please try again later.";
-          break;
-        case "network-request-failed":
-          errorText =
-              "Network Request Error. Please check your internet and try again";
-          break;
-        case "user-disabled":
-          errorText = "User with this email has been disabled";
-          break;
-        case "too-many-requests":
-          errorText = "Too many requests";
-          break;
-        case "quota-exceeded":
-          errorText = "Quota Exceeded. Please contact Team Zine.";
-          break;
-        case "timeout":
-          errorText = "Timeout. Please check you internet and try again later";
-          break;
-        case "operation-not-allowed":
-          errorText = "Signing in with Email and Password is not enabled";
-          break;
-        default:
-          errorText = "An undefined Error happened";
-      }
       setLoading(false);
 
       Fluttertoast.showToast(
-          msg: errorText,
+          msg: e.code,
           toastLength: Toast.LENGTH_LONG,
           backgroundColor: Colors.red);
     }
@@ -178,6 +145,7 @@ class RegisterAuthViewModel extends ChangeNotifier {
     myRepo.signOut();
     notifyListeners();
   }
+
   String? validateEmail(String? value) {
     const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
         r'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-'

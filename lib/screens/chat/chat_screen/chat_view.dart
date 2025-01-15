@@ -155,54 +155,72 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                           ? IntrinsicHeight(
                                               child: Column(
                                                 children: [
-                                                  Container(
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: backgroundGrey,
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topRight:
-                                                            Radius.circular(
-                                                                10.0),
-                                                        topLeft:
-                                                            Radius.circular(
-                                                                20.0),
-                                                        bottomLeft:
-                                                            Radius.circular(
-                                                                20.0),
-                                                        bottomRight:
-                                                            Radius.circular(
-                                                                10.0),
+                                                  InkWell(
+                                                    onTap: () => {
+                                                      if (repliedMessage !=
+                                                          null)
+                                                        {
+                                                          WidgetsBinding
+                                                              .instance
+                                                              .addPostFrameCallback(
+                                                                  (_) {
+                                                            chatRoomViewModel
+                                                                .scrollToFocusedMessage(
+                                                                    repliedMessage!
+                                                                        .id);
+                                                          })
+                                                        }
+                                                    },
+                                                    child: Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        color: backgroundGrey,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  20.0),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  20.0),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                        ),
                                                       ),
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              12.0),
-                                                      child: Text(
-                                                        repliedMessage !=
-                                                                    null &&
-                                                                repliedMessage
-                                                                        .type ==
-                                                                    MessageType
-                                                                        .text
-                                                            ? (repliedMessage
-                                                                            .text!
-                                                                            .content
-                                                                            .toString())
-                                                                        .length >
-                                                                    20
-                                                                ? '${repliedMessage.text!.content.toString().substring(0, 20)}...'
-                                                                : repliedMessage
-                                                                    .text!
-                                                                    .content
-                                                                    .toString()
-                                                            : " ",
-                                                        // softWrap: true,
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: const TextStyle(
-                                                            fontSize: 13),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12.0),
+                                                        child: Text(
+                                                          repliedMessage !=
+                                                                      null &&
+                                                                  repliedMessage
+                                                                          .type ==
+                                                                      MessageType
+                                                                          .text
+                                                              ? (repliedMessage
+                                                                              .text!
+                                                                              .content
+                                                                              .toString())
+                                                                          .length >
+                                                                      20
+                                                                  ? '${repliedMessage.text!.content.toString().substring(0, 20)}...'
+                                                                  : repliedMessage
+                                                                      .text!
+                                                                      .content
+                                                                      .toString()
+                                                              : " ",
+                                                          // softWrap: true,
+                                                          textAlign:
+                                                              TextAlign.right,
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 13),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -261,55 +279,73 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                           : IntrinsicHeight(
                                               child: Column(
                                                 children: [
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                        color: backgroundGrey,
-                                                        borderRadius: userVm
-                                                                    .getUserInfo
-                                                                    .id !=
-                                                                chats[currIndx]
-                                                                    .sender
-                                                                    ?.id
-                                                            ? const BorderRadius.only(
-                                                                topRight:
-                                                                    Radius.circular(
-                                                                        15.0),
-                                                                topLeft:
-                                                                    Radius.circular(
-                                                                        5.0),
-                                                                bottomLeft:
-                                                                    Radius.circular(
-                                                                        5.0),
-                                                                bottomRight:
-                                                                    Radius.circular(
-                                                                        15.0))
-                                                            : const BorderRadius.only(
-                                                                topRight:
-                                                                    Radius.circular(5.0),
-                                                                topLeft: Radius.circular(15.0),
-                                                                bottomLeft: Radius.circular(15.0),
-                                                                bottomRight: Radius.circular(5.0))),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              12.0),
-                                                      child: Text(
-                                                        repliedMessage.text!
-                                                                    .content
-                                                                    .toString()
-                                                                    .length >
-                                                                20
-                                                            ? "${repliedMessage.text!.content.toString().substring(0, 20)} . . ."
-                                                            : repliedMessage
-                                                                .text!.content
-                                                                .toString(),
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: TextStyle(
-                                                            color: Colors.black
-                                                                .withOpacity(
-                                                                    0.5),
-                                                            fontSize: 13),
+                                                  InkWell(
+                                                    onTapCancel: () => {
+                                                      if (repliedMessage !=
+                                                          null)
+                                                        {
+                                                          WidgetsBinding
+                                                              .instance
+                                                              .addPostFrameCallback(
+                                                                  (_) {
+                                                            chatRoomViewModel
+                                                                .scrollToFocusedMessage(
+                                                                    repliedMessage!
+                                                                        .id);
+                                                          })
+                                                        }
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          color: backgroundGrey,
+                                                          borderRadius: userVm
+                                                                      .getUserInfo
+                                                                      .id !=
+                                                                  chats[currIndx]
+                                                                      .sender
+                                                                      ?.id
+                                                              ? const BorderRadius.only(
+                                                                  topRight:
+                                                                      Radius.circular(
+                                                                          15.0),
+                                                                  topLeft:
+                                                                      Radius.circular(
+                                                                          5.0),
+                                                                  bottomLeft:
+                                                                      Radius.circular(
+                                                                          5.0),
+                                                                  bottomRight:
+                                                                      Radius.circular(
+                                                                          15.0))
+                                                              : const BorderRadius.only(
+                                                                  topRight:
+                                                                      Radius.circular(5.0),
+                                                                  topLeft: Radius.circular(15.0),
+                                                                  bottomLeft: Radius.circular(15.0),
+                                                                  bottomRight: Radius.circular(5.0))),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12.0),
+                                                        child: Text(
+                                                          repliedMessage.text!
+                                                                      .content
+                                                                      .toString()
+                                                                      .length >
+                                                                  20
+                                                              ? "${repliedMessage.text!.content.toString().substring(0, 20)} . . ."
+                                                              : repliedMessage
+                                                                  .text!.content
+                                                                  .toString(),
+                                                          textAlign:
+                                                              TextAlign.right,
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              fontSize: 13),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
