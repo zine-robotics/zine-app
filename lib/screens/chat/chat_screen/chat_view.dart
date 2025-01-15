@@ -17,6 +17,8 @@ import '../../../models/message.dart';
 import '../../../theme/color.dart';
 import '../../../utilities/date_time.dart';
 
+Color userColor = const Color(0xff68a5ca);
+
 Widget chatV(BuildContext context, dashVm, dynamic reply) {
   ChatRoomViewModel chatRoomViewModel =
       Provider.of<ChatRoomViewModel>(context, listen: true);

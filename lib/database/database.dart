@@ -114,6 +114,7 @@ class PollOptionTable extends Table {
 class FileTable extends Table {
   IntColumn get id => integer().nullable()();
   TextColumn get uri => text()();
+  TextColumn get filePath => text().nullable()();
   TextColumn get description => text().nullable()();
   TextColumn get name => text()();
   Set<Column> get primaryKey => {id};
