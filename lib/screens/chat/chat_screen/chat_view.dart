@@ -24,7 +24,15 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
   UserProv userVm = Provider.of<UserProv>(context, listen: true);
   // If there are no messages
 
-  if (chats.isEmpty) {
+  if (chats.isEmpty && chatRoomViewModel.loadingAPIMessages) {
+    return const Expanded(
+      child: Center(
+        child: CircularProgressIndicator(
+          color: Colors.blue,
+        ),
+      ),
+    );
+  } else if (chats.isEmpty) {
     return const Expanded(
       child: Center(
         child: Column(
@@ -59,18 +67,19 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
           }
         },
         child: ListView.builder(
+          controller: chatRoomViewModel.scrollController,
           padding: const EdgeInsets.all(8.0),
           reverse: true,
           // physics: NeverScrollableScrollPhysics(),
           dragStartBehavior: DragStartBehavior.down,
           shrinkWrap: true,
-          key: UniqueKey(),
           itemCount: chats.length,
           itemBuilder: (BuildContext context, int index) {
             chats[index].timestamp = chats[index].timestamp!.toLocal();
             // print(
             //     "chats length:${index} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
             var currIndx = chats.length - index - 1;
+            chatRoomViewModel.messageKeys[chats[currIndx].id!] = GlobalKey();
             bool isUser = (userVm.getUserInfo.id == chats[currIndx].sender!.id);
             var showDate = index == chats.length - 1 ||
                 (chats.length - index >= 2 &&
@@ -94,395 +103,417 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
             if (chats[currIndx].type == MessageType.text) {
               return chats[currIndx].text == null
                   ? Container()
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                          repliedMessage != null
-                              ? Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 10, 0, 5),
-                                  child: Padding(
-                                    padding: userVm.getUserInfo.id !=
-                                            chats[currIndx].sender!.id
-                                        //currUser.name != chats[currIndx].from
-                                        ? const EdgeInsets.symmetric(
-                                            horizontal: 35.0)
-                                        : const EdgeInsets.all(0),
-                                    child: Text(
-                                      "${isUser ? "You" : chats[currIndx].sender?.name} replied to ${repliedMessage.sender?.name}",
-                                      textAlign: isUser
-                                          ? TextAlign.right
-                                          : TextAlign.left,
-                                      style: const TextStyle(
-                                          color: greyText, fontSize: 11),
+                  : KeyedSubtree(
+                      key: chatRoomViewModel.messageKeys[chats[currIndx].id!],
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            repliedMessage != null
+                                ? Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 5),
+                                    child: Padding(
+                                      padding: userVm.getUserInfo.id !=
+                                              chats[currIndx].sender!.id
+                                          //currUser.name != chats[currIndx].from
+                                          ? const EdgeInsets.symmetric(
+                                              horizontal: 35.0)
+                                          : const EdgeInsets.all(0),
+                                      child: Text(
+                                        "${isUser ? "You" : chats[currIndx].sender?.name} replied to ${repliedMessage.sender?.name}",
+                                        textAlign: isUser
+                                            ? TextAlign.right
+                                            : TextAlign.left,
+                                        style: const TextStyle(
+                                            color: greyText, fontSize: 11),
+                                      ),
                                     ),
-                                  ),
-                                )
-                              : Container(),
-                          repliedMessage != null
-                              ? Row(
-                                  // direction: Axis.horizontal,
-                                  mainAxisAlignment: isUser
-                                      ? MainAxisAlignment.end
-                                      : MainAxisAlignment.start,
-                                  crossAxisAlignment: isUser
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                                  children: [
-                                    isUser
-                                        ? Container()
-                                        : const CircleAvatar(
-                                            backgroundColor: Colors.transparent,
-                                            child: Padding(
-                                              padding: EdgeInsets.all(3.0),
-                                              // child: Image.asset(
-                                              //     "assets/images/zine_logo.png"),
+                                  )
+                                : Container(),
+                            repliedMessage != null
+                                ? Row(
+                                    // direction: Axis.horizontal,
+                                    mainAxisAlignment: isUser
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
+                                    crossAxisAlignment: isUser
+                                        ? CrossAxisAlignment.end
+                                        : CrossAxisAlignment.start,
+                                    children: [
+                                      isUser
+                                          ? Container()
+                                          : const CircleAvatar(
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                              child: Padding(
+                                                padding: EdgeInsets.all(3.0),
+                                                // child: Image.asset(
+                                                //     "assets/images/zine_logo.png"),
+                                              ),
                                             ),
-                                          ),
-                                    isUser
-                                        ? IntrinsicHeight(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    color: backgroundGrey,
-                                                    borderRadius:
-                                                        BorderRadius.only(
-                                                      topRight:
-                                                          Radius.circular(10.0),
-                                                      topLeft:
-                                                          Radius.circular(20.0),
-                                                      bottomLeft:
-                                                          Radius.circular(20.0),
-                                                      bottomRight:
-                                                          Radius.circular(10.0),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            12.0),
-                                                    child: Text(
-                                                      repliedMessage != null &&
-                                                              repliedMessage
-                                                                      .type ==
-                                                                  MessageType
-                                                                      .text
-                                                          ? (repliedMessage
-                                                                          .text!
-                                                                          .content
-                                                                          .toString())
-                                                                      .length >
-                                                                  20
-                                                              ? '${repliedMessage.text!.content.toString().substring(0, 20)}...'
-                                                              : repliedMessage
-                                                                  .text!.content
-                                                                  .toString()
-                                                          : " ",
-                                                      // softWrap: true,
-                                                      textAlign:
-                                                          TextAlign.right,
-                                                      style: const TextStyle(
-                                                          fontSize: 13),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : IntrinsicHeight(
-                                            child: Column(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(horizontal: 4),
-                                                  child: Container(
-                                                    color:
-                                                        const Color(0xff68a5ca),
-                                                    width: 4,
-                                                    child: const Padding(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 12.0),
-                                                      child: Text(
-                                                        "",
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                    isUser
-                                        ? IntrinsicHeight(
-                                            child: Column(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(horizontal: 4),
-                                                  child: Container(
-                                                    color:
-                                                        const Color(0xff0C72B0),
-                                                    width: 4,
-                                                    child: const Padding(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 12.0),
-                                                      child: Text(
-                                                        "       ",
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : IntrinsicHeight(
-                                            child: Column(
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(
+                                      isUser
+                                          ? IntrinsicHeight(
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    decoration:
+                                                        const BoxDecoration(
                                                       color: backgroundGrey,
-                                                      borderRadius: userVm
-                                                                  .getUserInfo
-                                                                  .id !=
-                                                              chats[currIndx]
-                                                                  .sender
-                                                                  ?.id
-                                                          ? const BorderRadius.only(
-                                                              topRight:
-                                                                  Radius.circular(
-                                                                      15.0),
-                                                              topLeft: Radius.circular(
-                                                                  5.0),
-                                                              bottomLeft:
-                                                                  Radius.circular(
-                                                                      5.0),
-                                                              bottomRight:
-                                                                  Radius.circular(
-                                                                      15.0))
-                                                          : const BorderRadius.only(
-                                                              topRight:
-                                                                  Radius.circular(5.0),
-                                                              topLeft: Radius.circular(15.0),
-                                                              bottomLeft: Radius.circular(15.0),
-                                                              bottomRight: Radius.circular(5.0))),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            12.0),
-                                                    child: Text(
-                                                      repliedMessage
-                                                                  .text!.content
-                                                                  .toString()
-                                                                  .length >
-                                                              20
-                                                          ? "${repliedMessage.text!.content.toString().substring(0, 20)} . . ."
-                                                          : repliedMessage
-                                                              .text!.content
-                                                              .toString(),
-                                                      textAlign:
-                                                          TextAlign.right,
-                                                      style: TextStyle(
-                                                          color: Colors.black
-                                                              .withOpacity(0.5),
-                                                          fontSize: 13),
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                        topRight:
+                                                            Radius.circular(
+                                                                10.0),
+                                                        topLeft:
+                                                            Radius.circular(
+                                                                20.0),
+                                                        bottomLeft:
+                                                            Radius.circular(
+                                                                20.0),
+                                                        bottomRight:
+                                                            Radius.circular(
+                                                                10.0),
+                                                      ),
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              12.0),
+                                                      child: Text(
+                                                        repliedMessage !=
+                                                                    null &&
+                                                                repliedMessage
+                                                                        .type ==
+                                                                    MessageType
+                                                                        .text
+                                                            ? (repliedMessage
+                                                                            .text!
+                                                                            .content
+                                                                            .toString())
+                                                                        .length >
+                                                                    20
+                                                                ? '${repliedMessage.text!.content.toString().substring(0, 20)}...'
+                                                                : repliedMessage
+                                                                    .text!
+                                                                    .content
+                                                                    .toString()
+                                                            : " ",
+                                                        // softWrap: true,
+                                                        textAlign:
+                                                            TextAlign.right,
+                                                        style: const TextStyle(
+                                                            fontSize: 13),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
+                                            )
+                                          : IntrinsicHeight(
+                                              child: Column(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 4),
+                                                    child: Container(
+                                                      color: const Color(
+                                                          0xff68a5ca),
+                                                      width: 4,
+                                                      child: const Padding(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 12.0),
+                                                        child: Text(
+                                                          "",
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          )
-                                  ],
-                                )
-                              : Container(),
-                          if (showDate)
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                DateFormat.yMMMMd()
-                                    .format((chats[currIndx].timestamp!))
-                                    .toString(),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(color: greyText),
+                                      isUser
+                                          ? IntrinsicHeight(
+                                              child: Column(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 4),
+                                                    child: Container(
+                                                      color: const Color(
+                                                          0xff0C72B0),
+                                                      width: 4,
+                                                      child: const Padding(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 12.0),
+                                                        child: Text(
+                                                          "       ",
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          : IntrinsicHeight(
+                                              child: Column(
+                                                children: [
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                        color: backgroundGrey,
+                                                        borderRadius: userVm
+                                                                    .getUserInfo
+                                                                    .id !=
+                                                                chats[currIndx]
+                                                                    .sender
+                                                                    ?.id
+                                                            ? const BorderRadius.only(
+                                                                topRight:
+                                                                    Radius.circular(
+                                                                        15.0),
+                                                                topLeft:
+                                                                    Radius.circular(
+                                                                        5.0),
+                                                                bottomLeft:
+                                                                    Radius.circular(
+                                                                        5.0),
+                                                                bottomRight:
+                                                                    Radius.circular(
+                                                                        15.0))
+                                                            : const BorderRadius.only(
+                                                                topRight:
+                                                                    Radius.circular(5.0),
+                                                                topLeft: Radius.circular(15.0),
+                                                                bottomLeft: Radius.circular(15.0),
+                                                                bottomRight: Radius.circular(5.0))),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              12.0),
+                                                      child: Text(
+                                                        repliedMessage.text!
+                                                                    .content
+                                                                    .toString()
+                                                                    .length >
+                                                                20
+                                                            ? "${repliedMessage.text!.content.toString().substring(0, 20)} . . ."
+                                                            : repliedMessage
+                                                                .text!.content
+                                                                .toString(),
+                                                        textAlign:
+                                                            TextAlign.right,
+                                                        style: TextStyle(
+                                                            color: Colors.black
+                                                                .withOpacity(
+                                                                    0.5),
+                                                            fontSize: 13),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                    ],
+                                  )
+                                : Container(),
+                            if (showDate)
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  DateFormat.yMMMMd()
+                                      .format((chats[currIndx].timestamp!))
+                                      .toString(),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: greyText),
+                                ),
                               ),
-                            ),
-                          Container(
-                            alignment: isUser
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: SwipeTo(
-                              onRightSwipe: (details) {
-                                // print(details);
-                                chatRoomViewModel
-                                    .userReplyText(chats[currIndx]);
-                                chatRoomViewModel.replyfocus.requestFocus();
-                              },
-                              // onLeftSwipe: (details) {
-                              //   // print(details);
-                              //   chatRoomViewModel
-                              //       .userReplyText(chats[currIndx]);
-                              //   chatRoomViewModel.userReplyfocus
-                              //       .requestFocus();
-                              // },
-                              child: ListTile(
-                                horizontalTitleGap: 6,
-                                contentPadding: EdgeInsets.zero,
-                                dense: true,
-                                leading: isUser || group
-                                    ? CircleAvatar(
-                                        backgroundColor: const Color.fromARGB(
-                                            15, 255, 255, 255),
-                                        radius: 25,
-                                        child: Padding(
-                                            padding: const EdgeInsets.all(20.0),
-                                            child: Container()),
-                                      )
-                                    : File(chats[currIndx]
-                                                .sender!
-                                                .dp
-                                                .toString())
-                                            .existsSync()
-                                        ? chatRoomViewModel.showProfileImage(
-                                            chats[currIndx]
-                                                .sender!
-                                                .dp
-                                                .toString(),
-                                            radius: 50.0)
-                                        : chatRoomViewModel.customUserName(
-                                            chats[currIndx]
-                                                .sender!
-                                                .name
-                                                .toString()), //
-                                // buildProfilePicture(chatRoomViewModel,
-                                //         chats[currIndx].sentFrom!.dp,
-                                //         chats[currIndx].sentFrom!.name),
+                            Container(
+                              alignment: isUser
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: SwipeTo(
+                                onRightSwipe: (details) {
+                                  // print(details);
+                                  chatRoomViewModel
+                                      .userReplyText(chats[currIndx]);
+                                  chatRoomViewModel.replyfocus.requestFocus();
+                                },
+                                // onLeftSwipe: (details) {
+                                //   // print(details);
+                                //   chatRoomViewModel
+                                //       .userReplyText(chats[currIndx]);
+                                //   chatRoomViewModel.userReplyfocus
+                                //       .requestFocus();
+                                // },
+                                child: ListTile(
+                                  horizontalTitleGap: 6,
+                                  contentPadding: EdgeInsets.zero,
+                                  dense: true,
+                                  leading: isUser || group
+                                      ? CircleAvatar(
+                                          backgroundColor: const Color.fromARGB(
+                                              15, 255, 255, 255),
+                                          radius: 25,
+                                          child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(20.0),
+                                              child: Container()),
+                                        )
+                                      : File(chats[currIndx]
+                                                  .sender!
+                                                  .dp
+                                                  .toString())
+                                              .existsSync()
+                                          ? chatRoomViewModel.showProfileImage(
+                                              chats[currIndx]
+                                                  .sender!
+                                                  .dp
+                                                  .toString(),
+                                              radius: 50.0)
+                                          : chatRoomViewModel.customUserName(
+                                              chats[currIndx]
+                                                  .sender!
+                                                  .name
+                                                  .toString()), //
+                                  // buildProfilePicture(chatRoomViewModel,
+                                  //         chats[currIndx].sentFrom!.dp,
+                                  //         chats[currIndx].sentFrom!.name),
 
-                                // * Because Priyansh Said So :) *
+                                  // * Because Priyansh Said So :) *
 
-                                // trailing: currUser.name !=
-                                //         chats[currIndx].from
-                                //     ? null
-                                //     : group
-                                //         ? const CircleAvatar(
-                                //             backgroundColor: Colors.transparent,
-                                //           )
-                                //         : CircleAvatar(
-                                //             backgroundColor:
-                                //                 const Color(0x0f2F80ED),
-                                //             child: Padding(
-                                //               padding: const EdgeInsets.all(3.0),
-                                //               child: Image.asset(
-                                //                   "assets/images/zine_logo.png"),
-                                //             ),
-                                //           ),
+                                  // trailing: currUser.name !=
+                                  //         chats[currIndx].from
+                                  //     ? null
+                                  //     : group
+                                  //         ? const CircleAvatar(
+                                  //             backgroundColor: Colors.transparent,
+                                  //           )
+                                  //         : CircleAvatar(
+                                  //             backgroundColor:
+                                  //                 const Color(0x0f2F80ED),
+                                  //             child: Padding(
+                                  //               padding: const EdgeInsets.all(3.0),
+                                  //               child: Image.asset(
+                                  //                   "assets/images/zine_logo.png"),
+                                  //             ),
+                                  //           ),
 
-                                subtitle: group
-                                    ? null
-                                    : Padding(
-                                        padding: const EdgeInsets.all(6.0),
-                                        child: Align(
-                                          alignment: userVm.getUserInfo.id !=
+                                  subtitle: group
+                                      ? null
+                                      : Padding(
+                                          padding: const EdgeInsets.all(6.0),
+                                          child: Align(
+                                            alignment: userVm.getUserInfo.id !=
+                                                    chats[chats.length -
+                                                            index -
+                                                            1]
+                                                        .sender
+                                                        ?.id
+                                                ? Alignment.bottomLeft
+                                                : Alignment.bottomRight,
+                                            child: group
+                                                ? const Text("")
+                                                : Text(
+                                                    "${chats[currIndx].sender!.name}     ${getChatTime(chats[currIndx].timestamp!)}",
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 10.0,
+                                                      color: Color.fromARGB(
+                                                          255, 92, 20, 20),
+                                                    ),
+                                                  ),
+                                          ),
+                                        ),
+                                  title: Wrap(
+                                    crossAxisAlignment: WrapCrossAlignment.end,
+                                    alignment: isUser
+                                        ? WrapAlignment.end
+                                        : WrapAlignment.start,
+                                    direction: Axis.horizontal,
+                                    children: [
+                                      // Text("Something"),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: userVm.getUserInfo.id ==
                                                   chats[chats.length -
                                                           index -
                                                           1]
                                                       .sender
                                                       ?.id
-                                              ? Alignment.bottomLeft
-                                              : Alignment.bottomRight,
-                                          child: group
-                                              ? const Text("")
-                                              : Text(
-                                                  "${chats[currIndx].sender!.name}     ${getChatTime(chats[currIndx].timestamp!)}",
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 10.0,
-                                                    color: Color.fromARGB(
-                                                        255, 92, 20, 20),
-                                                  ),
-                                                ),
+                                              ? const Color(0xff68a5ca)
+                                              : const Color(0xff0C72B0),
+                                          borderRadius: BorderRadius.only(
+                                              topLeft:
+                                                  const Radius.circular(15.0),
+                                              topRight:
+                                                  const Radius.circular(15.0),
+                                              bottomRight: userVm
+                                                          .getUserInfo.id ==
+                                                      chats[chats.length -
+                                                              index -
+                                                              1]
+                                                          .sender
+                                                          ?.id
+                                                  ? const Radius.circular(0.0)
+                                                  : const Radius.circular(15.0),
+                                              bottomLeft: userVm
+                                                          .getUserInfo.id ==
+                                                      chats[chats.length -
+                                                              index -
+                                                              1]
+                                                          .sender
+                                                          ?.id
+                                                  ? const Radius.circular(15.0)
+                                                  : const Radius.circular(0.0)),
+                                          // border: Border.all(color: greyText, width: 2.0),
                                         ),
-                                      ),
-                                title: Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.end,
-                                  alignment: isUser
-                                      ? WrapAlignment.end
-                                      : WrapAlignment.start,
-                                  direction: Axis.horizontal,
-                                  children: [
-                                    // Text("Something"),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: userVm.getUserInfo.id ==
-                                                chats[chats.length - index - 1]
-                                                    .sender
-                                                    ?.id
-                                            ? const Color(0xff68a5ca)
-                                            : const Color(0xff0C72B0),
-                                        borderRadius: BorderRadius.only(
-                                            topLeft:
-                                                const Radius.circular(15.0),
-                                            topRight:
-                                                const Radius.circular(15.0),
-                                            bottomRight: userVm
-                                                        .getUserInfo.id ==
-                                                    chats[chats.length -
-                                                            index -
-                                                            1]
-                                                        .sender
-                                                        ?.id
-                                                ? const Radius.circular(0.0)
-                                                : const Radius.circular(15.0),
-                                            bottomLeft: userVm.getUserInfo.id ==
-                                                    chats[chats.length -
-                                                            index -
-                                                            1]
-                                                        .sender
-                                                        ?.id
-                                                ? const Radius.circular(15.0)
-                                                : const Radius.circular(0.0)),
-                                        // border: Border.all(color: greyText, width: 2.0),
-                                      ),
-                                      // margin: const EdgeInsets.all(8),
-                                      padding: const EdgeInsets.all(4),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: SelectableLinkify(
-                                          text: chats[currIndx]
-                                              .text!
-                                              .content
-                                              .toString(),
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 18.0,
-                                            color: Colors.white,
-                                          ),
-                                          onOpen: (link) =>
-                                              dashVm.launchUrl(link.url),
-                                          linkStyle: const TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 18.0,
-                                            color: Colors.white70,
+                                        // margin: const EdgeInsets.all(8),
+                                        padding: const EdgeInsets.all(4),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10.0),
+                                          child: SelectableLinkify(
+                                            text: chats[currIndx]
+                                                .text!
+                                                .content
+                                                .toString(),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 18.0,
+                                              color: Colors.white,
+                                            ),
+                                            onOpen: (link) =>
+                                                dashVm.launchUrl(link.url),
+                                            linkStyle: const TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 18.0,
+                                              color: Colors.white70,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    )
-                                  ],
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ]);
+                          ]),
+                    );
             } else if (chats[currIndx].type == MessageType.poll &&
                 chats[currIndx].poll != null) {
-              return PollTile(
-                group: group,
-                chatVm: chatRoomViewModel,
-                message: chats[currIndx],
-                isUser: chats[currIndx].sender!.id == userVm.getUserInfo.id,
-                onVote: (optionId) => chatRoomViewModel.sendPollResponse(
-                    chats[currIndx].id!, optionId),
+              return KeyedSubtree(
+                key: chatRoomViewModel.messageKeys[chats[currIndx].id!],
+                child: PollTile(
+                  group: group,
+                  chatVm: chatRoomViewModel,
+                  message: chats[currIndx],
+                  isUser: chats[currIndx].sender!.id == userVm.getUserInfo.id,
+                  onVote: (optionId) => chatRoomViewModel.sendPollResponse(
+                      chats[currIndx].id!, optionId),
+                ),
               );
             } else if (chats[currIndx].type == MessageType.file &&
                 chats[currIndx].file != null) {

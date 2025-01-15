@@ -118,7 +118,7 @@ class AuthRepo {
       Map<String, dynamic> user = jsonDecode(res.body);
       NewUserModel userData = NewUserModel.fromJson(user);
       await db.upsertUserDB(userData);
-      
+
       UserModel userMod = UserModel(
           uid: uid,
           id: user['id'],

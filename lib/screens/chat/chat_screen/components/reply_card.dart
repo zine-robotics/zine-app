@@ -15,65 +15,66 @@ class ReplyCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 1, 0, 2),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              "Reply To ${chatVm.selectedReplyMessage.sender!.name}",
+              "Replying to ${chatVm.selectedReplyMessage.sender!.name}",
               textAlign: TextAlign.left,
-              style: const TextStyle(color: greyText, fontSize: 11),
+              style: TextStyle(
+                  color: greyText, fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
         ),
         Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: backgroundGrey,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.0),
-                topRight: Radius.circular(20.0),
-                bottomRight: Radius.circular(20.0),
-                bottomLeft: Radius.circular(10.0),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: backgroundGrey,
+            borderRadius: BorderRadius.circular(15.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 6,
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 10),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    // heightFactor: 1,
-                    // widthFactor: 1,
-                    child: Container(
-                      constraints: BoxConstraints.tight(const Size.square(20)),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 20,
-                        onPressed: chatVm.userCancelReply,
-                        icon: const Icon(Icons.cancel_outlined),
-                      ),
-                    ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+            child: Stack(
+              children: [
+                // Message content
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black12),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black38)),
-                    padding: const EdgeInsets.only(left: 5, right: 5),
-                    width: double.infinity,
-                    child: Text(
-                      chatVm.selectedReplyMessage.text!.content.toString(),
-
-                      // softWrap: true,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(fontSize: 13),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  )
-                ],
-              ),
-            )),
-        const SizedBox(
-          height: 5,
-        )
+                  child: Text(
+                    chatVm.selectedReplyMessage.text!.content.toString(),
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w400),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                // Cancel button in top-right corner
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    iconSize: 22,
+                    onPressed: chatVm.userCancelReply,
+                    icon: const Icon(Icons.cancel_outlined,
+                        color: Color.fromARGB(255, 62, 60, 59)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
       ],
     );
   }

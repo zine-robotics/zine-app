@@ -3,8 +3,7 @@ class Environment {
 }
 
 class BackendProperties {
-  static Uri baseUrl = Uri(
-      scheme: 'https', host: 'zine-test-backend.ip-ddns.com'
+  static Uri baseUrl = Uri(scheme: 'https', host: 'zine-backend.ip-ddns.com'
       // host: '20.40.49.214',
       // host: '172.22.0.1',
       // port: 8080,
@@ -14,7 +13,7 @@ class BackendProperties {
   static Map<String, String> getHeaders({String? uid}) {
     //TODO: Eventually Bring all Auth headers into the main header
     Map<String, String> headers = {
-      'stage': Environment.stage, // Add the stage header
+      // 'stage': Environment.stage, // Add the stage header
     };
     if (uid != null) {
       headers['Authorization'] = 'Bearer $uid';
@@ -72,5 +71,5 @@ class BackendProperties {
       .replace(path: '/file/delete', queryParameters: {'publicKey': publicId});
 
   static Uri updateDp = baseUrl.replace(path: '/user/update-dp');
-  static String recruitmentUri ="https://zine.co.in/login";
+  static String recruitmentUri = "https://zine.co.in/login";
 }

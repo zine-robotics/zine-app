@@ -59,8 +59,6 @@ class ChatRoomViewModel extends ChangeNotifier {
   late MessageModel selectedReplyMessage;
 
   Map<String, Timestamp> lastChats = {};
-  final CollectionReference _rooms =
-      FirebaseFirestore.instance.collection('rooms');
 
   //-------------------------------------------------message fetching using http--------------------//
   List<MessageModel> messages = [];
@@ -68,13 +66,15 @@ class ChatRoomViewModel extends ChangeNotifier {
   bool _isLoaded = false; //It should be true at
   bool _isError = false;
   bool _isNewRoomData = false; //track new Room data
-
+  bool loadingAPIMessages = false;
   Set<String> activeRoomSubscriptions = {};
+  int? focusMessageId;
+  final Map<int, GlobalKey> messageKeys = {};
 
   bool get isLoaded => _isLoaded;
   bool get isError => _isError;
   bool get isNewRoomData => _isNewRoomData;
-
+  final ScrollController scrollController = ScrollController();
   //-------------------------------------------------------------stomp_client-----------------------------------------//
 
   late StompClient _client;
@@ -104,6 +104,12 @@ class ChatRoomViewModel extends ChangeNotifier {
     isConnected = true;
     print("inside the callback");
   }
+
+  // void assignGlobalKeystoMessages() {
+  //   for (var message in messages) {
+  //     messageKeys[message.id!] = GlobalKey();
+  //   }
+  // }
 
   void subscribeToActiveMember(String currRoomID, AppDb db) {
     final subscription = _client.subscribe(
@@ -154,41 +160,47 @@ class ChatRoomViewModel extends ChangeNotifier {
         try {
           //Map the frame body to messageModel
           final Map<String, dynamic> messageData = json.decode(frame.body!);
-          // logger.i("Received message: $messageData");
+          logger.i("Received message: $messageData");
           MessageUpdateResponseModel messageRecieved =
               MessageUpdateResponseModel.fromJson(messageData);
 
-          print(
-              "Timestamp Local ${messageRecieved.body!.timestamp!.toLocal()}");
-          print("Timestamp UTC ${messageRecieved.body!.timestamp!}");
-          messageRecieved.body!.timestamp =
-              messageRecieved.body!.timestamp!.toLocal();
+          // print(
+          //     "Timestamp Local ${messageRecieved.body!.timestamp!.toLocal()}");
+          // print("Timestamp UTC ${messageRecieved.body!.timestamp!}");
+
           MessageModel? roomMessage;
 
           if (messageRecieved.update == 'poll-update' &&
               messageRecieved.pollUpdate != null) {
+            print("received poll update");
             //Handle Poll Update
             int pollIndex = messages.indexWhere(
-              (element) =>
-                  element.id! == messageRecieved.pollUpdate!.chatItemId,
+              (element) => element.id == messageRecieved.pollUpdate!.chatItemId,
             );
+
             messages[pollIndex].poll!.pollOptions =
                 messageRecieved.pollUpdate!.pollOptions;
-
             roomMessage = messages[pollIndex];
+            focusMessageId = roomMessage.id;
           } else if (messageRecieved.update == 'new-message' &&
               messageRecieved.body != null) {
+            messageRecieved.body!.timestamp =
+                messageRecieved.body!.timestamp!.toLocal();
             roomMessage = messageRecieved.toModel();
             messages.add(roomMessage);
           }
           notifyListeners();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            scrollToFocusedMessage(roomMessage!.id);
+          });
+
           await workerToSaveMessage(roomMessage!, db, roomId);
 
           // logger.d("Socket Callback New Message - Over");
         } catch (e) {
           logger.e(e);
         } finally {
-          notifyListeners();
+          //notifyListeners();
         }
         // messages = jsonDecode(frame.body!).reversed.toList();
         // Notify listeners or update UI
@@ -238,6 +250,24 @@ class ChatRoomViewModel extends ChangeNotifier {
       currRoomId = roomId;
       subscribeToRoom(roomId, db);
       subscribeToActiveMember(roomId, db);
+    }
+  }
+
+  void scrollToFocusedMessage(int? messageId) {
+    print("inside the scrollToFocusedMessage $messageId");
+    if (messageId == null) return;
+    final key = messageKeys[messageId];
+    print(key);
+    if (key != null) {
+      final context = key.currentContext;
+      print(context);
+      if (context != null) {
+        print(context);
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 300),
+        );
+      }
     }
   }
 
@@ -738,9 +768,10 @@ class ChatRoomViewModel extends ChangeNotifier {
   Future<void> fetchAllMessagesFromAPI_andStoreInDB(
       AppDb db, String roomID) async {
     try {
+      loadingAPIMessages = true;
       List<MessageResponseModel>? allMessages =
           roomID != null ? await chatP.getChatMessages(roomID) : [];
-
+      loadingAPIMessages = false;
       if (allMessages!.isEmpty) {
         return;
       }
@@ -872,6 +903,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
     try {
       messages = await fetchAllMessagesFromLocalDB(db, roomID);
+      // assignGlobalKeystoMessages();
       // logger.i("Message Pipeline STAGE 1 for $roomID");
     } catch (e) {
       logger.e("Error in stage1:messagePIPELINE: $e");

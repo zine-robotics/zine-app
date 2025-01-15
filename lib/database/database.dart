@@ -160,7 +160,7 @@ class AppDb extends _$AppDb {
       // print("Database folder path: ${dbFolder.path}");
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
-        // await file.delete();
+        await file.delete();
         print("Old database present.");
       }
       return NativeDatabase(file);

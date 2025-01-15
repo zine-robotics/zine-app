@@ -59,6 +59,7 @@ class _ChatRoomState extends State<ChatRoom> {
             db, widget.roomDetail!.id.toString());
         chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db);
       }
+      // chatRoomView.scrollToFocusedMessage(chatRoomView.focusMessageId);
     });
 
     _focusNode = FocusNode(
@@ -127,16 +128,16 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
-        if (_lastScrollOffset != null && _scrollController.hasClients) {
-          // Defer the scroll to the next frame
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_scrollController.hasClients &&
-                _lastScrollOffset! <=
-                    _scrollController.position.maxScrollExtent) {
-              _scrollController.jumpTo(_lastScrollOffset!);
-            }
-          });
-        }
+        // if (_lastScrollOffset != null && _scrollController.hasClients) {
+        //   // Defer the scroll to the next frame
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     if (_scrollController.hasClients &&
+        //         _lastScrollOffset! <=
+        //             _scrollController.position.maxScrollExtent) {
+        //       _scrollController.jumpTo(_lastScrollOffset!);
+        //     }
+        //   });
+        // }
         final roomName = widget.roomDetail!.name.toString();
         final image = widget.roomDetail!.dpUrl.toString();
         // chatVm.room = widget.roomDetail!.id.toString();
@@ -331,7 +332,6 @@ class _ChatRoomState extends State<ChatRoom> {
                                       if (chatVm.isFileReady) {
                                         chatVm
                                             .sendFile(_messageController.text);
-
                                       } else {
                                         _sendMessage();
                                         // chatVm.sendMessage(

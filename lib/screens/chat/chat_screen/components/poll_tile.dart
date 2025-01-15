@@ -44,7 +44,8 @@ class _PollTileState extends State<PollTile> {
     MessageModel message = widget.message;
     if (message.poll!.pollOptions.isNotEmpty) {
       selectedOptionId = message.poll!.pollOptions
-          .where((element) => element.voterIds!.isNotEmpty)
+          .where((element) =>
+              element.voterIds!.contains(widget.chatVm.userProv.getUserInfo.id))
           .firstOrNull
           ?.id; // ? message.poll!.lastVoted;
     }
@@ -103,6 +104,7 @@ class _PollTileState extends State<PollTile> {
                         ],
                         const SizedBox(height: 16),
                         ...message.poll!.pollOptions.map((option) {
+                          print(selectedOptionId);
                           bool isSelected = (selectedOptionId == option.id);
                           final percentage =
                               _calculatePercentage(option.numVotes, totalVotes);
@@ -121,6 +123,8 @@ class _PollTileState extends State<PollTile> {
                                         widget.onVote(option.id);
                                         setState(() {
                                           selectedOptionId = option.id;
+                                          print(
+                                              "changed Selected Option Id $selectedOptionId");
                                         });
                                       },
                                       icon: Icon(
