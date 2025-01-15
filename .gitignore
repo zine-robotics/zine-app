@@ -51,3 +51,4 @@ devtools_options.yaml
 firebase.json
 android/app/google-services.json
 pubspec.lock
+/ios/*

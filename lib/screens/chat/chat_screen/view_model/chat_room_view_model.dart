@@ -400,6 +400,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           await chatP.fetchTotalActiveMember(roomId);
       // logger.d("check totalactivemember:${allRoomMembers.length} ");
       if (allRoomMembers != null && allRoomMembers.isNotEmpty) {
+        List<int> memberIds = [];
         await db.batch((batch) async {
           for (RoomMemberModel roomMember in allRoomMembers) {
             final roomMemberCompanion = RoomMemberTableCompanion(
@@ -420,8 +421,10 @@ class ChatRoomViewModel extends ChangeNotifier {
               roomMemberCompanion,
               mode: InsertMode.replace,
             );
+            memberIds.add(roomMember.id);
           }
         });
+        await db.saveRoomMemberMapping(int.parse(roomId), memberIds);
       }
     } catch (e) {
       logger.e("ERROR in saveRoomMemberToLocalDb: $e");
