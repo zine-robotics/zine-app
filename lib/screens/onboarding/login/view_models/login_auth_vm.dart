@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -66,10 +68,17 @@ class LoginAuthViewModel with ChangeNotifier {
     try {
       String pushToken =
           await userProvider.getFirebaseMessagingToken() ?? 'null';
-      var value = await myRepo.signInWithEmailAndPassword(
-          email: data['email'],
-          password: data['password'],
-          pushToken: pushToken);
+      var value = await myRepo
+          .signInWithEmailAndPassword(
+              email: data['email'],
+              password: data['password'],
+              pushToken: pushToken)
+          .timeout(
+        const Duration(minutes: 1), // Set timeout duration to 1 minute
+        onTimeout: () {
+          throw TimeoutException('Sign-in request timed out after 1 minute.');
+        },
+      );
       print(value);
       print("pushTOken:${pushToken}");
       setLoading(false);
@@ -81,6 +90,14 @@ class LoginAuthViewModel with ChangeNotifier {
               rootNavigator: true)
           .pushAndRemoveUntil(
               Routes.homeScreen(), (Route<dynamic> route) => false);
+    } on TimeoutException catch (e) {
+      // Handle timeout error
+      setLoading(false);
+      print('Timeout occurred: ${e.message}');
+      Fluttertoast.showToast(
+          msg: 'Sign-in request timed out. Please try again.',
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.red);
     } on AuthException catch (e) {
       switch (e.code) {
         //TODO: ENSURE THAT ERRORS ARE BEING caught here
