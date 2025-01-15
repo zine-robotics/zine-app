@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zineapp2023/backend_properties.dart';
 import 'package:zineapp2023/common/loaderScreen.dart';
 import 'package:zineapp2023/providers/dictionary.dart';
 import 'package:zineapp2023/providers/user_info.dart';
@@ -11,6 +12,7 @@ import 'package:zineapp2023/screens/explore/coming_soon.dart';
 import '../../../theme/color.dart';
 import '../../components/gradient.dart';
 import '../../models/user.dart';
+import 'coming_soon.dart';
 
 class WorkshopScreen extends StatelessWidget {
   const WorkshopScreen({super.key});
@@ -25,7 +27,7 @@ class WorkshopScreen extends StatelessWidget {
             ? const Loader()
             : Scaffold(
                 bottomNavigationBar:
-                    (currUser.registered != null && currUser.registered as bool)
+                    !(currUser.registered != null && currUser.registered as bool)
                         ? Container(
                             color: backgroundGrey,
                             child: Padding(
@@ -33,7 +35,7 @@ class WorkshopScreen extends StatelessWidget {
                               child: ElevatedButton(
                                 onPressed: () {
                                   dashVm.launchUrl(
-                                      "https://zine.co.in/workshops/registration");
+                                      BackendProperties.recruitmentUri);
                                 },
                                 style: ButtonStyle(
                                   padding: MaterialStateProperty.all(

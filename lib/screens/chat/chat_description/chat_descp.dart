@@ -172,7 +172,7 @@ class ChatDescription extends StatelessWidget {
                               const Spacer(),
                               Icon(Icons.circle_rounded,color: Colors.green,size: 15,),
                               Text("Online",style: TextStyle(fontWeight: FontWeight.w500),),
-                              const Spacer(),
+                              SizedBox(width: 20,),
                               // Padding(
                               //   padding:
                               //       const EdgeInsets.fromLTRB(8.0, 16, 16, 0),

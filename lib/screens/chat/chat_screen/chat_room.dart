@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,8 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/components/poll_card.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/reply_card.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/file_selector_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/poll_screen.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
@@ -51,17 +54,11 @@ class _ChatRoomState extends State<ChatRoom> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
-      widget.roomDetail?.id != null
-          ? chatRoomView.staticMessagePipeline(
-              db,
-              widget.roomDetail!.id
-                  .toString()) //chatRoomView.fetchMessages(widget.roomDetail!.id.toString())
-          : "";
-      widget.roomDetail?.id != null
-          ? chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db)
-          : "";
-
-      // chatRoomView.getTotalActiveMember(db,widget.roomDetail!.id.toString());
+      if (widget.roomDetail?.id != null) {
+        chatRoomView.staticMessagePipeline(
+            db, widget.roomDetail!.id.toString());
+        chatRoomView.setRoomId(widget.roomDetail!.id.toString(), db);
+      }
     });
 
     _focusNode = FocusNode(
@@ -146,6 +143,8 @@ class _ChatRoomState extends State<ChatRoom> {
         bool isAllowedTyping = true;
         List<RoomMemberModel>? listOfUsers = chatVm.activeMembers;
         //
+        logger.d(
+            "Building room: $roomName , id : ${widget.roomDetail!.id.toString()}");
 
         if (currUser.type == 'user' && roomName == 'Announcements') {
           isAllowedTyping = false;
@@ -211,39 +210,23 @@ class _ChatRoomState extends State<ChatRoom> {
                   children: [
                     // chatV(data, currUser, dashVm, chatVm.replyText,
                     //     chatVm.updateMessage, context),
-                    chatV(context, chatVm.messageStream, dashVm,
-                        chatVm.userReplyText, _scrollController),
+                    chatV(context, dashVm, chatVm.userReplyText),
 
                     if (isAllowedTyping)
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          chatVm.replyfocus.hasFocus && chatVm.replyTo != null
+                          //  chatVm.replyTo != null
+                          chatVm.replyTo != null
                               ? ReplyCard(
                                   chatVm: chatVm,
                                 )
                               : Container(),
-                          (chatVm.isPollBeingCreated)
-                              ? const PollCard()
-                              : Container(),
                           (chatVm.isFileLoading)
                               ? (chatVm.isFileReady)
-                                  ? Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(chatVm.fileName),
-                                          IconButton(
-                                              onPressed: () =>
-                                                  chatVm.cancelUpload(),
-                                              icon: const Icon(
-                                                  Icons.cancel_outlined))
-                                        ],
-                                      ),
-                                    )
-                                  : Container(
+                                  ? FileSelectorTile(chatVm)
+                                  : Container(padding: const EdgeInsets.all(10),
                                       child: LinearProgressIndicator(),
                                       color: Colors.green,
                                     )
@@ -290,13 +273,15 @@ class _ChatRoomState extends State<ChatRoom> {
                                     width: 15,
                                   ),
                                   IconButton(
-                                    icon: const Icon(
-                                      Icons.poll,
-                                      color: greyText,
-                                    ),
-                                    onPressed: () =>
-                                        chatVm.isPollBeingCreated = true,
-                                  ),
+                                      icon: const Icon(
+                                        Icons.poll,
+                                        color: greyText,
+                                      ),
+                                      onPressed: () => Navigator.of(context)
+                                              .push(MaterialPageRoute(
+                                            builder: (context) =>
+                                                const PollCreatorScreen(),
+                                          ))),
                                   IconButton(
                                     icon: const Icon(
                                       Icons.upload_rounded,
@@ -313,6 +298,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                       if (chatVm.isFileReady) {
                                         chatVm
                                             .sendFile(_messageController.text);
+
                                       } else {
                                         _sendMessage();
                                         // chatVm.sendMessage(

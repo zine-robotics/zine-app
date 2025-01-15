@@ -52,8 +52,8 @@ class DpChangeScreen extends StatelessWidget {
                   if (kDebugMode) {
                     print("Uploading");
                   }
-                  DPUpdateRepo.upload(
-                      value.updateDpUrl, value.getUserInfo.uid!);
+                  DPUpdateRepo.upload(value.updateDpUrl, value.getUserInfo.uid!,
+                      value.getUserInfo.id.toString());
                 },
                 icon: const FaIcon(FontAwesomeIcons.pencil),
               ),

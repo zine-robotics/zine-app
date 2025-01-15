@@ -41,6 +41,7 @@ class _EventsScreenState extends State<EventsScreen> {
     double screenHeight = MediaQuery.of(context).size.height;
     double availableHeight = MediaQuery.of(context).size.height -
         (kBottomNavigationBarHeight + kToolbarHeight);
+
     return Scaffold(
       // backgroundColor: backgroundGrey.withOpacity(0.7),
       backgroundColor: Colors.white.withOpacity(0.95),
@@ -50,7 +51,9 @@ class _EventsScreenState extends State<EventsScreen> {
           if (evm.events.isNotEmpty && _controller.hasClients) {
             _controller.animateTo(evm.selectedIndex * 100,
                 curve: Curves.easeInOut, duration: Duration(milliseconds: 250));
+            evm.loadEvents();
           }
+          print("evm.events:${evm.events.length}");
           return SafeArea(
             child: Container(
               child: Column(
