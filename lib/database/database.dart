@@ -90,10 +90,11 @@ class PollTable extends Table {
 class PollOptionTable extends Table {
   IntColumn get pollId =>
       integer().customConstraint('REFERENCES poll_table(id) NOT NULL')();
-  IntColumn get id => integer().nullable()();
+  IntColumn get id => integer()();
   TextColumn get value => text()();
   IntColumn get numVotes => integer()();
-  BoolColumn get voterID=>boolean().withDefault(Constant(false))();
+  BoolColumn get isVoted => boolean().withDefault(Constant(false))();
+  BoolColumn get voterId => boolean().withDefault(Constant(false))();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -104,11 +105,11 @@ class FileTable extends Table {
   TextColumn get uri => text()();
   TextColumn get description => text().nullable()();
   TextColumn get name => text()();
-  Set<Column> get primaryKey =>{id};
+  Set<Column> get primaryKey => {id};
 }
 
 @DriftDatabase(tables: [
-RoomsTable,
+  RoomsTable,
   MessagesTable,
   UsersTable,
   FileTable,

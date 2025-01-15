@@ -145,6 +145,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           MessageUpdateResponseModel messageRecieved =
               MessageUpdateResponseModel.fromJson(messageData);
           MessageModel? roomMessage;
+
           if (messageRecieved.update == 'poll-update' &&
               messageRecieved.pollUpdate != null) {
             //Handle Poll Update
@@ -160,8 +161,8 @@ class ChatRoomViewModel extends ChangeNotifier {
               messageRecieved.body != null) {
             roomMessage = messageRecieved.toModel();
             messages.add(roomMessage);
-            notifyListeners();
           }
+          notifyListeners();
           await workerToSaveMessage(roomMessage!, db, roomId);
 
           logger.d("Socket Callback New Message - Over");
@@ -390,8 +391,6 @@ class ChatRoomViewModel extends ChangeNotifier {
           }
         });
       }
-      print("Completed");
-      notifyListeners();
     } catch (e) {
       logger.e("ERROR in saveRoomMemberToLocalDb: $e");
     }
@@ -569,6 +568,8 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   // ---------------------------------------------------messageDataSavingAndFetching--------------------------------------------------//
   //savingAllStaticMessageFromAPi
+
+  //Have to change this, very unoptimized
   Future<void> workerToSaveMessage(
       MessageModel message, db, String messageRoomId) async {
     // Use a transaction and batch to ensure atomicity and improve performance
@@ -588,21 +589,25 @@ class ChatRoomViewModel extends ChangeNotifier {
           await db.into(db.pollTable).insertOnConflictUpdate(pollCompanion);
 
           // Insert poll options inside a batch
+          //TODO: Change voter ID to list of voter IDS
           for (var option in message.poll!.pollOptions) {
             final pollOptionCompanion = PollOptionTableCompanion(
-              id: drift.Value(option.id),
-              pollId: drift.Value(message.id!),
-              value: drift.Value(option.value),
-              numVotes: drift.Value(option.numVotes),
-              voterID: option.voterIds !=null? option.voterIds!.contains(userProv.getUserInfo.id) ? drift.Value(true): drift.Value(false) :drift.Value(false)
-            );
+                id: drift.Value(option.id),
+                pollId: drift.Value(message.id!),
+                value: drift.Value(option.value),
+                numVotes: drift.Value(option.numVotes),
+                voterId: option.voterIds != null
+                    ? option.voterIds!.contains(userProv.getUserInfo.id)
+                        ? drift.Value(true)
+                        : drift.Value(false)
+                    : drift.Value(false));
             // if(option.voterIds !=null){
             //   option.voterIds!.forEach((i) {
             //     print("user id: $i and userprov id :${userProv.getUserInfo.id} bool ${option.voterIds!.contains(userProv.getUserInfo.id)} check ${drift.Value.absent}");
             //
             //   });
             // }
-            print("pollOptioncompanion:${pollOptionCompanion.voterID}");
+            // print("pollOptioncompanion:${pollOptionCompanion.voterId}");
 
             await db
                 .into(db.pollOptionTable)
@@ -688,13 +693,15 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   //--------------------------------------------------fetchAllMessageOfRoomFromLocalDB-----------------------------------------------//
+  //Optimized Fetch Call
   Future<List<MessageModel>> fetchAllMessagesFromLocalDB(
       AppDb db, String roomID) async {
     logger.d(
-        "----inside the fetching all message from local database and roomId is $roomID");
+        "---- Fetching all messages from the local database for roomId: $roomID");
+
     try {
-      // Perform a join query to fetch messages along with sender details
-      final query = db.select(db.messagesTable).join([
+      // Step 1: Fetch messages and associated sender details in a single query
+      final messageQuery = db.select(db.messagesTable).join([
         leftOuterJoin(
           db.roomMemberTable,
           db.messagesTable.sentFromId.equalsExp(db.roomMemberTable.id),
@@ -702,102 +709,96 @@ class ChatRoomViewModel extends ChangeNotifier {
       ])
         ..where(db.messagesTable.roomId.equals(int.parse(roomID)));
 
-      //WRONG LOGIC : If a member did not message in the room doesnt mean he isnt present
-      final checkQuery = await db.select(db.roomMemberTable).get();
-      checkQuery.forEach((user) {
-        print("userid:${user.id}");
-      });
-      print("total number of roommember is :${checkQuery.length}");
-      final results = await query.get();
+      final results = await messageQuery.get();
+
+      // Step 2: Extract all message IDs to batch-fetch associated data
+      final messageIds =
+          results.map((row) => row.readTable(db.messagesTable).id).toList();
+
+      // Fetch poll data for all messages in a single query
+      final polls = await (db.select(db.pollTable)
+            ..where((tbl) => tbl.id.isIn(messageIds)))
+          .get();
+      final pollMap = {for (var poll in polls) poll.id: poll};
+
+      // Fetch poll options for all messages in a single query
+      final pollOptions = await (db.select(db.pollOptionTable)
+            ..where((tbl) => tbl.pollId.isIn(messageIds)))
+          .get();
+      final pollOptionMap = <int, List<PollOption>>{};
+      for (var option in pollOptions) {
+        pollOptionMap.putIfAbsent(option.pollId, () => []).add(
+              PollOption(
+                id: option.id!,
+                value: option.value,
+                numVotes: option.numVotes,
+                voterIds:
+                    option.voterId == true ? [userProv.getUserInfo.id!] : [],
+              ),
+            );
+      }
+
+      // Fetch file data for all messages in a single query
+      final files = await (db.select(db.fileTable)
+            ..where((tbl) => tbl.id.isIn(messageIds)))
+          .get();
+      final fileMap = {for (var file in files) file.id: file};
+
+      // Step 3: Construct MessageModel list
       List<MessageModel> messages = [];
       for (final row in results) {
-        //TODO : Fix Message DB
         final message = row.readTable(db.messagesTable);
         final user = row.readTableOrNull(db.roomMemberTable);
-        final pollQuery = db.select(db.pollTable)
-          ..where((tbl) => tbl.id.equals(message.id));
-        final pollQueryData = await pollQuery.getSingleOrNull();
-        print(
-            "\npollqueryData lastvoted dueing fetchdb:${pollQueryData?.lastVoted}");
 
-        final pollOptionQuery = db.select(db.pollOptionTable)
-          ..where((tbl) => tbl.pollId.equals(message.id));
-        final pollOptionQueryData = await pollOptionQuery.get();
-        print("Poll Options fetched: ${pollOptionQueryData.map((e) => e.voterID)}");
+        // Retrieve poll and poll options
+        final pollData = pollMap[message.id];
+        final pollOptionsData = pollOptionMap[message.id] ?? [];
 
-        logger.i(pollOptionQueryData);
-        FileData? fileData;
-        try {
-          final fileQuery = db.select(db.fileTable)
-            ..where((tbl) => tbl.id.equals(message.id));
-          final fileQueryData = await fileQuery.getSingleOrNull();
-          print("fileQueryData:${fileQueryData}");
-          fileData = fileQueryData != null
-              ? FileData(
-                  uri: Uri.parse(fileQueryData.uri),
-                  description: fileQueryData.description,
-                  name: fileQueryData.name)
-              : null;
-          print("\n\ninside the fileQuery: file uri:${fileQueryData!.uri}\n\n");
-        } catch (e) {
-          print("fileLoad Error$e");
-        }
-        // print("\n\nfiledata length:${fileData?.name}\n");
-        PollData? pollData;
-        List<PollOption> pollOptionData = [];
-        try {
-          // If poll exists, collect all associated poll options
-          for (final pollOptionRow in pollOptionQueryData) {
-            if (pollOptionRow != null && pollOptionRow.id != null) {
-              pollOptionData.add(PollOption(
-                  id: pollOptionRow.id!,
-                  value: pollOptionRow.value,
-                  numVotes: pollOptionRow.numVotes,
-                  voterIds: (pollOptionRow.voterID == true) ? [userProv.getUserInfo.id!]:[]
-              ),
-              );
-              print("\n\n inside the polloptions:${pollOptionRow.voterID.toString()} \n");
-            }
-          }
-          if (pollQueryData != null) {
-            pollData = PollData(
-              title: pollQueryData!.title,
-              description: pollQueryData.description!,
-              pollOptions: pollOptionData,
-              lastVoted: pollQueryData.lastVoted,
-            );
-          } else {
-            pollData = null;
-          }
-        } catch (e) {
-          print("error in pollOption fetching:$e");
-        }
-        try {
-          MessageModel temp_message = MessageModel(
-              id: message.id,
-              text: TextData(content: message.textData),
-              type: MessageType.values.byName(message.type!),
-              timestamp:
-                  DateTime.fromMillisecondsSinceEpoch(message.timestamp!),
-              sender: user != null
-                  ? Sender(
-                      id: user.id,
-                      name: user.name,
-                      dp: user.dpUrl,
-                    )
-                  : null,
-              replyToId: message.replyToId,
-              file: fileData,
-              poll: pollData);
-          messages.add(temp_message);
-        } catch (e) {
-          print("Error fetching replyTo:$e");
-        }
+        final poll = pollData != null
+            ? PollData(
+                title: pollData.title,
+                description: pollData.description!,
+                pollOptions: pollOptionsData,
+                lastVoted: pollData.lastVoted,
+              )
+            : null;
+
+        // Retrieve file data
+        final fileData = fileMap[message.id];
+        final file = fileData != null
+            ? FileData(
+                uri: Uri.parse(fileData.uri),
+                description: fileData.description,
+                name: fileData.name,
+              )
+            : null;
+
+        // Create MessageModel
+        final tempMessage = MessageModel(
+          id: message.id,
+          type: MessageType.values.byName(message.type!),
+          text: TextData(content: message.textData),
+          file: file,
+          poll: poll,
+          sender: user != null
+              ? Sender(
+                  id: user.id,
+                  name: user.name,
+                  dp: user.dpUrl,
+                )
+              : null,
+          timestamp: message.timestamp != null
+              ? DateTime.fromMillisecondsSinceEpoch(message.timestamp!)
+              : null,
+          replyToId: message.replyToId,
+        );
+
+        messages.add(tempMessage);
       }
 
       return messages;
     } catch (e) {
-      print('Error fetching messages from local DB: $e');
+      logger.e('Error fetching messages from local DB: $e');
       return [];
     } finally {
       notifyListeners();

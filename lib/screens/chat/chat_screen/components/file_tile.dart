@@ -31,8 +31,8 @@ class _FileTileState extends State<FileTile> {
   Widget build(BuildContext context) {
     bool isImage = widget.imageExtensions
         .contains((widget.message.file!.name).split('.').last.toLowerCase());
-    bool startImage=widget.message.file!.uri.toString().startsWith('http');
-    print("widget.url:${widget.message.file!.uri} and chekc the startImge:${startImage}");
+    bool startImage = widget.message.file!.uri.toString().startsWith('http');
+
     return ListTile(
         contentPadding: widget.isUser
             ? const EdgeInsets.only(top: 10, left: 30)
@@ -54,17 +54,21 @@ class _FileTileState extends State<FileTile> {
         title: InkWell(
             onTap: () {},
             child: ClipRRect(
-              borderRadius: widget.isUser
-                  ? const BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15),
-                      bottomLeft: Radius.circular(15))
-                  : const BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15),
-                      bottomRight: Radius.circular(15)),
-              child:File(widget.message.file!.uri.toString()).existsSync() ?Image.file(File(widget.message.file!.uri.toString())):startImage? Image.network(widget.message.file!.uri.toString()):SizedBox.shrink()))
-              //Icon(Icons.photo)//Image.network(widget.message.file!.uri.toString()),
-            );
+                borderRadius: widget.isUser
+                    ? const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
+                        bottomLeft: Radius.circular(15))
+                    : const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
+                        bottomRight: Radius.circular(15)),
+                child: File(widget.message.file!.uri.toString()).existsSync()
+                    ? Image.file(File(widget.message.file!.uri.toString()))
+                    : startImage
+                        ? Image.network(widget.message.file!.uri.toString())
+                        : SizedBox.shrink()))
+        //Icon(Icons.photo)//Image.network(widget.message.file!.uri.toString()),
+        );
   }
 }
