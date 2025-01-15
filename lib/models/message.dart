@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'message_response_model.dart';
+import 'message_update.dart';
 
 //This model is used for internal messages
 class MessageModel {
@@ -165,14 +166,20 @@ class FileData {
   Uri uri;
   String? description;
   String name;
+  late String filePath;
 
-  FileData({required this.uri, this.description, required this.name});
+  FileData(
+      {required this.uri,
+      this.description,
+      required this.name,
+      this.filePath = ""});
 
   FileData.fromJson(Map<String, dynamic> json)
       : uri = Uri.parse(json['url'] ??
             'https://zine.co.in/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fzine1.eacd1990.png&w=1920&q=75'),
         description = json['description'] ?? '',
-        name = json['name'] ?? '';
+        name = json['name'] ?? '',
+        filePath = "";
 
   Map<String, dynamic> toJson() {
     return {
@@ -199,9 +206,9 @@ class TextData {
 }
 
 class PollData {
-  String title;
-  String description;
-  List<PollOption> pollOptions;
+  late String title;
+  late String description;
+  late List<PollOption> pollOptions;
   int? lastVoted;
 
   PollData(
@@ -225,6 +232,10 @@ class PollData {
       'pollOptions': pollOptions,
       'lastVoted': lastVoted,
     };
+  }
+
+  void update(PollUpdate updatedPollData) {
+    pollOptions = updatedPollData.pollOptions;
   }
 }
 

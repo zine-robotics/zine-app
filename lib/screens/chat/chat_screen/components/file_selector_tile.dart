@@ -21,7 +21,8 @@ class FileSelectorTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isImage = imageExtensions.contains(chatVm.fileName.split('.').last);
+    bool isImage =
+        imageExtensions.contains(chatVm.fileName.split('.').last.toLowerCase());
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: greyText),
@@ -30,11 +31,19 @@ class FileSelectorTile extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: Column(
         children: [
-          if (isImage) _buildImagePreview(chatVm.filePath, context),
+          if (isImage)
+            _buildImagePreview(chatVm.filePath, context)
+          else
+            _buildFilePreview(chatVm.fileName),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(chatVm.fileName),
+              Flexible(
+                child: Text(
+                  chatVm.fileName,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               IconButton(
                 onPressed: () {
                   chatVm.cancelUpload();
@@ -49,61 +58,42 @@ class FileSelectorTile extends StatelessWidget {
   }
 
   Widget _buildImagePreview(String imagePath, BuildContext context) {
-    Future<Size> _getImageSize(String path) async {
-      final imageFile = File(path);
-      final imageBytes = await imageFile.readAsBytes();
-      final decodedImage = img.decodeImage(imageBytes);
+    final maxHeight = 150.0; // Fixed max height
+    final maxWidth = 150.0; // Fixed max width
 
-      if (decodedImage != null) {
-        return Size(
-            decodedImage.width.toDouble(), decodedImage.height.toDouble());
-      }
-      return const Size(1, 1); // Default aspect ratio if image can't be decoded
-    }
-
-    return FutureBuilder<Size>(
-      future: _getImageSize(imagePath),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Image.file(
+        File(imagePath),
+        fit: BoxFit.cover,
+        width: maxWidth,
+        height: maxHeight,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: maxWidth,
+            height: maxHeight,
+            color: Colors.grey[200],
+            child: const Icon(Icons.error, color: Colors.red),
           );
-        } else if (snapshot.hasError || !snapshot.hasData) {
-          return const Center(
-            child: Text("Unable to load image"),
-          );
-        }
+        },
+      ),
+    );
+  }
 
-        final imageSize = snapshot.data!;
-        final aspectRatio = imageSize.width / imageSize.height;
-        final maxHeight = MediaQuery.of(context).size.height * 0.5;
-
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            double adjustedHeight = maxHeight;
-            double adjustedWidth = adjustedHeight * aspectRatio;
-
-            // Constrain width and height to the available layout size
-            if (adjustedWidth > constraints.maxWidth) {
-              adjustedWidth = constraints.maxWidth;
-              adjustedHeight = adjustedWidth / aspectRatio;
-            }
-
-            return SizedBox(
-              width: adjustedWidth,
-              height: adjustedHeight,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    fit: BoxFit.contain,
-                    image: FileImage(File(imagePath)),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
+  Widget _buildFilePreview(String fileName) {
+    return Row(
+      children: [
+        const Icon(Icons.insert_drive_file, size: 50, color: Colors.grey),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            fileName,
+            style: const TextStyle(fontSize: 16, color: Colors.black),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ),
+      ],
     );
   }
 }

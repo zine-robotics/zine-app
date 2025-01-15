@@ -533,6 +533,12 @@ class $FileTableTable extends FileTable
   late final GeneratedColumn<String> uri = GeneratedColumn<String>(
       'uri', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _filePathMeta =
+      const VerificationMeta('filePath');
+  @override
+  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
+      'file_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
@@ -545,7 +551,7 @@ class $FileTableTable extends FileTable
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, uri, description, name];
+  List<GeneratedColumn> get $columns => [id, uri, filePath, description, name];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -564,6 +570,10 @@ class $FileTableTable extends FileTable
           _uriMeta, uri.isAcceptableOrUnknown(data['uri']!, _uriMeta));
     } else if (isInserting) {
       context.missing(_uriMeta);
+    }
+    if (data.containsKey('file_path')) {
+      context.handle(_filePathMeta,
+          filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta));
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -590,6 +600,8 @@ class $FileTableTable extends FileTable
           .read(DriftSqlType.int, data['${effectivePrefix}id']),
       uri: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uri'])!,
+      filePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}file_path']),
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description']),
       name: attachedDatabase.typeMapping
@@ -606,10 +618,15 @@ class $FileTableTable extends FileTable
 class FileDB extends DataClass implements Insertable<FileDB> {
   final int? id;
   final String uri;
+  final String? filePath;
   final String? description;
   final String name;
   const FileDB(
-      {this.id, required this.uri, this.description, required this.name});
+      {this.id,
+      required this.uri,
+      this.filePath,
+      this.description,
+      required this.name});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -617,6 +634,9 @@ class FileDB extends DataClass implements Insertable<FileDB> {
       map['id'] = Variable<int>(id);
     }
     map['uri'] = Variable<String>(uri);
+    if (!nullToAbsent || filePath != null) {
+      map['file_path'] = Variable<String>(filePath);
+    }
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
@@ -628,6 +648,9 @@ class FileDB extends DataClass implements Insertable<FileDB> {
     return FileTableCompanion(
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       uri: Value(uri),
+      filePath: filePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(filePath),
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
@@ -641,6 +664,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
     return FileDB(
       id: serializer.fromJson<int?>(json['id']),
       uri: serializer.fromJson<String>(json['uri']),
+      filePath: serializer.fromJson<String?>(json['filePath']),
       description: serializer.fromJson<String?>(json['description']),
       name: serializer.fromJson<String>(json['name']),
     );
@@ -651,6 +675,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
     return <String, dynamic>{
       'id': serializer.toJson<int?>(id),
       'uri': serializer.toJson<String>(uri),
+      'filePath': serializer.toJson<String?>(filePath),
       'description': serializer.toJson<String?>(description),
       'name': serializer.toJson<String>(name),
     };
@@ -659,11 +684,13 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   FileDB copyWith(
           {Value<int?> id = const Value.absent(),
           String? uri,
+          Value<String?> filePath = const Value.absent(),
           Value<String?> description = const Value.absent(),
           String? name}) =>
       FileDB(
         id: id.present ? id.value : this.id,
         uri: uri ?? this.uri,
+        filePath: filePath.present ? filePath.value : this.filePath,
         description: description.present ? description.value : this.description,
         name: name ?? this.name,
       );
@@ -671,6 +698,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
     return FileDB(
       id: data.id.present ? data.id.value : this.id,
       uri: data.uri.present ? data.uri.value : this.uri,
+      filePath: data.filePath.present ? data.filePath.value : this.filePath,
       description:
           data.description.present ? data.description.value : this.description,
       name: data.name.present ? data.name.value : this.name,
@@ -682,6 +710,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
     return (StringBuffer('FileDB(')
           ..write('id: $id, ')
           ..write('uri: $uri, ')
+          ..write('filePath: $filePath, ')
           ..write('description: $description, ')
           ..write('name: $name')
           ..write(')'))
@@ -689,13 +718,14 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   }
 
   @override
-  int get hashCode => Object.hash(id, uri, description, name);
+  int get hashCode => Object.hash(id, uri, filePath, description, name);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is FileDB &&
           other.id == this.id &&
           other.uri == this.uri &&
+          other.filePath == this.filePath &&
           other.description == this.description &&
           other.name == this.name);
 }
@@ -703,17 +733,20 @@ class FileDB extends DataClass implements Insertable<FileDB> {
 class FileTableCompanion extends UpdateCompanion<FileDB> {
   final Value<int?> id;
   final Value<String> uri;
+  final Value<String?> filePath;
   final Value<String?> description;
   final Value<String> name;
   const FileTableCompanion({
     this.id = const Value.absent(),
     this.uri = const Value.absent(),
+    this.filePath = const Value.absent(),
     this.description = const Value.absent(),
     this.name = const Value.absent(),
   });
   FileTableCompanion.insert({
     this.id = const Value.absent(),
     required String uri,
+    this.filePath = const Value.absent(),
     this.description = const Value.absent(),
     required String name,
   })  : uri = Value(uri),
@@ -721,12 +754,14 @@ class FileTableCompanion extends UpdateCompanion<FileDB> {
   static Insertable<FileDB> custom({
     Expression<int>? id,
     Expression<String>? uri,
+    Expression<String>? filePath,
     Expression<String>? description,
     Expression<String>? name,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (uri != null) 'uri': uri,
+      if (filePath != null) 'file_path': filePath,
       if (description != null) 'description': description,
       if (name != null) 'name': name,
     });
@@ -735,11 +770,13 @@ class FileTableCompanion extends UpdateCompanion<FileDB> {
   FileTableCompanion copyWith(
       {Value<int?>? id,
       Value<String>? uri,
+      Value<String?>? filePath,
       Value<String?>? description,
       Value<String>? name}) {
     return FileTableCompanion(
       id: id ?? this.id,
       uri: uri ?? this.uri,
+      filePath: filePath ?? this.filePath,
       description: description ?? this.description,
       name: name ?? this.name,
     );
@@ -753,6 +790,9 @@ class FileTableCompanion extends UpdateCompanion<FileDB> {
     }
     if (uri.present) {
       map['uri'] = Variable<String>(uri.value);
+    }
+    if (filePath.present) {
+      map['file_path'] = Variable<String>(filePath.value);
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
@@ -768,6 +808,7 @@ class FileTableCompanion extends UpdateCompanion<FileDB> {
     return (StringBuffer('FileTableCompanion(')
           ..write('id: $id, ')
           ..write('uri: $uri, ')
+          ..write('filePath: $filePath, ')
           ..write('description: $description, ')
           ..write('name: $name')
           ..write(')'))
@@ -3306,12 +3347,14 @@ typedef $$RoomsTableTableProcessedTableManager = ProcessedTableManager<
 typedef $$FileTableTableCreateCompanionBuilder = FileTableCompanion Function({
   Value<int?> id,
   required String uri,
+  Value<String?> filePath,
   Value<String?> description,
   required String name,
 });
 typedef $$FileTableTableUpdateCompanionBuilder = FileTableCompanion Function({
   Value<int?> id,
   Value<String> uri,
+  Value<String?> filePath,
   Value<String?> description,
   Value<String> name,
 });
@@ -3350,6 +3393,9 @@ class $$FileTableTableFilterComposer
 
   ColumnFilters<String> get uri => $composableBuilder(
       column: $table.uri, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get filePath => $composableBuilder(
+      column: $table.filePath, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnFilters(column));
@@ -3394,6 +3440,9 @@ class $$FileTableTableOrderingComposer
   ColumnOrderings<String> get uri => $composableBuilder(
       column: $table.uri, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get filePath => $composableBuilder(
+      column: $table.filePath, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => ColumnOrderings(column));
 
@@ -3415,6 +3464,9 @@ class $$FileTableTableAnnotationComposer
 
   GeneratedColumn<String> get uri =>
       $composableBuilder(column: $table.uri, builder: (column) => column);
+
+  GeneratedColumn<String> get filePath =>
+      $composableBuilder(column: $table.filePath, builder: (column) => column);
 
   GeneratedColumn<String> get description => $composableBuilder(
       column: $table.description, builder: (column) => column);
@@ -3469,24 +3521,28 @@ class $$FileTableTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int?> id = const Value.absent(),
             Value<String> uri = const Value.absent(),
+            Value<String?> filePath = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<String> name = const Value.absent(),
           }) =>
               FileTableCompanion(
             id: id,
             uri: uri,
+            filePath: filePath,
             description: description,
             name: name,
           ),
           createCompanionCallback: ({
             Value<int?> id = const Value.absent(),
             required String uri,
+            Value<String?> filePath = const Value.absent(),
             Value<String?> description = const Value.absent(),
             required String name,
           }) =>
               FileTableCompanion.insert(
             id: id,
             uri: uri,
+            filePath: filePath,
             description: description,
             name: name,
           ),

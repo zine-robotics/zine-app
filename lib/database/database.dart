@@ -114,6 +114,7 @@ class PollOptionTable extends Table {
 class FileTable extends Table {
   IntColumn get id => integer().nullable()();
   TextColumn get uri => text()();
+  TextColumn get filePath => text().nullable()();
   TextColumn get description => text().nullable()();
   TextColumn get name => text()();
   Set<Column> get primaryKey => {id};
@@ -160,7 +161,7 @@ class AppDb extends _$AppDb {
       // print("Database folder path: ${dbFolder.path}");
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
-        await file.delete();
+        // await file.delete();
         print("Old database present.");
       }
       return NativeDatabase(file);
