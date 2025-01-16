@@ -13,6 +13,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 String DOWNLOAD_PATH = '/storage/emulated/0/Download';
 
+const Color userColor = Color.fromARGB(255, 104, 181, 228);
+const Color userSelectedTextColor = Color.fromARGB(255, 255, 255, 255);
+const Color otherColor = Color(0xff0c72b0);
+const Color otherSelectedTextColor = Color(0xffE8F2FC);
+
 class FileTile extends StatefulWidget {
   final ChatRoomViewModel chatRoomViewModel;
   final bool group;
@@ -112,12 +117,11 @@ class _FileTileState extends State<FileTile> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Image.file(
-                File(imagePath),
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.error, color: Colors.white);
-                },
+              CachedNetworkImage(
+                imageUrl: imageUrl,
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
               Positioned(
                 top: 10,
@@ -221,6 +225,7 @@ class _FileTileState extends State<FileTile> {
                   } else if (startImage) {
                     return CachedNetworkImage(
                       imageUrl: widget.message.file!.uri.toString(),
+                      fit: BoxFit.cover,
                       placeholder: (context, url) =>
                           const CircularProgressIndicator(),
                       errorWidget: (context, url, error) =>
@@ -232,7 +237,7 @@ class _FileTileState extends State<FileTile> {
                 // Render non-image file with file name
                 return Container(
                   padding: const EdgeInsets.all(8),
-                  color: const Color(0xff68a5ca),
+                  color: widget.isUser ? userColor : otherColor,
                   child: Row(
                     children: [
                       const Icon(
@@ -253,8 +258,7 @@ class _FileTileState extends State<FileTile> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.download,
-                            color: Color.fromARGB(255, 219, 248, 255)),
+                        icon: const Icon(Icons.download, color: Colors.white),
                         onPressed: () {
                           if (!_isDownloading) {
                             _downloadFile(
