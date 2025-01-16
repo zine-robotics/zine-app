@@ -48,7 +48,8 @@ class _ChatScreenState extends State<ChatScreen> {
       List<Rooms>? projectDetails = chatVm.userProjects;
       List<Rooms>? announcementDetails = chatVm.announcement;
       List<Rooms>? workshopDetails = chatVm.userWorkshop;
-      print("\nscreen Rebuild\n${chatVm.userWorkshop}");
+      // print("\nscreen Rebuild\n${chatVm.userWorkshop}");
+      // chatVm.currRoomId = "";
 
       if (!chatVm.isRoomLoaded) {
         return const Center(child: CircularProgressIndicator());

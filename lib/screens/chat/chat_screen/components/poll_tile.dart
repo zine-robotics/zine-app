@@ -42,8 +42,9 @@ class _PollTileState extends State<PollTile> {
   @override
   Widget build(BuildContext context) {
     MessageModel message = widget.message;
-    if (message.poll!.pollOptions.isNotEmpty) {
-      selectedOptionId =  message.poll!.pollOptions.where((element) => element.voterIds!.isNotEmpty).firstOrNull?.id; // ? message.poll!.lastVoted;
+    logger.d('PollTile: ${message.poll!.lastVoted}');
+    if (message.poll!.lastVoted != null) {
+      selectedOptionId = message.poll!.lastVoted;
     }
     final width = MediaQuery.of(context).size.width;
     final totalVotes = _calculateTotalVotes(message.poll!.pollOptions);

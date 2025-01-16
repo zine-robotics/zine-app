@@ -36,8 +36,9 @@ var logger = Logger(
 
 class ChatRoomViewModel extends ChangeNotifier {
   final UserProv userProv;
+  final AppDb db;
 
-  ChatRoomViewModel({required this.userProv}) {
+  ChatRoomViewModel({required this.userProv, required this.db}) {
     initializeWebSocket(); //constructor to initialize the webSocket for single time only!!
     _isNewRoomData = false;
   }
@@ -51,13 +52,12 @@ class ChatRoomViewModel extends ChangeNotifier {
   dynamic replyUsername;
   FocusNode replyfocus = FocusNode();
 
-  String _roomId = "645";
+  String currRoomId = "645";
   final name = "Announcement";
   Map<String, dynamic> chatSubscription = {};
   final picker = ImagePicker();
   late MessageModel selectedReplyMessage;
 
-  get roomId => _roomId;
   Map<String, Timestamp> lastChats = {};
   final CollectionReference _rooms =
       FirebaseFirestore.instance.collection('rooms');
@@ -112,15 +112,28 @@ class ChatRoomViewModel extends ChangeNotifier {
         headers: {"roomId": currRoomID},
         callback: (StompFrame frame) async {
           try {
-            _activeMembers = [];
+            // _activeMembers = [];
             final List<dynamic> activeMemberData = json.decode(frame.body!);
             final List<String> activeMemberList =
                 activeMemberData.map((item) => item.toString()).toList();
             // logger.d(
-            //     "\n newly created websocket acive user data:${activeMemberList}");
+            // "\n newly created websocket acive user data:${activeMemberList}");
             List<RoomMemberModel>? roomMemberData =
                 await fetchRoomMemberDetailsFromLocalDb(db, activeMemberList);
-            _activeMembers = List<RoomMemberModel>.from(roomMemberData ?? []);
+
+            // _activeMembers = List<RoomMemberModel>.from(roomMemberData ?? []);
+            currentRoomMembers =
+                await db.getRoomMembersByRoomId(int.parse(currRoomID));
+            currentRoomMembers.forEach((key, value) {
+              if (activeMemberList.contains(value.email)) {
+                value.isActive = true;
+                print("Active Member: ${value.name}");
+                logger.d("Active Member: ${value.name}");
+              }
+            });
+
+            logger.d("Current Room Members: $currentRoomMembers");
+
             notifyListeners();
           } catch (e) {
             logger.e(e);
@@ -130,7 +143,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   void subscribeToRoom(String roomId, AppDb db) {
     if (!_client.connected) {
-      logger.d("client is not connected");
+      // logger.d("client is not connected");
       return;
     }
     activeRoomSubscriptions.add(roomId);
@@ -141,9 +154,15 @@ class ChatRoomViewModel extends ChangeNotifier {
         try {
           //Map the frame body to messageModel
           final Map<String, dynamic> messageData = json.decode(frame.body!);
-          logger.i("Received message: $messageData");
+          // logger.i("Received message: $messageData");
           MessageUpdateResponseModel messageRecieved =
               MessageUpdateResponseModel.fromJson(messageData);
+
+          print(
+              "Timestamp Local ${messageRecieved.body!.timestamp!.toLocal()}");
+          print("Timestamp UTC ${messageRecieved.body!.timestamp!}");
+          messageRecieved.body!.timestamp =
+              messageRecieved.body!.timestamp!.toLocal();
           MessageModel? roomMessage;
           if (messageRecieved.update == 'poll-update' &&
               messageRecieved.pollUpdate != null) {
@@ -164,7 +183,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           }
           await workerToSaveMessage(roomMessage!, db, roomId);
 
-          logger.d("Socket Callback New Message - Over");
+          // logger.d("Socket Callback New Message - Over");
         } catch (e) {
           logger.e(e);
         } finally {
@@ -176,12 +195,25 @@ class ChatRoomViewModel extends ChangeNotifier {
     );
 
     _subscriptions[roomId] = subscription;
-    _roomId = roomId;
+    currRoomId = roomId;
+  }
+
+  void updateRooms() {
+    userProjects = allrooms
+            ?.where((room) => room.type != "workshop")
+            .toList()
+            .cast<Rooms>() ??
+        [];
+    userWorkshop = allrooms
+            ?.where((room) => room.type == "workshop")
+            .toList()
+            .cast<Rooms>() ??
+        [];
   }
 
   //---------------------------------------------MODIFY: ADD multiple subscribtion->----------------//
   void unsubscribeFromRoom(String roomId) {
-    logger.i("attempting to unsubscribe roomId:$roomId");
+    // logger.i("attempting to unsubscribe roomId:$roomId");
     final subscription = _subscriptions[roomId];
     if (subscription != null) {
       try {
@@ -200,9 +232,9 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   void setRoomId(String roomId, AppDb db) {
     // print("insdie the setRoomID:$roomId");
-    if (_roomId != roomId) {
-      unsubscribeFromRoom(_roomId);
-      _roomId = roomId;
+    if (currRoomId != roomId) {
+      unsubscribeFromRoom(currRoomId);
+      currRoomId = roomId;
       subscribeToRoom(roomId, db);
       subscribeToActiveMember(roomId, db);
     }
@@ -218,7 +250,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     final messageData = {
       "type": "text",
       "sentFrom": userProv.getUserInfo.id!,
-      "roomId": int.parse(_roomId),
+      "roomId": int.parse(currRoomId),
       "text": {"content": user_message.trim()},
       "replyTo": replyTo,
     };
@@ -226,7 +258,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     replyTo = null;
     // print("during sent replyTo:$replyTo \t replyusername:$replyUsername");
     final jsonBody = json.encode(messageData);
-    logger.i("Sending message: $jsonBody");
+    // logger.i("Sending message: $jsonBody");
     try {
       _client.send(
         destination: "/app/message",
@@ -346,7 +378,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   Future<RoomMemberModel?> getRoomMember(AppDb db, String memberId) async {
     // Check if the member is already cached
     if (currentRoomMembers.containsKey(memberId.toString())) {
-      logger.d("Cached User Details");
+      // logger.d("Cached User Details");
       return currentRoomMembers[memberId.toString()];
     }
 
@@ -361,11 +393,11 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchRoomMembersAndStoreInDB(AppDb db, String roomId) async {
-    logger.i("Fetching Room Members");
+    // logger.i("Fetching Room Members");
     try {
       List<RoomMemberModel>? allRoomMembers =
           await chatP.fetchTotalActiveMember(roomId);
-      logger.d("check totalactivemember:${allRoomMembers.length} ");
+      // logger.d("check totalactivemember:${allRoomMembers.length} ");
       if (allRoomMembers != null && allRoomMembers.isNotEmpty) {
         await db.batch((batch) async {
           for (RoomMemberModel roomMember in allRoomMembers) {
@@ -390,11 +422,36 @@ class ChatRoomViewModel extends ChangeNotifier {
           }
         });
       }
-      print("Completed");
+      // print("Completed");
       notifyListeners();
     } catch (e) {
       logger.e("ERROR in saveRoomMemberToLocalDb: $e");
     }
+  }
+
+  void updateUnreadMessagesToZero(String roomId) async {
+    print("inside the updateUnreadMessagesToZero");
+    allrooms = allrooms?.map((room) {
+      if (room.id.toString() == roomId) {
+        room.unreadMessages = 0;
+        print("inside $roomId  to Zero");
+      }
+      return room;
+    }).toList();
+
+    announcement = announcement?.map((room) {
+      if (room.id.toString() == roomId) {
+        room.unreadMessages = 0;
+      }
+      return room;
+    }).toList();
+
+    updateRooms();
+    notifyListeners();
+    // saveRoomsToLocalDb(announcement, db);
+    // saveRoomsToLocalDb(allrooms, db);
+
+    // fetchAllRoomDataFromLocalDB(db);
   }
 
   Future<List<RoomMemberModel>?> fetchRoomMemberDetailsFromLocalDb(
@@ -444,7 +501,7 @@ class ChatRoomViewModel extends ChangeNotifier {
         await db.insertRoomToDB(roomCompanion);
         fetchRoomMembersAndStoreInDB(db, room.id.toString());
       }
-      logger.d("Saved All Rooms to Local DB");
+      // logger.d("Saved All Rooms to Local DB");
     } catch (e) {
       print('Error saving rooms to local DB: $e');
     }
@@ -561,7 +618,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       await saveRoomsToLocalDb(allrooms, db);
       fetchAllRoomDataFromLocalDB(db);
 
-      logger.d("Fetched And Saved All Room info");
+      // logger.d("Fetched And Saved All Room info");
     } catch (e) {
       logger.e(e);
     }
@@ -690,8 +747,8 @@ class ChatRoomViewModel extends ChangeNotifier {
   //--------------------------------------------------fetchAllMessageOfRoomFromLocalDB-----------------------------------------------//
   Future<List<MessageModel>> fetchAllMessagesFromLocalDB(
       AppDb db, String roomID) async {
-    logger.d(
-        "----inside the fetching all message from local database and roomId is $roomID");
+    // logger.d(
+    // "----inside the fetching all message from local database and roomId is $roomID");
     try {
       // Perform a join query to fetch messages along with sender details
       final query = db.select(db.messagesTable).join([
@@ -731,14 +788,14 @@ class ChatRoomViewModel extends ChangeNotifier {
           final fileQuery = db.select(db.fileTable)
             ..where((tbl) => tbl.id.equals(message.id));
           final fileQueryData = await fileQuery.getSingleOrNull();
-          print("fileQueryData:${fileQueryData}");
+          // print("fileQueryData:${fileQueryData}");
           fileData = fileQueryData != null
               ? FileData(
                   uri: Uri.parse(fileQueryData.uri),
                   description: fileQueryData.description,
                   name: fileQueryData.name)
               : null;
-          print("\n\ninside the fileQuery: file uri:${fileQueryData!.uri}\n\n");
+          // print("\n\ninside the fileQuery: file uri:${fileQueryData!.uri}\n\n");
         } catch (e) {
           print("fileLoad Error$e");
         }
@@ -808,11 +865,11 @@ class ChatRoomViewModel extends ChangeNotifier {
   ///Step1:fetching from localDB and displaying on UI
   ///Step2:fetching from Api and update localDB.
   Future<void> staticMessagePipeline(AppDb db, String roomID) async {
-    logger.i("..Message pipeline started... for $roomID");
+    // logger.i("..Message pipeline started... for $roomID");
 
     try {
       messages = await fetchAllMessagesFromLocalDB(db, roomID);
-      logger.i("Message Pipeline STAGE 1 for $roomID");
+      // logger.i("Message Pipeline STAGE 1 for $roomID");
     } catch (e) {
       logger.e("Error in stage1:messagePIPELINE: $e");
     } finally {
@@ -821,16 +878,16 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
 
     try {
-      logger.i("Message Pipeline STAGE 2");
+      // logger.i("Message Pipeline STAGE 2");
       await fetchAllMessagesFromAPI_andStoreInDB(db, roomID);
 
       final newMessages = await fetchAllMessagesFromLocalDB(db, roomID);
-      logger.d("Fetched ALL APIs for $roomID");
+      // logger.d("Fetched ALL APIs for $roomID");
       //Modify the whole List
 
-      if (_roomId == roomID) {
+      if (currRoomId == roomID) {
         messages = List.from(newMessages);
-        logger.d("Synced LocalDB from API for $roomID");
+        // logger.d("Synced LocalDB from API for $roomID");
       }
     } catch (e) {
       logger.e("error in stage2:messagePIPLINE:$e");
@@ -1027,7 +1084,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       "timestamp": DateTime.now()
           .millisecondsSinceEpoch, // or DateTime.now().toIso8601String()
       "sentFrom": userProv.getUserInfo.id!,
-      "roomId": int.parse(_roomId),
+      "roomId": int.parse(currRoomId),
     };
     if (replyTo != null && replyUsername != null) {
       messageData['replyTo'] = replyTo;
@@ -1200,7 +1257,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       "timestamp": DateTime.now()
           .millisecondsSinceEpoch, // or DateTime.now().toIso8601String()
       "sentFrom": userProv.getUserInfo.id!,
-      "roomId": int.parse(_roomId),
+      "roomId": int.parse(currRoomId),
     };
     if (replyTo != null && replyUsername != null) {
       messageData['replyTo'] = replyTo;
@@ -1236,6 +1293,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       BuildContext context, var room, var user, UserProv userProv) {
     ModalRoute.of(context)?.addScopedWillPopCallback(() {
       // roomLeft(room, user, userProv);
+      updateUnreadMessagesToZero(currRoomId);
       return Future.value(true);
     });
   }
@@ -1252,6 +1310,8 @@ class ChatRoomViewModel extends ChangeNotifier {
   void dispose() {
     disconnect(); // Ensure clean-up on disposal
     messages = [];
+    updateUnreadMessagesToZero(currRoomId);
+
     super.dispose();
   }
 }

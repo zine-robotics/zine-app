@@ -2629,6 +2629,203 @@ class PollOptionTableCompanion extends UpdateCompanion<PollOptionDB> {
   }
 }
 
+class $RoomMemberMappingTableTable extends RoomMemberMappingTable
+    with TableInfo<$RoomMemberMappingTableTable, RoomMemberMapping> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RoomMemberMappingTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
+  @override
+  late final GeneratedColumn<int> roomId = GeneratedColumn<int>(
+      'room_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'REFERENCES rooms_table(id) NOT NULL');
+  static const VerificationMeta _memberIdMeta =
+      const VerificationMeta('memberId');
+  @override
+  late final GeneratedColumn<int> memberId = GeneratedColumn<int>(
+      'member_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      $customConstraints: 'REFERENCES room_member_table(id) NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [roomId, memberId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'room_member_mapping_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<RoomMemberMapping> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('room_id')) {
+      context.handle(_roomIdMeta,
+          roomId.isAcceptableOrUnknown(data['room_id']!, _roomIdMeta));
+    } else if (isInserting) {
+      context.missing(_roomIdMeta);
+    }
+    if (data.containsKey('member_id')) {
+      context.handle(_memberIdMeta,
+          memberId.isAcceptableOrUnknown(data['member_id']!, _memberIdMeta));
+    } else if (isInserting) {
+      context.missing(_memberIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {roomId, memberId};
+  @override
+  RoomMemberMapping map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RoomMemberMapping(
+      roomId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}room_id'])!,
+      memberId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}member_id'])!,
+    );
+  }
+
+  @override
+  $RoomMemberMappingTableTable createAlias(String alias) {
+    return $RoomMemberMappingTableTable(attachedDatabase, alias);
+  }
+}
+
+class RoomMemberMapping extends DataClass
+    implements Insertable<RoomMemberMapping> {
+  final int roomId;
+  final int memberId;
+  const RoomMemberMapping({required this.roomId, required this.memberId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['room_id'] = Variable<int>(roomId);
+    map['member_id'] = Variable<int>(memberId);
+    return map;
+  }
+
+  RoomMemberMappingTableCompanion toCompanion(bool nullToAbsent) {
+    return RoomMemberMappingTableCompanion(
+      roomId: Value(roomId),
+      memberId: Value(memberId),
+    );
+  }
+
+  factory RoomMemberMapping.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RoomMemberMapping(
+      roomId: serializer.fromJson<int>(json['roomId']),
+      memberId: serializer.fromJson<int>(json['memberId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'roomId': serializer.toJson<int>(roomId),
+      'memberId': serializer.toJson<int>(memberId),
+    };
+  }
+
+  RoomMemberMapping copyWith({int? roomId, int? memberId}) => RoomMemberMapping(
+        roomId: roomId ?? this.roomId,
+        memberId: memberId ?? this.memberId,
+      );
+  RoomMemberMapping copyWithCompanion(RoomMemberMappingTableCompanion data) {
+    return RoomMemberMapping(
+      roomId: data.roomId.present ? data.roomId.value : this.roomId,
+      memberId: data.memberId.present ? data.memberId.value : this.memberId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomMemberMapping(')
+          ..write('roomId: $roomId, ')
+          ..write('memberId: $memberId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(roomId, memberId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RoomMemberMapping &&
+          other.roomId == this.roomId &&
+          other.memberId == this.memberId);
+}
+
+class RoomMemberMappingTableCompanion
+    extends UpdateCompanion<RoomMemberMapping> {
+  final Value<int> roomId;
+  final Value<int> memberId;
+  final Value<int> rowid;
+  const RoomMemberMappingTableCompanion({
+    this.roomId = const Value.absent(),
+    this.memberId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RoomMemberMappingTableCompanion.insert({
+    required int roomId,
+    required int memberId,
+    this.rowid = const Value.absent(),
+  })  : roomId = Value(roomId),
+        memberId = Value(memberId);
+  static Insertable<RoomMemberMapping> custom({
+    Expression<int>? roomId,
+    Expression<int>? memberId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (roomId != null) 'room_id': roomId,
+      if (memberId != null) 'member_id': memberId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RoomMemberMappingTableCompanion copyWith(
+      {Value<int>? roomId, Value<int>? memberId, Value<int>? rowid}) {
+    return RoomMemberMappingTableCompanion(
+      roomId: roomId ?? this.roomId,
+      memberId: memberId ?? this.memberId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (roomId.present) {
+      map['room_id'] = Variable<int>(roomId.value);
+    }
+    if (memberId.present) {
+      map['member_id'] = Variable<int>(memberId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoomMemberMappingTableCompanion(')
+          ..write('roomId: $roomId, ')
+          ..write('memberId: $memberId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   $AppDbManager get managers => $AppDbManager(this);
@@ -2641,6 +2838,8 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $UsersTableTable usersTable = $UsersTableTable(this);
   late final $PollOptionTableTable pollOptionTable =
       $PollOptionTableTable(this);
+  late final $RoomMemberMappingTableTable roomMemberMappingTable =
+      $RoomMemberMappingTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2652,7 +2851,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         roomMemberTable,
         messagesTable,
         usersTable,
-        pollOptionTable
+        pollOptionTable,
+        roomMemberMappingTable
       ];
 }
 
@@ -2696,6 +2896,25 @@ final class $$RoomsTableTableReferences
         .filter((f) => f.roomId.id($_item.id));
 
     final cache = $_typedResult.readTableOrNull(_messagesTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$RoomMemberMappingTableTable,
+      List<RoomMemberMapping>> _roomMemberMappingTableRefsTable(
+          _$AppDb db) =>
+      MultiTypedResultKey.fromTable(db.roomMemberMappingTable,
+          aliasName: $_aliasNameGenerator(
+              db.roomsTable.id, db.roomMemberMappingTable.roomId));
+
+  $$RoomMemberMappingTableTableProcessedTableManager
+      get roomMemberMappingTableRefs {
+    final manager = $$RoomMemberMappingTableTableTableManager(
+            $_db, $_db.roomMemberMappingTable)
+        .filter((f) => f.roomId.id($_item.id));
+
+    final cache =
+        $_typedResult.readTableOrNull(_roomMemberMappingTableRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -2760,6 +2979,29 @@ class $$RoomsTableTableFilterComposer
               $removeJoinBuilderFromRootComposer:
                   $removeJoinBuilderFromRootComposer,
             ));
+    return f(composer);
+  }
+
+  Expression<bool> roomMemberMappingTableRefs(
+      Expression<bool> Function($$RoomMemberMappingTableTableFilterComposer f)
+          f) {
+    final $$RoomMemberMappingTableTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.roomMemberMappingTable,
+            getReferencedColumn: (t) => t.roomId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$RoomMemberMappingTableTableFilterComposer(
+                  $db: $db,
+                  $table: $db.roomMemberMappingTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
@@ -2866,6 +3108,29 @@ class $$RoomsTableTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> roomMemberMappingTableRefs<T extends Object>(
+      Expression<T> Function($$RoomMemberMappingTableTableAnnotationComposer a)
+          f) {
+    final $$RoomMemberMappingTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.roomMemberMappingTable,
+            getReferencedColumn: (t) => t.roomId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$RoomMemberMappingTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.roomMemberMappingTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$RoomsTableTableTableManager extends RootTableManager<
@@ -2879,7 +3144,8 @@ class $$RoomsTableTableTableManager extends RootTableManager<
     $$RoomsTableTableUpdateCompanionBuilder,
     (Room, $$RoomsTableTableReferences),
     Room,
-    PrefetchHooks Function({bool messagesTableRefs})> {
+    PrefetchHooks Function(
+        {bool messagesTableRefs, bool roomMemberMappingTableRefs})> {
   $$RoomsTableTableTableManager(_$AppDb db, $RoomsTableTable table)
       : super(TableManagerState(
           db: db,
@@ -2944,11 +3210,13 @@ class $$RoomsTableTableTableManager extends RootTableManager<
                     $$RoomsTableTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({messagesTableRefs = false}) {
+          prefetchHooksCallback: (
+              {messagesTableRefs = false, roomMemberMappingTableRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (messagesTableRefs) db.messagesTable
+                if (messagesTableRefs) db.messagesTable,
+                if (roomMemberMappingTableRefs) db.roomMemberMappingTable
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -2961,6 +3229,18 @@ class $$RoomsTableTableTableManager extends RootTableManager<
                         managerFromTypedResult: (p0) =>
                             $$RoomsTableTableReferences(db, table, p0)
                                 .messagesTableRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.roomId == item.id),
+                        typedResults: items),
+                  if (roomMemberMappingTableRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$RoomsTableTableReferences
+                            ._roomMemberMappingTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$RoomsTableTableReferences(db, table, p0)
+                                .roomMemberMappingTableRefs,
                         referencedItemsForCurrentItem: (item,
                                 referencedItems) =>
                             referencedItems.where((e) => e.roomId == item.id),
@@ -2983,7 +3263,8 @@ typedef $$RoomsTableTableProcessedTableManager = ProcessedTableManager<
     $$RoomsTableTableUpdateCompanionBuilder,
     (Room, $$RoomsTableTableReferences),
     Room,
-    PrefetchHooks Function({bool messagesTableRefs})>;
+    PrefetchHooks Function(
+        {bool messagesTableRefs, bool roomMemberMappingTableRefs})>;
 typedef $$FileTableTableCreateCompanionBuilder = FileTableCompanion Function({
   Value<int?> id,
   required String uri,
@@ -3564,6 +3845,25 @@ final class $$RoomMemberTableTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$RoomMemberMappingTableTable,
+      List<RoomMemberMapping>> _roomMemberMappingTableRefsTable(
+          _$AppDb db) =>
+      MultiTypedResultKey.fromTable(db.roomMemberMappingTable,
+          aliasName: $_aliasNameGenerator(
+              db.roomMemberTable.id, db.roomMemberMappingTable.memberId));
+
+  $$RoomMemberMappingTableTableProcessedTableManager
+      get roomMemberMappingTableRefs {
+    final manager = $$RoomMemberMappingTableTableTableManager(
+            $_db, $_db.roomMemberMappingTable)
+        .filter((f) => f.memberId.id($_item.id));
+
+    final cache =
+        $_typedResult.readTableOrNull(_roomMemberMappingTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$RoomMemberTableTableFilterComposer
@@ -3614,6 +3914,29 @@ class $$RoomMemberTableTableFilterComposer
               $removeJoinBuilderFromRootComposer:
                   $removeJoinBuilderFromRootComposer,
             ));
+    return f(composer);
+  }
+
+  Expression<bool> roomMemberMappingTableRefs(
+      Expression<bool> Function($$RoomMemberMappingTableTableFilterComposer f)
+          f) {
+    final $$RoomMemberMappingTableTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.roomMemberMappingTable,
+            getReferencedColumn: (t) => t.memberId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$RoomMemberMappingTableTableFilterComposer(
+                  $db: $db,
+                  $table: $db.roomMemberMappingTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
@@ -3700,6 +4023,29 @@ class $$RoomMemberTableTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> roomMemberMappingTableRefs<T extends Object>(
+      Expression<T> Function($$RoomMemberMappingTableTableAnnotationComposer a)
+          f) {
+    final $$RoomMemberMappingTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.roomMemberMappingTable,
+            getReferencedColumn: (t) => t.memberId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$RoomMemberMappingTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.roomMemberMappingTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$RoomMemberTableTableTableManager extends RootTableManager<
@@ -3713,7 +4059,8 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
     $$RoomMemberTableTableUpdateCompanionBuilder,
     (RoomMemberDB, $$RoomMemberTableTableReferences),
     RoomMemberDB,
-    PrefetchHooks Function({bool messagesTableRefs})> {
+    PrefetchHooks Function(
+        {bool messagesTableRefs, bool roomMemberMappingTableRefs})> {
   $$RoomMemberTableTableTableManager(_$AppDb db, $RoomMemberTableTable table)
       : super(TableManagerState(
           db: db,
@@ -3766,11 +4113,13 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
                     $$RoomMemberTableTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({messagesTableRefs = false}) {
+          prefetchHooksCallback: (
+              {messagesTableRefs = false, roomMemberMappingTableRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (messagesTableRefs) db.messagesTable
+                if (messagesTableRefs) db.messagesTable,
+                if (roomMemberMappingTableRefs) db.roomMemberMappingTable
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -3786,6 +4135,18 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.sentFromId == item.id),
+                        typedResults: items),
+                  if (roomMemberMappingTableRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$RoomMemberTableTableReferences
+                            ._roomMemberMappingTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$RoomMemberTableTableReferences(db, table, p0)
+                                .roomMemberMappingTableRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.memberId == item.id),
                         typedResults: items)
                 ];
               },
@@ -3805,7 +4166,8 @@ typedef $$RoomMemberTableTableProcessedTableManager = ProcessedTableManager<
     $$RoomMemberTableTableUpdateCompanionBuilder,
     (RoomMemberDB, $$RoomMemberTableTableReferences),
     RoomMemberDB,
-    PrefetchHooks Function({bool messagesTableRefs})>;
+    PrefetchHooks Function(
+        {bool messagesTableRefs, bool roomMemberMappingTableRefs})>;
 typedef $$MessagesTableTableCreateCompanionBuilder = MessagesTableCompanion
     Function({
   Value<int> id,
@@ -4850,6 +5212,316 @@ typedef $$PollOptionTableTableProcessedTableManager = ProcessedTableManager<
     (PollOptionDB, $$PollOptionTableTableReferences),
     PollOptionDB,
     PrefetchHooks Function({bool pollId})>;
+typedef $$RoomMemberMappingTableTableCreateCompanionBuilder
+    = RoomMemberMappingTableCompanion Function({
+  required int roomId,
+  required int memberId,
+  Value<int> rowid,
+});
+typedef $$RoomMemberMappingTableTableUpdateCompanionBuilder
+    = RoomMemberMappingTableCompanion Function({
+  Value<int> roomId,
+  Value<int> memberId,
+  Value<int> rowid,
+});
+
+final class $$RoomMemberMappingTableTableReferences extends BaseReferences<
+    _$AppDb, $RoomMemberMappingTableTable, RoomMemberMapping> {
+  $$RoomMemberMappingTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $RoomsTableTable _roomIdTable(_$AppDb db) => db.roomsTable.createAlias(
+      $_aliasNameGenerator(db.roomMemberMappingTable.roomId, db.roomsTable.id));
+
+  $$RoomsTableTableProcessedTableManager get roomId {
+    final manager = $$RoomsTableTableTableManager($_db, $_db.roomsTable)
+        .filter((f) => f.id($_item.roomId));
+    final item = $_typedResult.readTableOrNull(_roomIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $RoomMemberTableTable _memberIdTable(_$AppDb db) =>
+      db.roomMemberTable.createAlias($_aliasNameGenerator(
+          db.roomMemberMappingTable.memberId, db.roomMemberTable.id));
+
+  $$RoomMemberTableTableProcessedTableManager get memberId {
+    final manager =
+        $$RoomMemberTableTableTableManager($_db, $_db.roomMemberTable)
+            .filter((f) => f.id($_item.memberId));
+    final item = $_typedResult.readTableOrNull(_memberIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$RoomMemberMappingTableTableFilterComposer
+    extends Composer<_$AppDb, $RoomMemberMappingTableTable> {
+  $$RoomMemberMappingTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$RoomsTableTableFilterComposer get roomId {
+    final $$RoomsTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.roomId,
+        referencedTable: $db.roomsTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoomsTableTableFilterComposer(
+              $db: $db,
+              $table: $db.roomsTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$RoomMemberTableTableFilterComposer get memberId {
+    final $$RoomMemberTableTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.memberId,
+        referencedTable: $db.roomMemberTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoomMemberTableTableFilterComposer(
+              $db: $db,
+              $table: $db.roomMemberTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$RoomMemberMappingTableTableOrderingComposer
+    extends Composer<_$AppDb, $RoomMemberMappingTableTable> {
+  $$RoomMemberMappingTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$RoomsTableTableOrderingComposer get roomId {
+    final $$RoomsTableTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.roomId,
+        referencedTable: $db.roomsTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoomsTableTableOrderingComposer(
+              $db: $db,
+              $table: $db.roomsTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$RoomMemberTableTableOrderingComposer get memberId {
+    final $$RoomMemberTableTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.memberId,
+        referencedTable: $db.roomMemberTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoomMemberTableTableOrderingComposer(
+              $db: $db,
+              $table: $db.roomMemberTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$RoomMemberMappingTableTableAnnotationComposer
+    extends Composer<_$AppDb, $RoomMemberMappingTableTable> {
+  $$RoomMemberMappingTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$RoomsTableTableAnnotationComposer get roomId {
+    final $$RoomsTableTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.roomId,
+        referencedTable: $db.roomsTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoomsTableTableAnnotationComposer(
+              $db: $db,
+              $table: $db.roomsTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$RoomMemberTableTableAnnotationComposer get memberId {
+    final $$RoomMemberTableTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.memberId,
+        referencedTable: $db.roomMemberTable,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoomMemberTableTableAnnotationComposer(
+              $db: $db,
+              $table: $db.roomMemberTable,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$RoomMemberMappingTableTableTableManager extends RootTableManager<
+    _$AppDb,
+    $RoomMemberMappingTableTable,
+    RoomMemberMapping,
+    $$RoomMemberMappingTableTableFilterComposer,
+    $$RoomMemberMappingTableTableOrderingComposer,
+    $$RoomMemberMappingTableTableAnnotationComposer,
+    $$RoomMemberMappingTableTableCreateCompanionBuilder,
+    $$RoomMemberMappingTableTableUpdateCompanionBuilder,
+    (RoomMemberMapping, $$RoomMemberMappingTableTableReferences),
+    RoomMemberMapping,
+    PrefetchHooks Function({bool roomId, bool memberId})> {
+  $$RoomMemberMappingTableTableTableManager(
+      _$AppDb db, $RoomMemberMappingTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RoomMemberMappingTableTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RoomMemberMappingTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RoomMemberMappingTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> roomId = const Value.absent(),
+            Value<int> memberId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RoomMemberMappingTableCompanion(
+            roomId: roomId,
+            memberId: memberId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int roomId,
+            required int memberId,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RoomMemberMappingTableCompanion.insert(
+            roomId: roomId,
+            memberId: memberId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$RoomMemberMappingTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({roomId = false, memberId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (roomId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.roomId,
+                    referencedTable: $$RoomMemberMappingTableTableReferences
+                        ._roomIdTable(db),
+                    referencedColumn: $$RoomMemberMappingTableTableReferences
+                        ._roomIdTable(db)
+                        .id,
+                  ) as T;
+                }
+                if (memberId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.memberId,
+                    referencedTable: $$RoomMemberMappingTableTableReferences
+                        ._memberIdTable(db),
+                    referencedColumn: $$RoomMemberMappingTableTableReferences
+                        ._memberIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$RoomMemberMappingTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDb,
+        $RoomMemberMappingTableTable,
+        RoomMemberMapping,
+        $$RoomMemberMappingTableTableFilterComposer,
+        $$RoomMemberMappingTableTableOrderingComposer,
+        $$RoomMemberMappingTableTableAnnotationComposer,
+        $$RoomMemberMappingTableTableCreateCompanionBuilder,
+        $$RoomMemberMappingTableTableUpdateCompanionBuilder,
+        (RoomMemberMapping, $$RoomMemberMappingTableTableReferences),
+        RoomMemberMapping,
+        PrefetchHooks Function({bool roomId, bool memberId})>;
 
 class $AppDbManager {
   final _$AppDb _db;
@@ -4868,4 +5540,7 @@ class $AppDbManager {
       $$UsersTableTableTableManager(_db, _db.usersTable);
   $$PollOptionTableTableTableManager get pollOptionTable =>
       $$PollOptionTableTableTableManager(_db, _db.pollOptionTable);
+  $$RoomMemberMappingTableTableTableManager get roomMemberMappingTable =>
+      $$RoomMemberMappingTableTableTableManager(
+          _db, _db.roomMemberMappingTable);
 }

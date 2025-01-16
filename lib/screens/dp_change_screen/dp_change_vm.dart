@@ -4,13 +4,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_cropper/image_cropper.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:path/path.dart' as path;
+import 'package:zineapp2023/theme/color.dart';
 
-class DPUpdateRepo {
+class DPUpdateViewModel {
   static Future<String?> saveFile({
     required File file,
     String? filename,
@@ -116,10 +118,25 @@ class DPUpdateRepo {
           file: File(result.files.single.path!), filename: id.toString());
 
       if (savePath != null) {
+        CroppedFile? croppedFile = await ImageCropper().cropImage(
+          uiSettings: [
+            AndroidUiSettings(
+              activeControlsWidgetColor: Colors.white,
+              toolbarColor: Colors.white,
+              // toolbarWidgetColor: greyText,
+              lockAspectRatio: true,
+            )
+          ],
+          sourcePath: savePath,
+          aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        );
+
         if (kDebugMode) {
           print("Updating DP $savePath");
         }
-        updateDp(savePath);
+        if (croppedFile != null) {
+          updateDp(savePath);
+        }
       }
     }
   }

@@ -45,10 +45,11 @@ class MessageResponseModel {
     id = json['id'];
     deleted = json['deleted'];
 
-    if (json['timestamp'] == null) timestamp = DateTime.now();
+    if (json['timestamp'] == null) timestamp = DateTime.now().toLocal();
 
     if (json['timestamp'] is int) {
-      timestamp = DateTime.fromMillisecondsSinceEpoch(json['timestamp']);
+      timestamp =
+          DateTime.fromMillisecondsSinceEpoch(json['timestamp']).toLocal();
     } else if (json['timestamp'] is String) {
       timestamp = DateTime.parse(json['timestamp']);
     } else {

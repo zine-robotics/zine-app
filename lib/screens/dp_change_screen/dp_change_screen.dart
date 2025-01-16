@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/theme/color.dart';
 
-import 'dp_change_repo.dart';
+import 'dp_change_vm.dart';
 
 class DpChangeScreen extends StatelessWidget {
   final String title;
@@ -52,8 +52,8 @@ class DpChangeScreen extends StatelessWidget {
                   if (kDebugMode) {
                     print("Uploading");
                   }
-                  DPUpdateRepo.upload(value.updateDpUrl, value.getUserInfo.uid!,
-                      value.getUserInfo.id.toString());
+                  DPUpdateViewModel.upload(value.updateDpUrl,
+                      value.getUserInfo.uid!, value.getUserInfo.id.toString());
                 },
                 icon: const FaIcon(FontAwesomeIcons.pencil),
               ),
@@ -67,11 +67,7 @@ class DpChangeScreen extends StatelessWidget {
               ),
             ),
           ),
-          body: Center(
-              child: Expanded(
-                  child: Container(
-                      width: double.infinity,
-                      child: Hero(tag: "profilePic", child: dp)))));
+          body: Center(child: Hero(tag: "profilePic", child: dp)));
     });
   }
 }
