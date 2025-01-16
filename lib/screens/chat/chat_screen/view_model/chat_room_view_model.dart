@@ -764,9 +764,11 @@ class ChatRoomViewModel extends ChangeNotifier {
         return;
       }
       logger.d("Fetched Messages from API");
-      List<MessageModel> messageModels =
-          allMessages.map((message) => message.toModel()).toList();
-      await workerToSaveMessages(messageModels, db, roomID);
+      if (roomID == currRoomId) {
+        List<MessageModel> messageModels =
+            allMessages.map((message) => message.toModel()).toList();
+        await workerToSaveMessages(messageModels, db, roomID);
+      }
     } catch (e) {
       logger.e('Error saving message to local DB: $e');
     }
@@ -1014,14 +1016,18 @@ class ChatRoomViewModel extends ChangeNotifier {
       );
     }
   }
+
   Color _generateBackgroundColor(String name) {
     int hash = name.hashCode;
     int colorIndex = hash % Colors.primaries.length;
     return Colors.primaries[colorIndex];
   }
+
   Color _getContrastingTextColor(Color backgroundColor) {
     double luminance = backgroundColor.computeLuminance();
-    return luminance > 0.5 ? Colors.black : Colors.white; // Light BG → Dark Text, Dark BG → Light Text
+    return luminance > 0.5
+        ? Colors.black
+        : Colors.white; // Light BG → Dark Text, Dark BG → Light Text
   }
 
   Widget customUserName(String? name, {double radius = 50.0}) {
@@ -1040,11 +1046,10 @@ class ChatRoomViewModel extends ChangeNotifier {
             child: Text(
               name.substring(0, 1).toUpperCase(), // Fallback text
               style: TextStyle(
-                // fontWeight: FontWeight.bold,
-                fontSize: 30,
-                color: textColor, // Text color
-                fontFamily:'Poppins'
-              ),
+                  // fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  color: textColor, // Text color
+                  fontFamily: 'Poppins'),
             ),
           ),
         ));

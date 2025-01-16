@@ -12,7 +12,6 @@ class DpChangeScreen extends StatelessWidget {
   final String title;
   DpChangeScreen({this.title = 'Profile Picture', super.key});
 
-
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProv>(builder: (context, userProv, child) {
@@ -52,7 +51,9 @@ class DpChangeScreen extends StatelessWidget {
                   if (kDebugMode) {
                     print("Uploading");
                   }
-                  DPUpdateRepo.upload(userProv.updateDpUrl, userProv.getUserInfo.uid!,
+                  DPUpdateRepo.upload(
+                      userProv.updateDpUrl,
+                      userProv.getUserInfo.uid!,
                       userProv.getUserInfo.id.toString());
                 },
                 icon: const FaIcon(FontAwesomeIcons.pencil),
