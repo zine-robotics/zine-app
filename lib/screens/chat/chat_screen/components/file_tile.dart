@@ -115,7 +115,7 @@ class _FileTileState extends State<FileTile> {
           backgroundColor: Colors.black.withOpacity(0.9),
           insetPadding: const EdgeInsets.all(10),
           child: Stack(
-            alignment: Alignment.center,
+            alignment: Alignment.centerLeft,
             children: [
               CachedNetworkImage(
                 imageUrl: imageUrl,
@@ -165,8 +165,8 @@ class _FileTileState extends State<FileTile> {
 
     return ListTile(
       contentPadding: widget.isUser
-          ? const EdgeInsets.only(top: 10, left: 30)
-          : const EdgeInsets.only(top: 10, right: 30),
+          ? const EdgeInsets.only(top: 10, left: 10)
+          : const EdgeInsets.only(top: 10, right: 10),
       titleAlignment: ListTileTitleAlignment.center,
       leading: widget.isUser || widget.group
           ? CircleAvatar(
@@ -200,78 +200,97 @@ class _FileTileState extends State<FileTile> {
         },
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 250),
-          child: ClipRRect(
-            borderRadius: widget.isUser
-                ? const BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                    bottomLeft: Radius.circular(15),
-                  )
-                : const BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                    bottomRight: Radius.circular(15),
-                  ),
-            child: Builder(
-              builder: (context) {
-                if (isImage()) {
-                  if (File(widget.message.file!.filePath).existsSync()) {
-                    return Image.file(
-                      File(widget.message.file!.filePath),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.error),
-                    );
-                  } else if (startImage) {
-                    return CachedNetworkImage(
-                      imageUrl: widget.message.file!.uri.toString(),
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.error),
-                    );
+          child: Container(
+            decoration: BoxDecoration(
+            border: Border.all(
+            color: widget.isUser? userColor:otherColor,
+            width: 5.0,
+            ),
+              borderRadius: widget.isUser
+                  ? const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+                bottomLeft: Radius.circular(15),
+              )
+                  : const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: widget.isUser
+                  ? const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                    )
+                  : const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+              child: Builder(
+                builder: (context) {
+                  if (isImage()) {
+                    if (File(widget.message.file!.filePath).existsSync()) {
+                      return Image.file(
+                        File(widget.message.file!.filePath),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.error),
+                      );
+                    } else if (startImage) {
+                      return CachedNetworkImage(
+                        imageUrl: widget.message.file!.uri.toString(),
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      );
+                    }
                   }
-                }
 
-                // Render non-image file with file name
-                return Container(
-                  padding: const EdgeInsets.all(8),
-                  color: widget.isUser ? userColor : otherColor,
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.insert_drive_file,
-                        size: 40,
-                        color: Color.fromARGB(255, 219, 248, 255),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.message.file!.name,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 18.0,
-                            color: Colors.white,
+                  // Render non-image file with file name
+                  return Container(
+                    padding: const EdgeInsets.all(8),
+                    color: widget.isUser ? userColor : otherColor,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.insert_drive_file,
+                          size: 40,
+                          color: Color.fromARGB(255, 219, 248, 255),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            widget.message.file!.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 18.0,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.download, color: Colors.white),
-                        onPressed: () {
-                          if (!_isDownloading) {
-                            _downloadFile(
-                              widget.message.file!.uri.toString(),
-                              widget.message.file!.name,
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
+                        IconButton(
+                          icon: const Icon(Icons.download, color: Colors.white),
+                          onPressed: () {
+                            if (!_isDownloading) {
+                              _downloadFile(
+                                widget.message.file!.uri.toString(),
+                                widget.message.file!.name,
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),

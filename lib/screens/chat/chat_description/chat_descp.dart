@@ -180,7 +180,6 @@ class ChatDescription extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(width: 10),
                                 const Spacer(),
                                 if (roomMember.isActive) ...[
                                   Icon(
@@ -194,6 +193,7 @@ class ChatDescription extends StatelessWidget {
                                     style:
                                         TextStyle(fontWeight: FontWeight.w500),
                                   ),
+                                  SizedBox(width: 10,)
                                 ] else ...[
                                   Icon(
                                     Icons.circle_rounded,
@@ -206,8 +206,9 @@ class ChatDescription extends StatelessWidget {
                                     style:
                                         TextStyle(fontWeight: FontWeight.w500),
                                   ),
+                                  SizedBox(width: 10,)
                                 ],
-                                const SizedBox(width: 20),
+                                // const SizedBox(width: 20),
                               ],
                             ),
                           ),
