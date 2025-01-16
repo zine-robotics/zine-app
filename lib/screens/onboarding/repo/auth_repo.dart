@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/models/newUser.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/repo/chat_repo.dart';
 import '/common/data_store.dart';
 import '../../../models/user.dart';
 
@@ -41,63 +42,44 @@ class AuthRepo {
   Future<UserModel?> signInWithEmailAndPassword(
       {String? email, String? password, String? pushToken}) async {
     // String toastText = 'An Undefined Error Occured';
-
+    Response res;
+    Map<String, dynamic> resBody = {};
     try {
-      Response res = await http.post(BackendProperties.loginUri,
+      res = await http.post(BackendProperties.loginUri,
           body: jsonEncode(
               {"email": email, "password": password, "pushToken": pushToken}),
           headers: {
             "Content-Type": "application/json",
             ...BackendProperties.getHeaders()
           });
-      Map<String, dynamic> resBody = jsonDecode(res.body);
+      resBody = jsonDecode(res.body);
+      logger.i(resBody);
       if (kDebugMode) {
-        print("Reponse Code ${res.statusCode}");
+        print("Reponse Code ${resBody['failureReason']}");
       }
+
       String userToken = "";
       switch (res.statusCode) {
-        case 403:
-          if ((resBody['failureReason'] as String) ==
-                  'user_not_verified_email_resent' ||
-              (resBody['failureReason'] as String) == 'user_not_verified') {
-            throw AuthException(code: resBody['failureReason']);
-          }
-
-          throw AuthException(code: '403 Error');
-
-        case 429:
-          throw AuthException(code: 'too-many-requests');
-        case 400:
-          if ((resBody['failureReason'] as String) == 'wrong-password') {
-            throw AuthException(code: 'wrong-password');
-          }
-          if ((resBody['failureReason'] as String) == "user-not-found") {
-            throw AuthException(code: "user-not-found");
-          }
-          throw AuthException(code: 'unknown');
         case 200:
           if (!resBody.containsKey('jwt')) {
             throw AuthException(code: 'backend-not-responding');
           } else {
             userToken = (resBody['jwt'] as String);
             print("userToken:${userToken}");
+            return getUserbyId(userToken);
           }
           break;
 
         default:
-          if (resBody.containsKey('failureReason')) {
-            throw AuthException(code: resBody['failureReason'].toString());
-          }
-
-          throw AuthException(code: 'unknown');
+          print("${resBody['failureReason']}");
+          throw AuthException(code: resBody['failureReason']);
       }
-
-      return getUserbyId(userToken);
     } on SocketException {
       if (kDebugMode) print('no-connect');
       throw AuthException(code: 'no-connect');
     } catch (e) {
-      throw AuthException(code: 'unknown');
+      print("Error in SignInWithEmailAndPassword");
+      throw AuthException(code: resBody['failureReason']);
     }
   }
 
@@ -139,11 +121,12 @@ class AuthRepo {
     }
   }
 
-  Future<UserModel?> createUserWithEmailAndPassword({
+  Future<void> createUserWithEmailAndPassword({
     String name = 'New Recruit',
     String email = 'a@gmail.com',
     String password = 'password',
   }) async {
+    Map<String, dynamic> resBody = {};
     try {
       Response res = await http.post(BackendProperties.registerUri,
           body: jsonEncode({
@@ -155,18 +138,21 @@ class AuthRepo {
             "Content-Type": "application/json",
             ...BackendProperties.getHeaders()
           });
-
+      resBody = jsonDecode(res.body);
+      logger.i(jsonDecode(res.body));
       switch (res.statusCode) {
-        case 409: //TODO: ADD COMMON CASES
-          throw AuthException(code: 'email-already-in-use');
-
+        case 200:
+          logger.i(jsonDecode(res.body));
+          return;
         default:
+          throw AuthException(code: resBody['message']);
       }
-      return UserModel();
     } on SocketException {
+      print("Exception in createUserWithEmailAndPassword");
       throw AuthException(code: 'no-connect');
     } catch (e) {
-      throw AuthException(code: 'unknown');
+      print("Exception in createUserWithEmailAndPassword");
+      throw AuthException(code: resBody['message']);
     }
   }
 

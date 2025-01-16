@@ -26,17 +26,19 @@ class Events {
     name = json['name'];
     venue = json['venue'];
     if (json['startDateTime'] != null) {
-      startDateTime = DateTime.tryParse(json['startDateTime'].toString()) ?? DateTime.fromMillisecondsSinceEpoch(json['startDateTime']);
+      startDateTime = DateTime.fromMillisecondsSinceEpoch(json['startDateTime'])
+          .toUtc(); // DateTime.tryParse(json['startDateTime'].toString()) ??
     }
     if (json['endDateTime'] != null) {
-      endDateTime = DateTime.tryParse(json['endDateTime'].toString()) ?? DateTime.fromMillisecondsSinceEpoch(json['endDateTime']);
+      endDateTime = DateTime.fromMillisecondsSinceEpoch(json['endDateTime'])
+          .toUtc(); //DateTime.tryParse(json['endDateTime'].toString()) ??
     }
     // startDateTime = json['startDateTime'];
     // endDateTime = json['endDateTime'];
     recruitment = json['recruitment'] != null
         ? new Recruitment.fromJson(json['recruitment'])
         : null;
-    eventDp=json['dpUrl'];
+    eventDp = json['dpUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -47,10 +49,12 @@ class Events {
     data['name'] = this.name;
     data['venue'] = this.venue;
     if (startDateTime != null) {
-      data['startDateTime'] = startDateTime?.toIso8601String(); // Convert DateTime to ISO 8601 string
+      data['startDateTime'] = startDateTime
+          ?.toIso8601String(); // Convert DateTime to ISO 8601 string
     }
     if (endDateTime != null) {
-      data['endDateTime'] = endDateTime?.toIso8601String(); // Convert DateTime to ISO 8601 string
+      data['endDateTime'] =
+          endDateTime?.toIso8601String(); // Convert DateTime to ISO 8601 string
     }
     // data['startDateTime'] = this.startDateTime;
     // data['endDateTime'] = this.endDateTime;

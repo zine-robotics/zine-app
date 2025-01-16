@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,10 +12,11 @@ class DpChangeScreen extends StatelessWidget {
   final String title;
   DpChangeScreen({this.title = 'Profile Picture', super.key});
 
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProv>(builder: (context, value, child) {
-      String image = value.getUserInfo.dp;
+    return Consumer<UserProv>(builder: (context, userProv, child) {
+      String image = userProv.getUserInfo.dp;
 
       Widget dp = File(image.toString()).existsSync()
           ? Image.file(File(image.toString()))
@@ -52,8 +52,8 @@ class DpChangeScreen extends StatelessWidget {
                   if (kDebugMode) {
                     print("Uploading");
                   }
-                  DPUpdateRepo.upload(value.updateDpUrl, value.getUserInfo.uid!,
-                      value.getUserInfo.id.toString());
+                  DPUpdateRepo.upload(userProv.updateDpUrl, userProv.getUserInfo.uid!,
+                      userProv.getUserInfo.id.toString());
                 },
                 icon: const FaIcon(FontAwesomeIcons.pencil),
               ),

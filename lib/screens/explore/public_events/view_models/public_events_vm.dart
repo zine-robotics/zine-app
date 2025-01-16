@@ -4,6 +4,7 @@ import 'package:zineapp2023/screens/events/repo/events_repo.dart';
 import 'package:table_calendar/src/shared/utils.dart';
 import 'package:zineapp2023/models/events.dart';
 
+//TODO: Delete this file Not Require use Events VM
 class PublicEventsVM extends ChangeNotifier {
   // final PublicEventsRepo peRepo = PublicEventsRepo();
   final EventsRepo eventsRepo = EventsRepo();
@@ -24,7 +25,7 @@ class PublicEventsVM extends ChangeNotifier {
       List<Events> tempEvents = await eventsRepo.fetchEvents();
       // List<Events> tempEvents = dummyEvents;
 
-      tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
+      tempEvents.sort((b, a) => b.startDateTime!.compareTo(a.startDateTime!));
       _events = tempEvents;
       for (var event in _events) {
         DateTime eventDate = event.startDateTime!;

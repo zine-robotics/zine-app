@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:zineapp2023/models/newTask.dart';
 import 'package:zineapp2023/models/task_instance.dart';
 import 'package:zineapp2023/providers/user_info.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/repo/chat_repo.dart';
 
 class TaskInstanceRepo {
   final UserProv userProv;
@@ -57,6 +58,7 @@ class TaskInstanceRepo {
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
+      // logger.i(resBody);
       var checkPointJson = resBody['checkpoints'] as List;
       return checkPointJson
           .map((checkpoint) => Checkpoint.fromJson(checkpoint))
@@ -101,6 +103,7 @@ class TaskInstanceRepo {
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
+      logger.i(resBody);
       var linksJson = resBody['links'] as List;
       return linksJson.map((link) => Link.fromJson(link)).toList();
     }

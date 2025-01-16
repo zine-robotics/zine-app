@@ -69,7 +69,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   bool loadingAPIMessages = false;
   Set<String> activeRoomSubscriptions = {};
   int? focusMessageId;
-  final Map<int, GlobalKey> messageKeys = {};
+  Map<int, GlobalKey> messageKeys = {};
 
   bool get isLoaded => _isLoaded;
   bool get isError => _isError;
@@ -122,19 +122,11 @@ class ChatRoomViewModel extends ChangeNotifier {
             final List<dynamic> activeMemberData = json.decode(frame.body!);
             final List<String> activeMemberList =
                 activeMemberData.map((item) => item.toString()).toList();
-            // logger.d(
-            //     "\n newly created websocket acive user data:${activeMemberList}");
-            List<RoomMemberModel>? roomMemberData =
-                await fetchRoomMemberDetailsFromLocalDb(db, activeMemberList);
-
-            // _activeMembers = List<RoomMemberModel>.from(roomMemberData ?? []);
             currentRoomMembers =
                 await db.getRoomMembersByRoomId(int.parse(currRoomID));
             currentRoomMembers.forEach((key, value) {
               if (activeMemberList.contains(value.email)) {
                 value.isActive = true;
-                print("Active Member: ${value.name}");
-                logger.d("Active Member: ${value.name}");
               }
             });
 
@@ -177,9 +169,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             int pollIndex = messages.indexWhere(
               (element) => element.id == messageRecieved.pollUpdate!.chatItemId,
             );
-
-            messages[pollIndex].poll!.pollOptions =
-                messageRecieved.pollUpdate!.pollOptions;
+            messages[pollIndex].poll!.update(messageRecieved.pollUpdate!);
             roomMessage = messages[pollIndex];
             focusMessageId = roomMessage.id;
           } else if (messageRecieved.update == 'new-message' &&
@@ -188,22 +178,18 @@ class ChatRoomViewModel extends ChangeNotifier {
                 messageRecieved.body!.timestamp!.toLocal();
             roomMessage = messageRecieved.toModel();
             messages.add(roomMessage);
+            messageKeys[roomMessage.id!] = GlobalKey();
           }
           notifyListeners();
           WidgetsBinding.instance.addPostFrameCallback((_) {
             scrollToFocusedMessage(roomMessage!.id);
           });
-
-          await workerToSaveMessage(roomMessage!, db, roomId);
-
-          // logger.d("Socket Callback New Message - Over");
+          await workerToSaveMessages([roomMessage!], db, roomId);
         } catch (e) {
           logger.e(e);
         } finally {
           //notifyListeners();
         }
-        // messages = jsonDecode(frame.body!).reversed.toList();
-        // Notify listeners or update UI
       },
     );
 
@@ -254,6 +240,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   void scrollToFocusedMessage(int? messageId) {
+    // notifyListeners(); //
     print("inside the scrollToFocusedMessage $messageId");
     if (messageId == null) return;
     final key = messageKeys[messageId];
@@ -315,8 +302,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   // List<Rooms>? get userWorkshop => _userWorkshop;
   // List<Rooms>? get announcement => _announcement;
   // bool get isRoomLoaded => _isRoomLoaded;
-  int _allChatRoom = 0;
-  get allChatRoom => _allChatRoom;
+
   var fMessaging = FirebaseMessaging.instance;
 
   void userReplyText(MessageModel message) {
@@ -439,10 +425,10 @@ class ChatRoomViewModel extends ChangeNotifier {
               role: drift.Value(roomMember.role ?? "user"),
               id: drift.Value(roomMember.id),
               dpUrl: drift.Value(
-                await saveImageToLocalStorage(
-                  roomMember.dpUrl.toString() ?? "",
+                await saveFileToLocalStorage(
+                  roomMember.dpUrl.toString(),
                   roomMember.id.toString(),
-                  roomMember.name ?? "",
+                  "user_dp",
                 ),
               ),
             );
@@ -462,11 +448,10 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   void updateUnreadMessagesToZero(String roomId) async {
-    print("inside the updateUnreadMessagesToZero");
     allrooms = allrooms?.map((room) {
       if (room.id.toString() == roomId) {
         room.unreadMessages = 0;
-        print("inside $roomId  to Zero");
+        logger.d("Setting unread meesage of $roomId to Zero");
       }
       return room;
     }).toList();
@@ -520,10 +505,8 @@ class ChatRoomViewModel extends ChangeNotifier {
             name: drift.Value(room.name),
             description: drift.Value(room.description),
             type: drift.Value(room.type),
-            dpUrl: drift.Value(await saveImageToLocalStorage(
-                room.dpUrl.toString(),
-                room.id.toString(),
-                room.name.toString())),
+            dpUrl: drift.Value(await saveFileToLocalStorage(
+                room.dpUrl.toString(), room.id.toString(), 'room_dp')),
             timestamp: drift.Value(room.timestamp),
             lastMessageTimestamp: drift.Value(room.lastMessageTimestamp),
             unreadMessages: drift.Value(room.unreadMessages),
@@ -657,113 +640,118 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   // ---------------------------------------------------messageDataSavingAndFetching--------------------------------------------------//
-  //savingAllStaticMessageFromAPi
 
-  //Have to change this, very unoptimized
-  Future<void> workerToSaveMessage(
-      MessageModel message, db, String messageRoomId) async {
-    // Use a transaction and batch to ensure atomicity and improve performance
+  Future<void> workerToSaveMessages(
+      List<MessageModel> messages, AppDb db, String messageRoomId) async {
     try {
+      // Use a single transaction for processing all messages
       await db.transaction(() async {
-        // Saving poll data and poll option data inside a batch
-        if (message.poll != null) {
-          final pollCompanion = PollTableCompanion(
-            id: drift.Value(message.id!),
-            title: drift.Value(message.poll!.title),
-            description: drift.Value(message.poll!.description),
-            lastVoted: drift.Value(message.poll!.lastVoted),
-          );
-          print("message poll-lastvoted:${message.poll?.lastVoted}");
+        for (final message in messages) {
+          // Handle poll data
+          if (message.poll != null) {
+            final pollCompanion = PollTableCompanion(
+              id: drift.Value(message.id!),
+              title: drift.Value(message.poll!.title),
+              description: drift.Value(message.poll!.description),
+              lastVoted: drift.Value(message.poll!.lastVoted),
+            );
 
-          // Insert poll data
-          await db.into(db.pollTable).insertOnConflictUpdate(pollCompanion);
+            // Insert poll data
+            await db.into(db.pollTable).insertOnConflictUpdate(pollCompanion);
 
-          // Insert poll options inside a batch
-          //TODO: Change voter ID to list of voter IDS
-          for (var option in message.poll!.pollOptions) {
-            final pollOptionCompanion = PollOptionTableCompanion(
+            // Insert poll options
+            for (var option in message.poll!.pollOptions) {
+              final pollOptionCompanion = PollOptionTableCompanion(
                 id: drift.Value(option.id),
                 pollId: drift.Value(message.id!),
                 value: drift.Value(option.value),
                 numVotes: drift.Value(option.numVotes),
-                voterId: option.voterIds != null
-                    ? option.voterIds!.contains(userProv.getUserInfo.id)
-                        ? drift.Value(true)
-                        : drift.Value(false)
-                    : drift.Value(false));
-            // if(option.voterIds !=null){
-            //   option.voterIds!.forEach((i) {
-            //     print("user id: $i and userprov id :${userProv.getUserInfo.id} bool ${option.voterIds!.contains(userProv.getUserInfo.id)} check ${drift.Value.absent}");
-            //
-            //   });
-            // }
-            // print("pollOptioncompanion:${pollOptionCompanion.voterId}");
+                voterId: option.voterIds != null &&
+                        option.voterIds!.contains(userProv.getUserInfo.id)
+                    ? drift.Value(true)
+                    : drift.Value(false),
+              );
+
+              await db
+                  .into(db.pollOptionTable)
+                  .insertOnConflictUpdate(pollOptionCompanion);
+            }
+          }
+
+          // Handle file data
+          if (message.file?.uri != null && message.file?.uri != "") {
+            try {
+              // Save the file locally (async operation)
+              saveFileToLocalStorage(message.file!.uri.toString(),
+                  message.file!.name, 'room_file');
+
+              // Store the file data in the database
+              final fileCompanion = FileTableCompanion(
+                id: drift.Value(message.id),
+                uri: drift.Value(message.file!.uri.toString()),
+                name: drift.Value(message.file!.name),
+                filePath: drift.Value(
+                    await getFilePath(message.file!.name, 'room_file')),
+              );
+
+              await db.into(db.fileTable).insertOnConflictUpdate(fileCompanion);
+            } catch (e) {
+              logger.e("ERROR on saving file to DB: $e");
+            }
+          }
+
+          // Handle room member data
+          try {
+            final roomMemberCompanion = RoomMemberTableCompanion(
+              id: drift.Value(message.sender!.id),
+              name: drift.Value(message.sender?.name ?? ""),
+            );
 
             await db
-                .into(db.pollOptionTable)
-                .insertOnConflictUpdate(pollOptionCompanion);
-            // print("Success: PollOptionCompanion saved!!");
+                .into(db.roomMemberTable)
+                .insertOnConflictUpdate(roomMemberCompanion);
+          } catch (e) {
+            logger.e("ERROR saving room member details: $e");
           }
-        }
-        try {
-          if (message.file?.uri != null && message.file?.uri != "") {
-            final fileCompanion = FileTableCompanion(
-              id: drift.Value(message.id),
-              uri: drift.Value(await saveImageToLocalStorage(
-                  message.file!.uri.toString(),
-                  message.id.toString(),
-                  message.file!.name.toString())),
-              name: drift.Value(message.file!.name),
-            );
-            await db.into(db.fileTable).insertOnConflictUpdate(fileCompanion);
-          }
-        } catch (e) {
-          print("ERROR on saving fileOnDB:$e");
-        }
-        try {
-          final roomMemberCompanion = RoomMemberTableCompanion(
-            id: drift.Value(message.sender!.id),
-            name: drift.Value(message.sender?.name ?? ""),
+
+          // Handle message data
+          final messageCompanion = MessagesTableCompanion(
+            id: message.id != null
+                ? drift.Value(message.id!)
+                : drift.Value.absent(),
+            type: drift.Value(message.type.toString().split('.').last),
+            timestamp: drift.Value(message.timestamp!.millisecondsSinceEpoch),
+            sentFromId: message.sender?.id != null
+                ? drift.Value(message.sender!.id!)
+                : drift.Value.absent(),
+            replyToId: message.replyToId != null
+                ? drift.Value(message.replyToId)
+                : drift.Value.absent(),
+            isSynced: drift.Value(true),
+            textData: message.type == MessageType.text && message.text != null
+                ? drift.Value(message.text!.content)
+                : drift.Value.absent(),
+            pollId: message.type == MessageType.poll && message.id != null
+                ? drift.Value(message.id!)
+                : drift.Value.absent(),
+            fileId: message.type == MessageType.file && message.id != null
+                ? drift.Value(message.id!)
+                : drift.Value.absent(),
+            roomId: drift.Value(int.parse(messageRoomId.toString())),
           );
+
+          // Insert or update message data
           await db
-              .into(db.roomMemberTable)
-              .insertOnConflictUpdate(roomMemberCompanion);
-        } catch (e) {
-          print("ERROR roomMember details saving:$e");
+              .into(db.messagesTable)
+              .insertOnConflictUpdate(messageCompanion);
         }
-        final messageCompanion = MessagesTableCompanion(
-          id: message.id != null
-              ? drift.Value(message.id!)
-              : drift.Value.absent(),
-          type: drift.Value(message.type.toString().split('.').last),
-          timestamp: drift.Value(message.timestamp!.millisecondsSinceEpoch),
-          sentFromId: message.sender?.id != null
-              ? drift.Value(message.sender!.id!)
-              : drift.Value.absent(),
-          replyToId:
-              drift.Value(message.replyToId != null ? message.replyToId : null),
-          isSynced: drift.Value(true),
-          textData: message.type == MessageType.text && message.text != null
-              ? drift.Value(message.text!.content)
-              : drift.Value.absent(),
-          pollId: message.type == MessageType.poll && message.id != null
-              ? drift.Value(message.id!)
-              : drift.Value.absent(),
-          fileId: message.type == MessageType.file && message.id != null
-              ? drift.Value(message.id!)
-              : drift.Value.absent(),
-          roomId: drift.Value(int.parse(messageRoomId.toString())),
-        );
-        // Insert or update message data
-        await db
-            .into(db.messagesTable)
-            .insertOnConflictUpdate(messageCompanion);
-        // print("Success: MessageCompanion saved!");
       });
     } catch (e) {
-      print("Error saving poll/message data: $e");
+      logger.e("Error saving messages: $e");
     }
   }
+
+  //--------------------------------------------------fetchAllMessage-----------------------------------------------//
 
   Future<void> fetchAllMessagesFromAPI_andStoreInDB(
       AppDb db, String roomID) async {
@@ -775,9 +763,10 @@ class ChatRoomViewModel extends ChangeNotifier {
       if (allMessages!.isEmpty) {
         return;
       }
-      for (MessageResponseModel message in allMessages) {
-        await workerToSaveMessage(message.toModel(), db, roomID);
-      }
+      logger.d("Fetched Messages from API");
+      List<MessageModel> messageModels =
+          allMessages.map((message) => message.toModel()).toList();
+      await workerToSaveMessages(messageModels, db, roomID);
     } catch (e) {
       logger.e('Error saving message to local DB: $e');
     }
@@ -787,8 +776,6 @@ class ChatRoomViewModel extends ChangeNotifier {
   //Optimized Fetch Call
   Future<List<MessageModel>> fetchAllMessagesFromLocalDB(
       AppDb db, String roomID) async {
-    // logger.d(
-    // "----inside the fetching all message from local database and roomId is $roomID");
     try {
       // Step 1: Fetch messages and associated sender details in a single query
       final messageQuery = db.select(db.messagesTable).join([
@@ -858,6 +845,7 @@ class ChatRoomViewModel extends ChangeNotifier {
         final file = fileData != null
             ? FileData(
                 uri: Uri.parse(fileData.uri),
+                filePath: fileData.filePath ?? "",
                 description: fileData.description,
                 name: fileData.name,
               )
@@ -913,11 +901,12 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
 
     try {
-      // logger.i("Message Pipeline STAGE 2");
+      logger.i("Message Pipeline STAGE 2");
       await fetchAllMessagesFromAPI_andStoreInDB(db, roomID);
+      logger.d("Fetched ALL APIs for $roomID");
 
       final newMessages = await fetchAllMessagesFromLocalDB(db, roomID);
-      // logger.d("Fetched ALL APIs for $roomID");
+
       //Modify the whole List
 
       if (currRoomId == roomID) {
@@ -944,57 +933,60 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   //----------------------------------------------------save the image url as image path-----------------------------------------------//
-  Future<String> saveImageToLocalStorage(
-      String imageUrl, String userId, String fileName) async {
-    if (imageUrl.isEmpty || !Uri.parse(imageUrl).isAbsolute) {
+
+  Future<String> saveFileToLocalStorage(
+      String fileUrl, String fileName, String fileType) async {
+    // Validate URL
+    if (fileUrl.isEmpty || !Uri.parse(fileUrl).isAbsolute) {
       return "";
     }
-    bool isValidUrl(String url) {
-      return Uri.tryParse(url)?.hasAbsolutePath ?? false;
-    }
-
-    if (!isValidUrl(imageUrl)) {}
 
     try {
-      final sanitizedUrl = Uri.encodeFull(imageUrl.trim());
+      // Make the HTTP request to fetch the file
+      final sanitizedUrl = Uri.encodeFull(fileUrl.trim());
       final response = await http.get(Uri.parse(sanitizedUrl));
+
+      // Check for successful response
       if (response.statusCode != 200) {
-        throw Exception('Failed to load image from URL');
+        throw Exception('Failed to load FILE from URL');
       }
-      final imageBytes = response.bodyBytes;
+
+      final fileBytes = response.bodyBytes;
       final directory = await getApplicationDocumentsDirectory();
-      final userDirectoryPath = '${directory.path}/$fileName/$userId';
+      final userDirectoryPath = '${directory.path}/$fileType';
       final userDirectory = Directory(userDirectoryPath);
       if (!await userDirectory.exists()) {
         await userDirectory.create(
             recursive: true); // Ensure parent directories are created
       }
 
-      // Save image file
-      final filePath = '${userDirectory.path}/dp.png';
+      // Construct the file path (use fileType extension)
+
+      final filePath = '${userDirectory.path}/$fileName';
       final file = File(filePath);
-      await file.writeAsBytes(imageBytes);
+      await file.writeAsBytes(fileBytes);
+      logger.d("File saved successfully at $filePath");
       return filePath;
     } on SocketException catch (e) {
-      print("Network error: $e");
+      logger.e("Network error: $e");
       return "";
     } catch (e) {
-      print("\nError during saving image to path: $e");
-      return ""; // Return an empty string on failure
+      logger.e("Error saving file: $e");
+      return "";
     }
   }
 
-  // Writing a helper function to create DP
-  Future<Widget> createDP(String userId, AppDb db,
-      {double radius = 50.0}) async {
-    // Fetch the USER object
-    RoomMemberModel? user = await getRoomMember(db, userId);
-    // Check if the DP file exists
-    if (user!.dpUrl != null && File(user.dpUrl!).existsSync()) {
-      return showProfileImage(user.dpUrl!,
-          width: radius * 2, height: radius * 2, radius: radius);
-    } else {
-      return customUserName(user.name, radius: radius);
+  Future<String> getFilePath(String fileName, String fileType) async {
+    try {
+      // Get the application directory
+      final directory = await getApplicationDocumentsDirectory();
+
+      // Construct the file path (use fileType extension)
+      final filePath = '${directory.path}/$fileType/$fileName';
+      return filePath;
+    } catch (e) {
+      logger.e("Error generating file path: $e");
+      return "Error: $e";
     }
   }
 
@@ -1022,23 +1014,36 @@ class ChatRoomViewModel extends ChangeNotifier {
       );
     }
   }
+  Color _generateBackgroundColor(String name) {
+    int hash = name.hashCode;
+    int colorIndex = hash % Colors.primaries.length;
+    return Colors.primaries[colorIndex];
+  }
+  Color _getContrastingTextColor(Color backgroundColor) {
+    double luminance = backgroundColor.computeLuminance();
+    return luminance > 0.5 ? Colors.black : Colors.white; // Light BG → Dark Text, Dark BG → Light Text
+  }
 
   Widget customUserName(String? name, {double radius = 50.0}) {
     // print("inside teh customUserName");
     name = name == null ? "zine" : name;
+    Color backgroundColor = _generateBackgroundColor(name);
+    Color textColor = _getContrastingTextColor(backgroundColor);
     return ClipRRect(
         borderRadius:
             BorderRadius.circular(radius), // Background color of the avatar
         child: Container(
           width: 50,
           height: 50,
+          color: _generateBackgroundColor(name).withOpacity(0.8),
           child: Center(
             child: Text(
               name.substring(0, 1).toUpperCase(), // Fallback text
               style: TextStyle(
                 // fontWeight: FontWeight.bold,
-                fontSize: 40,
-                color: Colors.grey, // Text color
+                fontSize: 30,
+                color: textColor, // Text color
+                fontFamily:'Poppins'
               ),
             ),
           ),

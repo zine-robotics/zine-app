@@ -60,8 +60,8 @@ class ReplyCard extends StatelessWidget {
                 ),
                 // Cancel button in top-right corner
                 Positioned(
-                  top: 0,
-                  right: 0,
+                  top: -12,
+                  right: -5,
                   child: IconButton(
                     padding: EdgeInsets.zero,
                     iconSize: 22,
