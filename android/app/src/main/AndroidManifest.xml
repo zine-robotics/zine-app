@@ -6,6 +6,7 @@
     android:label="Zine"
     android:name="${applicationName}"
     android:icon="@mipmap/launcher_icon">
+    android:requestLegacyExternalStorage="true"
     <activity
       android:name=".MainActivity"
       android:screenOrientation="portrait"

@@ -71,6 +71,7 @@ dependencies:
   timelines_plus: ^1.0.4
   url_launcher: ^6.3.0
   win32: ^5.9.0
+  open_file: ^3.5.10
   xml: null
 dev_dependencies:
   build_runner: ^2.4.13

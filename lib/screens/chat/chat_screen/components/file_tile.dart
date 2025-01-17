@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
-
+import 'package:open_file/open_file.dart';
 String DOWNLOAD_PATH = '/storage/emulated/0/Download';
 
 const Color userColor = Color.fromARGB(255, 104, 181, 228);
@@ -58,14 +58,14 @@ class _FileTileState extends State<FileTile> {
     });
 
     try {
-      final downloadsPath = Directory(DOWNLOAD_PATH);
-      if (!downloadsPath.existsSync()) {
-        downloadsPath.createSync(recursive: true);
+      // final downloadsPath = Directory(DOWNLOAD_PATH);
+      final downloadsPath= await getExternalStorageDirectory();
+      if (downloadsPath == null) {
+        throw Exception('External storage directory not available.');
       }
-
       final filePath = '${downloadsPath.path}/$fileName';
       final response = await http.get(Uri.parse(url));
-
+      print("downloaded path is:${filePath}");
       if (response.statusCode == 200) {
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
@@ -93,6 +93,14 @@ class _FileTileState extends State<FileTile> {
                 const Duration(seconds: 1), // Sets the duration to 3 seconds
           ),
         );
+        final result = await OpenFile.open(filePath);
+
+        // Check the result of the file open operation
+        if (result.type != ResultType.done) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to open the file.')),
+          );
+        }
       } else {
         throw Exception('Failed to download file.');
       }
