@@ -11,7 +11,6 @@ import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 import 'package:zineapp2023/screens/tasks/view_models/task_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
 
-
 //NEEDS TO BE REVIEWD (Priority High)
 class TaskDesc extends StatefulWidget {
   TaskDesc({super.key});
@@ -87,15 +86,34 @@ class _TaskDescState extends State<TaskDesc> {
                         const SizedBox(
                           height: 3,
                         ),
-                        const InkWell(
-                          // onTap: () => const ProblemStantement(
-                          //   blogName: Text("Mechanical Engineering"),
-                          // ),
-                          child: Text("Problem Statement",
-                              style: TextStyle(
-                                  color: Colors.white,
+                        InkWell(
+                          onTap: () {
+                            // Add your link functionality here
+                            launchUrl(Uri.parse(
+                                curr.task.psLink.toString())); // Open the URL
+                          },
+                          child: const Row(
+                            mainAxisSize:
+                                MainAxisSize.min, // Keeps the Row compact
+                            children: [
+                              Icon(
+                                Icons.link,
+                                color: Colors
+                                    .white, // Same color as the text for consistency
+                                size: 16.0, // Adjust the size of the icon
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                "Problem Statement",
+                                style: TextStyle(
+                                  color: Colors.white, // Link color
                                   fontSize: 14.0,
-                                  fontWeight: FontWeight.w400)),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              // Space between text and icon
+                            ],
+                          ),
                         ),
                         const SizedBox(
                           height: 15,
@@ -119,7 +137,7 @@ class _TaskDescState extends State<TaskDesc> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 39.0, vertical: 12.0),
                                 child: Text(
-                                  curr.task != null ? "Plsad" : "asdasds",
+                                  curr.status.toString(),
                                   // 'In progress',
                                   style: const TextStyle(
                                     color: Color(0xFF268CCB),
@@ -261,8 +279,9 @@ class _TaskDescState extends State<TaskDesc> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              '${userName ?? 'Anonymous'}@${DateFormat(DateFormat.HOUR24_MINUTE).format(check.timestamp)} :${DateFormat("dd.MM.yyyy").format(check.timestamp)}',
-                              style: const TextStyle(color: Colors.grey, fontSize: 9),
+                              '${check.sentFrom ?? "Anonymus"} | ${DateFormat(DateFormat.HOUR24_MINUTE).format(check.timestamp)} :${DateFormat("dd MMM, yy").format(check.timestamp)}',
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 11),
                               textAlign: check.remark
                                   ? TextAlign.left
                                   : TextAlign.right,
@@ -272,34 +291,18 @@ class _TaskDescState extends State<TaskDesc> {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium!
-                                  .copyWith(fontSize: 12),
+                                  .copyWith(
+                                      fontSize: 16,
+                                      color: check.remark
+                                          ? const Color.fromARGB(
+                                              255, 5, 117, 186)
+                                          : Colors.black),
                               textAlign: check.remark
                                   ? TextAlign.left
                                   : TextAlign.right,
                             ),
                           ],
                         ),
-                      if (tempMessage != null)
-                        for (int i = 0; i < tempMessage.length; i++)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${dashVm.userProv.getUserInfo.name.toString()}@${DateTime.now().hour},${DateTime.now().minute} :${DateTime.now().day},${DateTime.now().month},${DateTime.now().year}',
-                                style:
-                                    const TextStyle(color: Colors.grey, fontSize: 9),
-                                textAlign: TextAlign.left,
-                              ),
-                              Text(
-                                '${tempMessage?[i]}\n',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(fontSize: 12),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
                     ],
                   ),
                 ),
@@ -307,32 +310,6 @@ class _TaskDescState extends State<TaskDesc> {
             ),
             Stack(
               children: [
-                // Align(
-                //   alignment: Alignment.bottomCenter,
-                //   child: Padding(
-                //     padding:
-                //         const EdgeInsets.only(right: 70, left: 15, bottom: 10),
-                //     child: Container(
-                //       child: TextField(
-                //         minLines: 1,
-                //         //maxLines: 2,
-                //         controller: messageC,
-                //         decoration: InputDecoration(
-                //           hoverColor: Colors.blue,
-                //           border: OutlineInputBorder(
-                //               borderRadius: BorderRadius.only(
-                //                   bottomLeft: Radius.circular(20.0),
-                //                   topLeft: Radius.circular(20.0)),
-                //               borderSide: BorderSide.none),
-                //           filled: true,
-                //           fillColor: backgroundGrey,
-                //           hintText: '   Enter Checkpoints',
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-
                 Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Align(
@@ -348,10 +325,6 @@ class _TaskDescState extends State<TaskDesc> {
                       ),
                       child: Row(
                         children: <Widget>[
-                          // IconButton(
-                          //     onPressed: () =>
-                          //         {chatVm.pickImage(ImageSource.gallery)},
-                          //     icon: Icon(Icons.image)),
                           const SizedBox(
                             width: 10.0,
                           ),
@@ -378,12 +351,6 @@ class _TaskDescState extends State<TaskDesc> {
                               padding: EdgeInsets.zero,
                               onPressed: () {
                                 if (messageC.text.isNotEmpty) {
-                                  // setState(() {
-                                  //   tempMessage?.add(messageC.text.toString());
-                                  // });
-                                  // print(
-                                  //     "adding value in tempmessage is:${tempMessage[0]}  while messageC having data:${messageC}");
-
                                   taskVm.addCurrCheckpoints(
                                       messageC.text.toString());
 
@@ -394,114 +361,13 @@ class _TaskDescState extends State<TaskDesc> {
                               icon: const Icon(
                                 Icons.send,
                                 color: Colors.blue,
-                                size: 30,
+                                size: 24,
                               )),
                         ],
                       ),
                     ),
                   ),
                 ),
-
-                // Row(
-                //   children: [
-                //     SizedBox(
-                //       width: MediaQuery.of(context).size.width * 0.69,
-                //       height: 65,
-                //     ),
-                //     // Transform.scale(
-                //     //     scale: 1.5,
-                //     //     child: IconButton(
-                //     //       splashRadius: 30.0,
-                //     //       visualDensity: const VisualDensity(
-                //     //           horizontal: 4.0, vertical: 1.0),
-                //     //       padding: EdgeInsets.zero,
-                //     //       onPressed: () {
-                //     //         if (messageC.text.isNotEmpty) {
-                //     //           setState(() {
-                //     //             tempMessage?.add(messageC.text.toString());
-                //     //           });
-                //     //           // print(
-                //     //           //     "adding value in tempmessage is:${tempMessage[0]}  while messageC having data:${messageC}");
-
-                //     //           taskVm
-                //     //               .addCurrCheckpoints(messageC.text.toString());
-
-                //     //           messageC.clear();
-
-                //     //           // print("on pressed initiated");
-                //     //         }
-                //     //       },
-                //     //       iconSize: 20.0,
-                //     //       icon: Stack(children: [
-                //     //         Container(
-                //     //           width: MediaQuery.of(context).size.width * 0.1,
-                //     //           margin: EdgeInsets.only(right: 5.0),
-                //     //           height: 38,
-                //     //           decoration: BoxDecoration(
-                //     //               color: backgroundGrey,
-                //     //               borderRadius: BorderRadius.only(
-                //     //                   topRight: Radius.circular(20.0),
-                //     //                   bottomRight: Radius.circular(20.0))),
-                //     //         ),
-                //     //         SizedBox(
-                //     //           height: MediaQuery.of(context).size.width * 0.11,
-                //     //           child: const ImageIcon(
-                //     //             AssetImage("assets/images/send2.png"),
-                //     //             color: Colors.blue,
-                //     //           ),
-                //     //         ),
-                //     //       ]),
-                //     //     )),
-                //   ],
-                // )
-
-                // Row(
-                //   children: [
-                //     Transform.scale(
-                //         scale: 1.5,
-                //         child: IconButton(
-                //           splashRadius: 30.0,
-                //           visualDensity: const VisualDensity(
-                //               horizontal: 4.0, vertical: 1.0),
-                //           padding: EdgeInsets.zero,
-                //           onPressed: () {
-                //             if (messageC.text.isNotEmpty) {
-                //               setState(() {
-                //                 tempMessage?.add(messageC.text.toString());
-                //               });
-                //               // print(
-                //               //     "adding value in tempmessage is:${tempMessage[0]}  while messageC having data:${messageC}");
-
-                //               taskVm.addCheckpoints(messageC.text.toString());
-
-                //               messageC.clear();
-
-                //               // print("on pressed initiated");
-                //             }
-                //           },
-                //           iconSize: 20.0,
-                //           icon: Stack(children: [
-                //             Container(
-                //               width: MediaQuery.of(context).size.width * 0.1,
-                //               margin: EdgeInsets.only(right: 5.0),
-                //               height: 38,
-                //               decoration: BoxDecoration(
-                //                   color: backgroundGrey,
-                //                   borderRadius: BorderRadius.only(
-                //                       topRight: Radius.circular(20.0),
-                //                       bottomRight: Radius.circular(20.0))),
-                //             ),
-                //             SizedBox(
-                //               height: MediaQuery.of(context).size.width * 0.1,
-                //               child: const ImageIcon(
-                //                 AssetImage("assets/images/send2.png"),
-                //                 color: Colors.blue,
-                //               ),
-                //             ),
-                //           ]),
-                //         )),
-                //   ],
-                // )
               ],
             ),
           ],
@@ -514,7 +380,6 @@ class _TaskDescState extends State<TaskDesc> {
     TaskVm taskVm = Provider.of<TaskVm>(context, listen: true);
     List<Link> links = taskVm.currLinks;
     UserProv userProv = Provider.of<UserProv>(context, listen: false);
-    String userName = userProv.getUserInfo.name!;
     print(links);
 
     return Padding(
@@ -563,7 +428,7 @@ class _TaskDescState extends State<TaskDesc> {
                             Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              // crossAxisAlignment: CrossAxisAlignment.stretch,
+                              //crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Text(link.type,
                                     style: const TextStyle(
@@ -575,7 +440,7 @@ class _TaskDescState extends State<TaskDesc> {
                                       MediaQuery.of(context).size.width * 0.3,
                                 ),
                                 Text(
-                                    '$userName@${DateFormat(DateFormat.HOUR24_MINUTE).format(link.timestamp)} :${DateFormat("dd.MM.yyyy").format(link.timestamp)}',
+                                    '${link.sentFrom ?? "Anonymus"} | ${DateFormat(DateFormat.HOUR24_MINUTE).format(link.timestamp)} :${DateFormat("dd MMM, yy").format(link.timestamp)}',
                                     style: const TextStyle(
                                         color: Colors.grey, fontSize: 9)),
                               ],
@@ -587,143 +452,121 @@ class _TaskDescState extends State<TaskDesc> {
                                       fontSize: 13, color: Colors.blue),
                                 ),
                                 onTap: () => launch(link.link.toString())),
+                            SizedBox(
+                              height: 10,
+                            )
                           ],
                         ),
-                    // if (taskVm.tasks![taskVm.curr].links!.isEmpty)
-                    //   for (int i = 0;
-                    //       i < taskVm.tasks![taskVm.curr].links!.length;
-                    //       i++)
-                    //     Column(
-                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                    //       children: [
-                    //         Row(
-                    //           //crossAxisAlignment: CrossAxisAlignment.stretch,
-                    //           children: [
-                    //             Text(
-                    //                 '${taskVm.tasks![taskVm.curr].links![i].header}',
-                    //                 style: TextStyle(
-                    //                     color: Colors.grey,
-                    //                     fontSize: 10,
-                    //                     fontWeight: FontWeight.bold)),
-                    //             SizedBox(
-                    //               width:
-                    //                   MediaQuery.of(context).size.width * 0.3,
-                    //             ),
-                    //             Text(
-                    //                 '${taskVm.tasks![taskVm.curr].links![i]['user']}@${taskVm.tasks![taskVm.curr].links![i]['timeDate']}',
-                    //                 style: TextStyle(
-                    //                     color: Colors.grey, fontSize: 9)),
-                    //           ],
-                    //         ),
-                    //         InkWell(
-                    //             child: new Text(
-                    //               "${tempLink[i]}\n",
-                    //               style: TextStyle(
-                    //                   fontSize: 13, color: Colors.blue),
-                    //             ),
-                    //             onTap: () => launch(
-                    //                 '${taskVm.tasks![taskVm.curr].links![i]['link']}')),
-                    //       ],
-                    //     ),
                   ],
                 ),
               ),
             ),
-            //TaskDescRepo()
-
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.02,
             ),
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(5.0),
               child: Stack(
                 children: [
                   Container(
-                    width: 350,
-                    height: 90,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(20.0),
-                          topLeft: Radius.circular(20.0)),
-                      color: backgroundGrey,
+                    width: double.infinity,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18.0),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                  ),
-                  Column(
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(right: 70, top: 2, left: 2),
-                        child: TextField(
-                          controller: headingC,
-                          decoration: const InputDecoration(
-                            hoverColor: Colors.blue,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20.0)),
-                                borderSide: BorderSide.none),
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: '  Heading',
-                          ),
-                        ),
-                      ),
-                      Form(
-                        child: TextFormField(
-                          controller: linkC,
-                          decoration: InputDecoration(
-                            hoverColor: Colors.blue,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: backgroundGrey,
-                            hintText: '   Enter Link',
-                          ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter a link';
-                            }
-                            return null; // Validation passes
-                          },
-                        ),
-                      )
-                    ],
                   ),
                   Row(
                     children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.65,
-                        height: 120,
+                      // Heading Input
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 8.0, top: 2.0, bottom: 2.0),
+                          child: TextField(
+                            controller: headingC,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 10.0),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              hintText: 'Heading',
+                              hintStyle: const TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
                       ),
-                      Transform.scale(
-                          scale: 1.5,
+                      Container(
+                          width: 1, // Line thickness
+                          height: 25, // Full height of the parent widget
+                          color: Colors.blue), // Change to your desired color
+
+                      // Link Input
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              right: 8.0, top: 10.0, bottom: 10.0),
+                          child: TextField(
+                            controller: linkC,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 10.0),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              hintText: 'Enter Link',
+                              hintStyle: const TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Send Button
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Transform.scale(
+                          scale: 1,
                           child: IconButton(
-                              splashRadius: 30.0,
-                              visualDensity: const VisualDensity(
-                                  horizontal: 4.0, vertical: 1.0),
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
-                                if (linkC.text.isNotEmpty) {
-                                  // setState(() {
-                                  //   // tempLink.add(linkC.text.toString());
-                                  //   // tempHeader.add(headingC.text.toString());
-                                  // });
-
-                                  taskVm.addLink(headingC.text.toString(),
-                                      linkC.text.toString());
-
-                                  headingC.clear();
-                                  linkC.clear();
-                                }
-                              },
-                              icon: const Icon(
-                                Icons.send,
-                                color: Colors.blue,
-                                size: 20,
-                              ))),
+                            splashRadius: 28.0,
+                            tooltip: 'Send Link',
+                            onPressed: () {
+                              if (linkC.text.isNotEmpty &&
+                                  headingC.text.isNotEmpty) {
+                                taskVm.addLink(
+                                  headingC.text.toString(),
+                                  linkC.text.toString(),
+                                );
+                                headingC.clear();
+                                linkC.clear();
+                              }
+                            },
+                            iconSize: 20,
+                            icon: const Icon(
+                              Icons.send,
+                              color: Colors.blue,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

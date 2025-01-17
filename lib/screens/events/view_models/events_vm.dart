@@ -31,5 +31,4 @@ class EventsVm extends ChangeNotifier {
     isLoading = value;
     notifyListeners();
   }
-
 }

@@ -1,24 +1,35 @@
+import 'dart:io';
+
 import "package:flutter/material.dart";
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/components/gradient.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
+import 'package:zineapp2023/screens/dp_change_screen/dp_change_screen.dart';
 import 'package:zineapp2023/screens/onboarding/login/view_models/register_auth_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
 import 'package:zineapp2023/utilities/string_formatters.dart';
 
 import '../../common/routing.dart';
-import '../chat/chat_screen/chat_view.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<RegisterAuthViewModel, UserProv>(
-      builder: (context, regVm, userProv, _) {
+    return Consumer3<RegisterAuthViewModel, UserProv, ChatRoomViewModel>(
+      builder: (context, regVm, userProv, chatVm, _) {
         UserModel currUser = userProv.getUserInfo;
+        Widget dp = File(currUser.dp!.toString()).existsSync()
+            ? chatVm.showProfileImage(currUser.dp!)
+            : CircleAvatar(
+                radius: 30,
+                backgroundColor: iconTile,
+                backgroundImage:
+                    AssetImage("assets/images/dp/${currUser.dp}.png"));
         return Scaffold(
           backgroundColor: backgroundGrey,
           appBar: AppBar(
@@ -78,10 +89,7 @@ class ProfileScreen extends StatelessWidget {
                       elevation: 0,
                       child: Container(
                         decoration: BoxDecoration(
-                          gradient: (currUser.registered != null &&
-                                  currUser.registered as bool)
-                              ? mainGrad
-                              : secondaryGrad,
+                          gradient: mainGrad,
                           borderRadius: const BorderRadius.all(
                             Radius.circular(20.0),
                           ),
@@ -99,19 +107,26 @@ class ProfileScreen extends StatelessWidget {
                                 children: [
                                   SizedBox(
                                     height: 65.0,
-                                    child: (currUser.registered != null &&
-                                            currUser.registered as bool)
-                                        ? Image.asset(
-                                            "assets/images/card_image.png")
-                                        : null,
+                                    child: Image.asset(
+                                        "assets/images/card_image.png"),
                                   ),
-                                  buildProfilePicture(
-                                      currUser.dp!, currUser.name!,
-                                      size: 45),
+                                  InkWell(
+                                      onTap: () {
+                                        print("Muh Maaro");
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (context) =>
+                                              DpChangeScreen(),
+                                        ));
+                                      },
+                                      child: Hero(tag: "profilePic", child: dp))
+                                  // buildProfilePicture(
+                                  //     currUser.dp!, currUser.name!,
+                                  //     size: 45),
                                 ],
                               ),
                               const SizedBox(
-                                height: 20.0,
+                                height: 10.0,
                               ),
                               Text(
                                 (currUser.email!.endsWith("@mnit.ac.in") &&
@@ -147,46 +162,20 @@ class ProfileScreen extends StatelessWidget {
                 Container(
                   color: Colors.white,
                   width: MediaQuery.of(context).size.width,
-                  child: Padding(
+                  child: const Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30.0, vertical: 20.0),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "WORKSHOP",
+                        Text(
+                          "DEZINE.CREATE.INNOVATE",
                           style: TextStyle(
                             color: textDarkBlue,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20.0,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18.0,
                           ),
                         ),
-                        const Text(
-                          " : ",
-                          style: TextStyle(
-                            color: greyText,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20.0,
-                          ),
-                        ),
-                        (currUser.registered != null &&
-                                currUser.registered as bool)
-                            ? const Text(
-                                'REGISTERED',
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20.0,
-                                ),
-                              )
-                            : const Text(
-                                'NOT REGISTERED',
-                                style: TextStyle(
-                                  color: greyText,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20.0,
-                                ),
-                              )
                       ],
                     ),
                   ),

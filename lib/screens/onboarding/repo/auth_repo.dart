@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/models/newUser.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/repo/chat_repo.dart';
 import '/common/data_store.dart';
 import '../../../models/user.dart';
 
@@ -17,13 +18,13 @@ class AuthRepo {
   AppDb db;
   late DataStore store;
 
-  AuthRepo({required this.store,required this.db});
+  AuthRepo({required this.store, required this.db});
 
   Future<bool> sendResetEmail(String email) async {
     Response res = await http.post(
-      BackendProperties.resetUri
-          .replace(queryParameters: {'email': email.toString()}),headers: BackendProperties.getHeaders()
-    );
+        BackendProperties.resetUri
+            .replace(queryParameters: {'email': email.toString()}),
+        headers: BackendProperties.getHeaders());
     print("res:${res.statusCode}");
     if (res.statusCode == 200) {
       return true;
@@ -41,58 +42,44 @@ class AuthRepo {
   Future<UserModel?> signInWithEmailAndPassword(
       {String? email, String? password, String? pushToken}) async {
     // String toastText = 'An Undefined Error Occured';
-
+    Response res;
+    Map<String, dynamic> resBody = {};
     try {
-      Response res = await http.post(BackendProperties.loginUri,
+      res = await http.post(BackendProperties.loginUri,
           body: jsonEncode(
               {"email": email, "password": password, "pushToken": pushToken}),
-          headers: {"Content-Type": "application/json",...BackendProperties.getHeaders()});
-      Map<String, dynamic> resBody = jsonDecode(res.body);
+          headers: {
+            "Content-Type": "application/json",
+            ...BackendProperties.getHeaders()
+          });
+      resBody = jsonDecode(res.body);
+      logger.i(resBody);
       if (kDebugMode) {
-        print("Reponse Code ${res.statusCode}");
+        print("Reponse Code ${resBody['failureReason']}");
       }
+
       String userToken = "";
       switch (res.statusCode) {
-        case 403:
-          if ((resBody['failureReason'] as String) ==
-                  'user_not_verified_email_resent' ||
-              (resBody['failureReason'] as String) == 'user_not_verified') {
-            throw AuthException(code: resBody['failureReason']);
-          }
-
-          throw AuthException(code: '403 Error');
-
-        case 429:
-          throw AuthException(code: 'too-many-requests');
-        case 400:
-          if ((resBody['failureReason'] as String) == 'wrong-password') {
-            throw AuthException(code: 'wrong-password');
-          }
-          if ((resBody['failureReason'] as String) == "user-not-found") {
-            throw AuthException(code: "user-not-found");
-          }
-          throw AuthException(code: 'unknown');
         case 200:
           if (!resBody.containsKey('jwt')) {
             throw AuthException(code: 'backend-not-responding');
           } else {
             userToken = (resBody['jwt'] as String);
             print("userToken:${userToken}");
+            return getUserbyId(userToken);
           }
           break;
 
         default:
-          if (resBody.containsKey('failureReason')) {
-            throw AuthException(code: resBody['failureReason'].toString());
-          }
-
-          throw AuthException(code: 'unknown');
+          print("${resBody['failureReason']}");
+          throw AuthException(code: resBody['failureReason']);
       }
-
-      return getUserbyId(userToken);
     } on SocketException {
       if (kDebugMode) print('no-connect');
       throw AuthException(code: 'no-connect');
+    } catch (e) {
+      print("Error in SignInWithEmailAndPassword");
+      throw AuthException(code: resBody['failureReason']);
     }
   }
 
@@ -101,79 +88,18 @@ class AuthRepo {
     return true;
   }
 
-  //TODO: REMOVE THIS
-
-  // dynamic getRoomMap(dynamic listRoomIds) async {
-  //   dynamic roomDetails = {"group": {}, "project": {}};
-  //   for (var roomId in listRoomIds) {
-  //     // print(item);
-  //     //IM JUST WINGING IT OVER HERE WELL BURN THE BRIDGES WHEN WE GET TO EM
-  //     Response res = await http.get(BackendProperties.roomDataUri.toString(),
-  //         body: jsonEncode({'roomId': "$roomId"}),
-  //         headers: {"Content-Type": "application/json"});
-
-  //     if (res.statusCode != 200) {
-  //       throw AuthException(code: 'It should probably return 200. Test Throw');
-  //     }
-
-  //     Map<String, dynamic> temp = jsonDecode(res.body);
-  //     // print(temp['type']);
-
-  //     roomDetails[temp['type']][roomId] = temp['name'];
-  //   }
-  //   return roomDetails;
-  // }
-
-  // Future<Tasks> getTemp(UserTask e) async {
-  //   // We are just Seeing if the given UserTask has any links and if it doesnt
-  //   DocumentSnapshot<Map<String, dynamic>> snapshot = await e.task!.get()
-  //       as DocumentSnapshot<Map<String, dynamic>>; // get tasks
-
-  //   if (!snapshot.data()!.containsKey('link')) {
-  //     // if task  doees not has link
-  //     snapshot.data()!['links'] = []; //
-  //     await e.task!.update({'link': []}); //set link = 0
-  //   }
-
-  //   Tasks data = Tasks.store(snapshot);
-
-  //   return data;
-  // }
-
-  // Future<List<Rooms>?> getRoomIds(uid) async {
-  //   // Uri roomUri = BackendProperties.roomDataUri(email)
-  //   // http.Response res = await http.get()
-  //   // Response res = await Requests.get(BackendProperties.roomDataUri.toString(),
-  //   //     queryParameters: {"email": "shmokedev2@gmail.com"}); //TODO: FIX THIS
-  //   return [];
-  // }
-
   Future<UserModel> getUserbyId(String uid) async {
     try {
-      Response res = await http.get(BackendProperties.userInfoUri,
-          headers: {'Authorization': 'Bearer $uid' ,...BackendProperties.getHeaders()});
+      Response res = await http.get(BackendProperties.userInfoUri, headers: {
+        'Authorization': 'Bearer $uid',
+        ...BackendProperties.getHeaders()
+      });
 
       if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
       print('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
       NewUserModel userData = NewUserModel.fromJson(user);
       await db.upsertUserDB(userData);
-      //USER DOES NOT HAVE TASKIDS, ENDPOINT FOR QUERYING USER'S TASK IDS
-
-      // var rooms = await getRoomIds(uid);
-
-      // var roomDetails = getRoomMap(rooms);
-
-      // // List<Future<void>> futures = [];
-      // // for (var e in tasks!) {
-      // futures.add(getTemp(e).then((value) => e.template = value));
-      // // }
-
-      // await Future.wait(futures);
-
-      // // print(tasks);
-
-      // Above code just set User's links to empty, if the key wasnt created
 
       UserModel userMod = UserModel(
           uid: uid,
@@ -182,11 +108,8 @@ class AuthRepo {
           name: user['name'],
           dp: user['dpUrl'] ?? "1",
           type: user['type'],
-          registered:
-              user['registered']! ?? false, //SDK CONSTRAINTS MIGHT F WITH THIS
+          registered: user['registered']! ?? false,
           tasks: [],
-          // rooms: rooms,
-          // roomDetails: roomDetails, // FIXME:
           lastSeen: user['lastSeen'] ?? {});
 
       return userMod;
@@ -198,13 +121,12 @@ class AuthRepo {
     }
   }
 
-  Future<UserModel?> createUserWithEmailAndPassword({
+  Future<void> createUserWithEmailAndPassword({
     String name = 'New Recruit',
     String email = 'a@gmail.com',
     String password = 'password',
   }) async {
-    //Verification mail is sent automatically.
-//TODO: ADD TRY CATCH
+    Map<String, dynamic> resBody = {};
     try {
       Response res = await http.post(BackendProperties.registerUri,
           body: jsonEncode({
@@ -212,17 +134,25 @@ class AuthRepo {
             "email": email,
             "password": password,
           }),
-          headers: {"Content-Type": "application/json",...BackendProperties.getHeaders()});
-
+          headers: {
+            "Content-Type": "application/json",
+            ...BackendProperties.getHeaders()
+          });
+      resBody = jsonDecode(res.body);
+      logger.i(jsonDecode(res.body));
       switch (res.statusCode) {
-        case 409: //TODO: ADD COMMON CASES
-          throw AuthException(code: 'email-already-in-use');
-
+        case 200:
+          logger.i(jsonDecode(res.body));
+          return;
         default:
+          throw AuthException(code: resBody['message']);
       }
-      return UserModel();
-    } on SocketException catch (e) {
+    } on SocketException {
+      print("Exception in createUserWithEmailAndPassword");
       throw AuthException(code: 'no-connect');
+    } catch (e) {
+      print("Exception in createUserWithEmailAndPassword");
+      throw AuthException(code: resBody['message']);
     }
   }
 

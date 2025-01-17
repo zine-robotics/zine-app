@@ -1,23 +1,23 @@
-
 class Events {
   int? id;
   String? description;
   String? type;
   String? name;
   String? venue;
-  int? startDateTime;
-  int? endDateTime;
+  DateTime? startDateTime;
+  DateTime? endDateTime;
   Recruitment? recruitment;
-
+  String? eventDp;
   Events(
       {this.id,
-        this.description,
-        this.type,
-        this.name,
-        this.venue,
-        this.startDateTime,
-        this.endDateTime,
-        this.recruitment});
+      this.description,
+      this.type,
+      this.name,
+      this.venue,
+      this.startDateTime,
+      this.endDateTime,
+      this.recruitment,
+      this.eventDp});
 
   Events.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -25,11 +25,20 @@ class Events {
     type = json['type'];
     name = json['name'];
     venue = json['venue'];
-    startDateTime = json['startDateTime'];
-    endDateTime = json['endDateTime'];
+    if (json['startDateTime'] != null) {
+      startDateTime = DateTime.fromMillisecondsSinceEpoch(json['startDateTime'])
+          .toUtc(); // DateTime.tryParse(json['startDateTime'].toString()) ??
+    }
+    if (json['endDateTime'] != null) {
+      endDateTime = DateTime.fromMillisecondsSinceEpoch(json['endDateTime'])
+          .toUtc(); //DateTime.tryParse(json['endDateTime'].toString()) ??
+    }
+    // startDateTime = json['startDateTime'];
+    // endDateTime = json['endDateTime'];
     recruitment = json['recruitment'] != null
         ? new Recruitment.fromJson(json['recruitment'])
         : null;
+    eventDp = json['dpUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -39,8 +48,16 @@ class Events {
     data['type'] = this.type;
     data['name'] = this.name;
     data['venue'] = this.venue;
-    data['startDateTime'] = this.startDateTime;
-    data['endDateTime'] = this.endDateTime;
+    if (startDateTime != null) {
+      data['startDateTime'] = startDateTime
+          ?.toIso8601String(); // Convert DateTime to ISO 8601 string
+    }
+    if (endDateTime != null) {
+      data['endDateTime'] =
+          endDateTime?.toIso8601String(); // Convert DateTime to ISO 8601 string
+    }
+    // data['startDateTime'] = this.startDateTime;
+    // data['endDateTime'] = this.endDateTime;
     if (this.recruitment != null) {
       data['recruitment'] = this.recruitment!.toJson();
     }
@@ -72,7 +89,6 @@ class Recruitment {
     return data;
   }
 }
-
 
 //----------------------------------------lastSeen Api--------------------------------------//
 class LastSeen {

@@ -1,115 +1,99 @@
+import 'package:flutter/material.dart';
+
+import 'message_response_model.dart';
+import 'message_update.dart';
+
+//This model is used for internal messages
 class MessageModel {
   int? id;
-  String? type;
-  String? content;
-  String? contentUrl;
-  int? timestamp;
-  SentFrom? sentFrom;
-  dynamic roomId;
-  dynamic replyTo;
+  MessageType type;
+  String? textDeprecate;
+  TextData? text;
+  FileData? file;
+  PollData? poll;
+  Sender? sender;
+  DateTime? timestamp;
+  int? replyToId;
 
   MessageModel({
-    this.id,
-    this.type,
-    this.content,
-    this.contentUrl,
-    this.timestamp,
-    this.sentFrom,
-    this.roomId,
-    this.replyTo,
+    required this.type,
+    required this.timestamp,
+    required this.id,
+    this.sender,
+    this.poll,
+    this.replyToId,
+    this.text,
+    this.file,
   });
 
-  MessageModel.fromJson(Map<String, dynamic> json) {
+  MessageModel.fromJson(Map<String, dynamic> json)
+      : type = MessageType.values.byName(json['type'] ?? 'text'),
+        replyToId = json['replyToId'],
+        sender = Sender.fromJson(json['sentFrom']) {
+    switch (type) {
+      case MessageType.file:
+        file = FileData.fromJson(json['file']);
+        break;
+
+      case MessageType.poll:
+        poll = PollData.fromJson(json['poll']);
+        break;
+
+      case MessageType.text:
+        textDeprecate = json['text']['content'];
+    }
     id = json['id'];
-    type = json['type'];
-    content = json['content'];
-    contentUrl = json['contentUrl'];
+
+    if (json['timestamp'] == null) timestamp = DateTime.now();
 
     if (json['timestamp'] is int) {
-      timestamp = json['timestamp'];
+      timestamp = DateTime.fromMillisecondsSinceEpoch(json['timestamp']);
     } else if (json['timestamp'] is String) {
-      timestamp = DateTime.parse(json['timestamp']).millisecondsSinceEpoch;
+      timestamp = DateTime.parse(json['timestamp']);
     } else {
-      timestamp = null;
+      timestamp = DateTime.now();
     }
-
-    sentFrom =
-        json['sentFrom'] != null ? SentFrom.fromJson(json['sentFrom']) : null;
-    roomId = json['roomId'] != null ? RoomId.fromJson(json['roomId']) : null;
-    replyTo =
-        json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['type'] = type;
-    data['content'] = content;
-    data['contentUrl'] = contentUrl;
+    data['type'] = type.toString();
+    data['text'] = {'content': textDeprecate};
+    data['file'] = file?.toJson();
+    data['poll'] = poll?.toJson();
     data['timestamp'] = timestamp;
-
-    if (sentFrom != null) {
-      data['sentFrom'] = sentFrom!.toJson();
-    }
-    if (roomId != null) {
-      data['roomId'] = roomId!.toJson();
-    }
-    if (replyTo != null) {
-      data['replyTo'] = replyTo!.toJson();
-    }
+    data['sentFrom'] = sender?.toJson();
+    data['replyToId'] = replyToId;
     return data;
   }
 }
 
-//TODO: LOOK INTO THIS
-class SentFrom {
-  int? id;
+//Stores Sent From Data
+class Sender {
+  late int id;
   late String name;
-  String? email;
-  String? type;
-  String? pushToken;
-  bool? registered;
-  late String dp;
-  bool? emailVerified;
+  String? dp;
 
-  SentFrom({
-    this.id,
-    this.name = 'Anonymous',
-    this.email,
-    this.type,
-    this.pushToken,
-    this.registered,
-    this.dp = '',
-    this.emailVerified,
-  });
+  Sender({required this.id, this.name = 'Anonymous', this.dp = ""});
 
-  SentFrom.fromJson(Map<String, dynamic> json) {
+  Sender.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'] ?? 'Anonymous';
-    email = json['email'];
-    type = json['type'];
-    pushToken = json['pushToken'];
-    registered = json['registered'];
-    dp = json['dp'] ?? ''; //TODO:: THIS SHOUld PROBABLY BE dpUrl !!!!
-    emailVerified = json['emailVerified'];
+    dp = json['dp'] ?? "";
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['name'] = name;
-    data['email'] = email;
-    data['type'] = type;
-    data['pushToken'] = pushToken;
-    data['registered'] = registered;
     data['dp'] = dp;
-    data['emailVerified'] = emailVerified;
     return data;
   }
 }
 
 class RoomId {
-  int? id;
+  int id;
   String? name;
   String? description;
   String? type;
@@ -117,7 +101,7 @@ class RoomId {
   int? timestamp;
 
   RoomId({
-    this.id,
+    required this.id,
     this.name,
     this.description,
     this.type,
@@ -125,8 +109,7 @@ class RoomId {
     this.timestamp,
   });
 
-  RoomId.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+  RoomId.fromJson(Map<String, dynamic> json) : id = json['id'] {
     name = json['name'];
     description = json['description'];
     type = json['type'];
@@ -177,65 +160,117 @@ int? _parseTimestamp(dynamic value) {
   return null;
 }
 
-class ReplyTo {
-  int? id;
-  String? type;
-  String? content;
-  String? contentUrl;
-  int? timestamp;
-  SentFrom? sentFrom;
-  RoomId? roomId;
-  ReplyTo? replyTo;
+enum MessageType { file, text, poll }
 
-  ReplyTo({
-    this.id,
-    this.type,
-    this.content,
-    this.contentUrl,
-    this.timestamp,
-    this.sentFrom,
-    this.roomId,
-    this.replyTo,
-  });
+class FileData {
+  Uri uri;
+  String? description;
+  String name;
+  late String filePath;
 
-  ReplyTo.fromJson(Map<String, dynamic> json) {
-    id = _parseInt(json['id']);
-    type = json['type'];
-    content = json['content'];
-    contentUrl = json['contentUrl'];
-    // timestamp =  _parseTimestamp(json['timestamp']) ;
-    if (json['timestamp'] is int) {
-      timestamp = json['timestamp'];
-    } else if (json['timestamp'] is String) {
-      timestamp = DateTime.parse(json['timestamp']).millisecondsSinceEpoch;
-    } else {
-      timestamp = null;
-    }
+  FileData(
+      {required this.uri,
+      this.description,
+      required this.name,
+      this.filePath = ""});
 
-    sentFrom =
-        json['sentFrom'] != null ? SentFrom.fromJson(json['sentFrom']) : null;
-    roomId = json['roomId'] != null ? RoomId.fromJson(json['roomId']) : null;
-    replyTo =
-        json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null;
-  }
+  FileData.fromJson(Map<String, dynamic> json)
+      : uri = Uri.parse(json['url'] ??
+            'https://zine.co.in/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fzine1.eacd1990.png&w=1920&q=75'),
+        description = json['description'] ?? '',
+        name = json['name'] ?? '',
+        filePath = "";
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['type'] = type;
-    data['content'] = content;
-    data['contentUrl'] = contentUrl;
-    data['timestamp'] = timestamp;
+    return {
+      'url': uri.toString(), // Convert the Uri back to a string
+      'description': description,
+      'name': name,
+    };
+  }
+}
 
-    if (sentFrom != null) {
-      data['sentFrom'] = sentFrom!.toJson();
-    }
-    if (roomId != null) {
-      data['roomId'] = roomId!.toJson();
-    }
-    if (replyTo != null) {
-      data['replyTo'] = replyTo!.toJson();
-    }
-    return data;
+class TextData {
+  String? content;
+
+  TextData({required this.content});
+
+  TextData.fromJson(Map<String, dynamic> json)
+      : content = json['content'] ?? '';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'content': content,
+    };
+  }
+}
+
+class PollData {
+  late String title;
+  late String description;
+  late List<PollOption> pollOptions;
+  int? lastVoted;
+
+  PollData(
+      {required this.title,
+      required this.description,
+      required this.pollOptions,
+      this.lastVoted});
+
+  PollData.fromJson(Map<String, dynamic> json)
+      : title = json['title'] ?? '',
+        description = json['description'],
+        pollOptions = (json['options'] as List)
+            .map((e) => PollOption.fromJson(e))
+            .toList(),
+        lastVoted = json['lastVoted'];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'pollOptions': pollOptions,
+      'lastVoted': lastVoted,
+    };
+  }
+
+  void update(PollUpdate updatedPollData) {
+    pollOptions = updatedPollData.pollOptions;
+  }
+}
+
+class PollOption {
+  int id;
+  String value;
+  int numVotes;
+  List<int>? voterIds;
+
+  // Constructor
+  PollOption({
+    required this.id,
+    required this.value,
+    required this.numVotes,
+    this.voterIds,
+  });
+
+  PollOption.fromJson(Map<String, dynamic> json)
+      : id = json['id'] ?? 0,
+        value = json['value'] ?? '',
+        numVotes = json['numVotes'] ?? 0,
+        voterIds = List<int>.from(json['voterIds'] ?? []);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'value': value,
+      'numVotes': numVotes,
+      'voterIds': voterIds,
+    };
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return 'PollOption: id: $id, value: $value, numVotes: $numVotes';
   }
 }

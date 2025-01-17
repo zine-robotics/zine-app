@@ -1,9 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/common/navigator.dart';
+import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
+import '../../../database/database.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -17,6 +20,15 @@ Future<void> initializeNotifications() async {
       InitializationSettings(android: initializationSettingsAndroid);
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+
+//--------------------------------backend Message Listener----------------------------------------//
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
 }
 
 //--------------------------------show foreground notification------------------------------------//
@@ -42,23 +54,33 @@ Future<void> _showNotification({String? title, String? body}) async {
 //-------------------------------------listen notification by FCM--------------------------//
 void setupForegroundMessageListener() {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    print("message data:${message.notification?.title}");
+    print(
+        "message data:${message.data}  message notification data:${message.notification?.body}");
     if (message.notification != null) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? storedRoomName = prefs.getString("roomName");
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // String? storedRoomName = prefs.getString("roomName");
 
-      if (storedRoomName != message.notification?.title) {
+      ChatRoomViewModel chatRoomView = Provider.of<ChatRoomViewModel>(
+          NavigationService.navigatorKey.currentContext!,
+          listen: false);
+      var db = Provider.of<AppDb>(
+          NavigationService.navigatorKey.currentContext!,
+          listen: false);
+      print("message roomID:${message.data['roomId']}");
+      print("chatRoomView.roomId:${chatRoomView.currRoomId}");
+      chatRoomView.fetchAllRoomDataFromApiAndSyncWithDB(db);
+      if (message.data['roomId'] != chatRoomView.currRoomId) {
         await _showNotification(
           title: message.notification!.title,
           body: message.notification!.body,
         );
       }
       print("object");
-      print(NavigationService.navigatorKey.currentContext!);
-      Provider.of<ChatRoomViewModel>(
-        NavigationService.navigatorKey.currentContext!,
-        listen: false,
-      ).loadRooms();
+
+      // Provider.of<ChatRoomViewModel>(
+      //   NavigationService.navigatorKey.currentContext!,
+      //   listen: false,
+      // ).loadRooms();
     }
   });
 }

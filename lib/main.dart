@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_notification_channel/flutter_notification_channel.dart';
 import 'package:flutter_notification_channel/notification_importance.dart';
@@ -19,6 +20,14 @@ final Language _language = Language();
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +38,9 @@ Future<void> main() async {
       id: 'chats',
       importance: NotificationImportance.IMPORTANCE_HIGH,
       name: 'Chats');
+
   await initializeNotifications();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   AppDb db=AppDb();
   await db.initializeIsSyncedColumn();
   setupForegroundMessageListener();
@@ -49,7 +60,7 @@ Future<void> main() async {
   // ignore: unused_local_variable
 
   DataStore store = DefaultStore();
-  UserProv userProv = UserProv(dataStore: store);
+  UserProv userProv = UserProv(dataStore: store,Db:db);
   FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   runApp(MyApp(store: store, userProv: userProv, secureStorage: secureStorage ,db:db));
 }

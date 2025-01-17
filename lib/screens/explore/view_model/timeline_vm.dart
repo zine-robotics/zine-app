@@ -41,7 +41,7 @@ class TimelineVm extends ChangeNotifier {
     setLoading(true);
     // List<Events> list = await eventRepo.getEvents();
     List<Events> list = await eventRepo.fetchEvents();
-
+    list.sort((b, a) => b.startDateTime!.compareTo(a.startDateTime!));
     List<Events> recruitmentEvents =
         list.where((element) => element.recruitment != null).toList();
 

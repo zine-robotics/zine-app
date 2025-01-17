@@ -27,7 +27,10 @@ class TaskRepo {
   dynamic getTasks(uid) async {
     try {
       http.Response res = await http.get(BackendProperties.taskInstanceByIdUri,
-          headers: {'Authorization': 'Bearer $uid'});
+          headers: {
+            'Authorization': 'Bearer $uid',
+            ...BackendProperties.getHeaders()
+          });
       print("Get Tasks Response ${res.body}");
 
       return jsonDecode(res.body);

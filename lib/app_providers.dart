@@ -46,8 +46,8 @@ class AppProviders extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<AppDb>(create: (_)=>db),
-        Provider<AuthRepo>(create: (_) => AuthRepo(store: store,db:db)),
+        Provider<AppDb>(create: (_) => db),
+        Provider<AuthRepo>(create: (_) => AuthRepo(store: store, db: db)),
         Provider<ChatRepo>(create: (_) => ChatRepo()),
         Provider<TaskRepo>(create: (_) => TaskRepo(userProv: userProv)),
         Provider<TaskInstanceRepo>(
@@ -59,15 +59,16 @@ class AppProviders extends StatelessWidget {
             create: (_) => SplashVM(
                 store: store,
                 userProv: userProv,
-                authRepo: AuthRepo(store: store,db: db))),
+                authRepo: AuthRepo(store: store, db: db))),
         ChangeNotifierProvider(
             create: (_) => LoginAuthViewModel(
-                myRepo: AuthRepo(store: store,db: db), userProvider: userProv)),
+                myRepo: AuthRepo(store: store, db: db),
+                userProvider: userProv)),
         ChangeNotifierProvider(
             create: (_) => RegisterAuthViewModel(
                 store: store,
-                myRepo: AuthRepo(store: store,db: db),
-                userProvider: UserProv(dataStore: store))),
+                myRepo: AuthRepo(store: store, db: db),
+                userProvider: UserProv(dataStore: store, Db: db))),
         ChangeNotifierProvider<DashboardVm>(
             create: (_) => DashboardVm(store: store, userProv: userProv)),
         ChangeNotifierProvider<EventsVm>(create: (_) => EventsVm()),
@@ -88,9 +89,10 @@ class AppProviders extends StatelessWidget {
         ChangeNotifierProvider<HomeVm>(create: (_) => HomeVm()),
         ChangeNotifierProvider<Language>(create: (_) => language),
         ChangeNotifierProvider<PasswordResetVm>(
-            create: (_) => PasswordResetVm(myRepo: AuthRepo(store: store,db: db))),
+            create: (_) =>
+                PasswordResetVm(myRepo: AuthRepo(store: store, db: db))),
         ChangeNotifierProvider<ChatRoomViewModel>(
-            create: (_) => ChatRoomViewModel(userProv: userProv)),
+            create: (_) => ChatRoomViewModel(userProv: userProv, db: db)),
         ChangeNotifierProvider<PublicEventsVM>(
           create: (_) => PublicEventsVM(),
         )

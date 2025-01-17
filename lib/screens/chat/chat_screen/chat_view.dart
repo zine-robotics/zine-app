@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,127 +9,124 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:zineapp2023/providers/user_info.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/file_tile.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/poll_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
 import '../../../models/message.dart';
 import '../../../theme/color.dart';
 import '../../../utilities/date_time.dart';
 
-Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
-    dashVm, dynamic reply) {
+const Color userColor = Color.fromARGB(255, 104, 181, 228);
+const Color userSelectedTextColor = Color.fromARGB(255, 255, 255, 255);
+const Color otherColor = Color(0xff0c72b0);
+const Color otherSelectedTextColor = Color(0xffE8F2FC); // Dark blue text
+
+Widget chatV(BuildContext context, dashVm, dynamic reply) {
   ChatRoomViewModel chatRoomViewModel =
       Provider.of<ChatRoomViewModel>(context, listen: true);
-
+  List<MessageModel> chats = chatRoomViewModel.messages;
   UserProv userVm = Provider.of<UserProv>(context, listen: true);
+  // If there are no messages
 
-  return StreamBuilder<List<MessageModel>>(
-    stream: messageStream,
-    builder: (context, snapshot) {
-      print("chat reply to :${chatRoomViewModel.replyTo}");
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Expanded(
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      } else if (snapshot.hasError) {
-        return Center(
-          child: Text('Error:${snapshot.error}'),
-        );
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return const Expanded(
-          child: Center(
-            child: Column(
-              children: [
-                Spacer(),
-                Icon(
-                  Icons.message,
-                  size: 50,
-                  color: textDarkBlue,
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  'No Messages',
-                  style: TextStyle(fontSize: 20),
-                ),
-                Spacer()
-              ],
+  if (chats.isEmpty && chatRoomViewModel.loadingAPIMessages) {
+    return const Expanded(
+      child: Center(
+        child: CircularProgressIndicator(
+          color: Colors.blue,
+        ),
+      ),
+    );
+  } else if (chats.isEmpty) {
+    return const Expanded(
+      child: Center(
+        child: Column(
+          children: [
+            Spacer(),
+            Icon(
+              Icons.message,
+              size: 50,
+              color: textDarkBlue,
             ),
-          ),
-        );
-      } else if (snapshot.hasData) {
-        List<MessageModel> chats = snapshot.data!;
-        // .map((doc) {
-        //   MessageModel message = MessageModel.store(doc);
-        //   if (message.replyTo == null) {
-        //     // Assuming you have access to the document reference
-        //     updateMessage(doc.reference);
-        //   }
-        //   return message;
-        // }).toList();
+            SizedBox(
+              height: 15,
+            ),
+            Text(
+              'No Messages',
+              style: TextStyle(fontSize: 20),
+            ),
+            Spacer(),
+          ],
+        ),
+      ),
+    );
+  } else {
+    return Flexible(
+      // Flexible prevents overflow error when keyboard is opened
 
-        return Flexible(
-          // Flexible prevents overflow error when keyboard is opened
+      child: GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
+        child: ListView.builder(
+          controller: chatRoomViewModel.scrollController,
+          padding: const EdgeInsets.all(8.0),
+          reverse: true,
+          // physics: NeverScrollableScrollPhysics(),
+          dragStartBehavior: DragStartBehavior.down,
+          shrinkWrap: true,
+          itemCount: chats.length,
+          itemBuilder: (BuildContext context, int index) {
+            chats[index].timestamp = chats[index].timestamp!.toLocal();
+            // print(
+            //     "chats length:${index} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
+            var currIndx = chats.length - index - 1;
+            chatRoomViewModel.messageKeys[chats[currIndx].id!] = GlobalKey();
+            bool isUser = (userVm.getUserInfo.id == chats[currIndx].sender!.id);
+            var showDate = index == chats.length - 1 ||
+                (chats.length - index >= 2 &&
+                    validShowDate(chats[currIndx].timestamp!) !=
+                        validShowDate(
+                            chats[chats.length - index - 2].timestamp!));
 
-          child: GestureDetector(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
-              if (!currentFocus.hasPrimaryFocus) {
-                currentFocus.unfocus();
-              }
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(8.0),
-              reverse: true,
-              // physics: NeverScrollableScrollPhysics(),
-              dragStartBehavior: DragStartBehavior.down,
-              shrinkWrap: true,
-              key: UniqueKey(),
-              itemCount: chats.length,
-              itemBuilder: (BuildContext context, int index) {
-                var currIndx = chats.length - index - 1;
-                var showDate = index == chats.length - 1 ||
-                    (chats.length - index >= 2 &&
-                        validShowDate(chats[currIndx].timestamp!) !=
-                            validShowDate(
-                                chats[chats.length - index - 2].timestamp!));
+            bool group = index > 0 &&
+                chats[currIndx].sender!.id ==
+                    chats[chats.length - index].sender?.id &&
+                getChatDate(chats[currIndx].timestamp!) ==
+                    getChatDate(chats[chats.length - index].timestamp!);
 
-                bool group = index > 0 &&
-                    chats[currIndx].sentFrom?.id ==
-                        chats[chats.length - index].sentFrom?.id &&
-                    getChatDate(chats[currIndx].timestamp!) ==
-                        getChatDate(chats[chats.length - index].timestamp!);
+            MessageModel? repliedMessage;
+            // print("reply to:${chats[currIndx].replyTo}");
+            if (chats[currIndx].replyToId != null) {
+              repliedMessage = chatRoomViewModel.userGetMessageById(
+                  chats, chats[currIndx].replyToId.toString());
+            }
 
-                dynamic repliedMessage;
-                // print("reply to:${chats[currIndx].replyTo?.id}");
-                if (chats[currIndx].replyTo?.id != null) {
-                  repliedMessage = chatRoomViewModel.userGetMessageById(
-                      chats, chats[currIndx].replyTo!.id.toString());
-                  // print("checking reply content:${chats[currIndx].content}");
-                }
-                return chats[currIndx].content!.isEmpty
-                    ? Container()
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
+            if (chats[currIndx].type == MessageType.text) {
+              return chats[currIndx].text == null
+                  ? Container()
+                  : KeyedSubtree(
+                      key: chatRoomViewModel.messageKeys[chats[currIndx].id!],
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                             repliedMessage != null
                                 ? Padding(
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 10, 0, 5),
                                     child: Padding(
                                       padding: userVm.getUserInfo.id !=
-                                              chats[currIndx]
-                                                  .sentFrom
-                                                  ?.id //currUser.name != chats[currIndx].from
+                                              chats[currIndx].sender!.id
+                                          //currUser.name != chats[currIndx].from
                                           ? const EdgeInsets.symmetric(
                                               horizontal: 35.0)
                                           : const EdgeInsets.all(0),
                                       child: Text(
-                                        "${userVm.getUserInfo.id == chats[currIndx].sentFrom?.id ? "You" : chats[currIndx].sentFrom?.name} replied to ${chats[currIndx].replyTo?.sentFrom?.name}",
-                                        textAlign: userVm.getUserInfo.id ==
-                                                chats[currIndx].sentFrom?.id
+                                        "${isUser ? "You" : chats[currIndx].sender?.name} replied to ${repliedMessage.sender?.name}",
+                                        textAlign: isUser
                                             ? TextAlign.right
                                             : TextAlign.left,
                                         style: const TextStyle(
@@ -140,73 +138,92 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                             repliedMessage != null
                                 ? Row(
                                     // direction: Axis.horizontal,
-                                    mainAxisAlignment: userVm.getUserInfo.id ==
-                                            chats[currIndx].sentFrom?.id
+                                    mainAxisAlignment: isUser
                                         ? MainAxisAlignment.end
                                         : MainAxisAlignment.start,
-                                    crossAxisAlignment: userVm.getUserInfo.id ==
-                                            chats[currIndx].sentFrom?.id
+                                    crossAxisAlignment: isUser
                                         ? CrossAxisAlignment.end
                                         : CrossAxisAlignment.start,
                                     children: [
-                                      userVm.getUserInfo.id ==
-                                              chats[currIndx].sentFrom?.id
+                                      isUser
                                           ? Container()
                                           : const CircleAvatar(
                                               backgroundColor:
                                                   Colors.transparent,
                                               child: Padding(
                                                 padding: EdgeInsets.all(3.0),
-                                                // child: Image.asset(
-                                                //     "assets/images/zine_logo.png"),
                                               ),
                                             ),
-                                      userVm.getUserInfo.id ==
-                                              chats[currIndx].sentFrom?.id
+                                      isUser
                                           ? IntrinsicHeight(
                                               child: Column(
                                                 children: [
-                                                  Container(
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: backgroundGrey,
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topRight:
-                                                            Radius.circular(
-                                                                10.0),
-                                                        topLeft:
-                                                            Radius.circular(
-                                                                20.0),
-                                                        bottomLeft:
-                                                            Radius.circular(
-                                                                20.0),
-                                                        bottomRight:
-                                                            Radius.circular(
-                                                                10.0),
+                                                  InkWell(
+                                                    onTap: () => {
+                                                      if (repliedMessage !=
+                                                          null)
+                                                        {
+                                                          WidgetsBinding
+                                                              .instance
+                                                              .addPostFrameCallback(
+                                                                  (_) {
+                                                            chatRoomViewModel
+                                                                .scrollToFocusedMessage(
+                                                                    repliedMessage!
+                                                                        .id);
+                                                          })
+                                                        }
+                                                    },
+                                                    child: Container(
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        color: backgroundGrey,
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  20.0),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  20.0),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                        ),
                                                       ),
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              12.0),
-                                                      child: Text(
-                                                        repliedMessage != null
-                                                            ? (repliedMessage
-                                                                            .content
-                                                                            .toString())
-                                                                        .length >
-                                                                    20
-                                                                ? '${repliedMessage.content.toString().substring(0, 20)}...'
-                                                                : repliedMessage
-                                                                    .content
-                                                                    .toString()
-                                                            : " ",
-                                                        // softWrap: true,
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: const TextStyle(
-                                                            fontSize: 13),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12.0),
+                                                        child: Text(
+                                                          repliedMessage !=
+                                                                      null &&
+                                                                  repliedMessage
+                                                                          .type ==
+                                                                      MessageType
+                                                                          .text
+                                                              ? (repliedMessage
+                                                                              .text!
+                                                                              .content
+                                                                              .toString())
+                                                                          .length >
+                                                                      20
+                                                                  ? '${repliedMessage.text!.content.toString().substring(0, 20)}...'
+                                                                  : repliedMessage
+                                                                      .text!
+                                                                      .content
+                                                                      .toString()
+                                                              : " ",
+                                                          // softWrap: true,
+                                                          textAlign:
+                                                              TextAlign.right,
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 13),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -221,8 +238,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                         .symmetric(
                                                         horizontal: 4),
                                                     child: Container(
-                                                      color: const Color(
-                                                          0xff68a5ca),
+                                                      color: userColor,
                                                       width: 4,
                                                       child: const Padding(
                                                         padding: EdgeInsets
@@ -237,8 +253,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                 ],
                                               ),
                                             ),
-                                      userVm.getUserInfo.id ==
-                                              chats[currIndx].sentFrom?.id
+                                      isUser
                                           ? IntrinsicHeight(
                                               child: Column(
                                                 children: [
@@ -247,8 +262,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                         .symmetric(
                                                         horizontal: 4),
                                                     child: Container(
-                                                      color: const Color(
-                                                          0xff0C72B0),
+                                                      color: otherColor,
                                                       width: 4,
                                                       child: const Padding(
                                                         padding: EdgeInsets
@@ -266,54 +280,73 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                           : IntrinsicHeight(
                                               child: Column(
                                                 children: [
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                        color: backgroundGrey,
-                                                        borderRadius: userVm
-                                                                    .getUserInfo
-                                                                    .id !=
-                                                                chats[currIndx]
-                                                                    .sentFrom
-                                                                    ?.id
-                                                            ? const BorderRadius.only(
-                                                                topRight:
-                                                                    Radius.circular(
-                                                                        15.0),
-                                                                topLeft:
-                                                                    Radius.circular(
-                                                                        5.0),
-                                                                bottomLeft:
-                                                                    Radius.circular(
-                                                                        5.0),
-                                                                bottomRight:
-                                                                    Radius.circular(
-                                                                        15.0))
-                                                            : const BorderRadius.only(
-                                                                topRight:
-                                                                    Radius.circular(5.0),
-                                                                topLeft: Radius.circular(15.0),
-                                                                bottomLeft: Radius.circular(15.0),
-                                                                bottomRight: Radius.circular(5.0))),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              12.0),
-                                                      child: Text(
-                                                        repliedMessage.content
-                                                                    .toString()
-                                                                    .length >
-                                                                20
-                                                            ? "${repliedMessage.content.toString().substring(0, 20)} . . ."
-                                                            : repliedMessage
-                                                                .content
-                                                                .toString(),
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: TextStyle(
-                                                            color: Colors.black
-                                                                .withOpacity(
-                                                                    0.5),
-                                                            fontSize: 13),
+                                                  InkWell(
+                                                    onTapCancel: () => {
+                                                      if (repliedMessage !=
+                                                          null)
+                                                        {
+                                                          WidgetsBinding
+                                                              .instance
+                                                              .addPostFrameCallback(
+                                                                  (_) {
+                                                            chatRoomViewModel
+                                                                .scrollToFocusedMessage(
+                                                                    repliedMessage!
+                                                                        .id);
+                                                          })
+                                                        }
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          color: backgroundGrey,
+                                                          borderRadius: userVm
+                                                                      .getUserInfo
+                                                                      .id !=
+                                                                  chats[currIndx]
+                                                                      .sender
+                                                                      ?.id
+                                                              ? const BorderRadius.only(
+                                                                  topRight:
+                                                                      Radius.circular(
+                                                                          15.0),
+                                                                  topLeft:
+                                                                      Radius.circular(
+                                                                          5.0),
+                                                                  bottomLeft:
+                                                                      Radius.circular(
+                                                                          5.0),
+                                                                  bottomRight:
+                                                                      Radius.circular(
+                                                                          15.0))
+                                                              : const BorderRadius.only(
+                                                                  topRight:
+                                                                      Radius.circular(5.0),
+                                                                  topLeft: Radius.circular(15.0),
+                                                                  bottomLeft: Radius.circular(15.0),
+                                                                  bottomRight: Radius.circular(5.0))),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12.0),
+                                                        child: Text(
+                                                          repliedMessage.text!
+                                                                      .content
+                                                                      .toString()
+                                                                      .length >
+                                                                  20
+                                                              ? "${repliedMessage.text!.content.toString().substring(0, 20)} . . ."
+                                                              : repliedMessage
+                                                                  .text!.content
+                                                                  .toString(),
+                                                          textAlign:
+                                                              TextAlign.right,
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              fontSize: 13),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -328,16 +361,14 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
                                   DateFormat.yMMMMd()
-                                      .format(convertTimestamp(
-                                          chats[currIndx].timestamp!))
+                                      .format((chats[currIndx].timestamp!))
                                       .toString(),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(color: greyText),
                                 ),
                               ),
                             Container(
-                              alignment: userVm.getUserInfo.id ==
-                                      chats[currIndx].sentFrom?.id
+                              alignment: isUser
                                   ? Alignment.centerRight
                                   : Alignment.centerLeft,
                               child: SwipeTo(
@@ -347,51 +378,36 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                       .userReplyText(chats[currIndx]);
                                   chatRoomViewModel.replyfocus.requestFocus();
                                 },
-                                // onLeftSwipe: (details) {
-                                //   // print(details);
-                                //   chatRoomViewModel
-                                //       .userReplyText(chats[currIndx]);
-                                //   chatRoomViewModel.userReplyfocus
-                                //       .requestFocus();
-                                // },
                                 child: ListTile(
                                   horizontalTitleGap: 6,
                                   contentPadding: EdgeInsets.zero,
                                   dense: true,
-                                  leading: userVm.getUserInfo.id ==
-                                              chats[currIndx].sentFrom?.id ||
-                                          group
+                                  leading: isUser || group
                                       ? CircleAvatar(
                                           backgroundColor: const Color.fromARGB(
                                               15, 255, 255, 255),
-                                          radius: 20,
+                                          radius: 25,
                                           child: Padding(
                                               padding:
-                                                  const EdgeInsets.all(3.0),
+                                                  const EdgeInsets.all(20.0),
                                               child: Container()),
                                         )
-                                      : buildProfilePicture(
-                                          chats[currIndx].sentFrom!.dp,
-                                          chats[currIndx].sentFrom!.name),
-
-                                  // * Because Priyansh Said So :) *
-
-                                  // trailing: currUser.name !=
-                                  //         chats[currIndx].from
-                                  //     ? null
-                                  //     : group
-                                  //         ? const CircleAvatar(
-                                  //             backgroundColor: Colors.transparent,
-                                  //           )
-                                  //         : CircleAvatar(
-                                  //             backgroundColor:
-                                  //                 const Color(0x0f2F80ED),
-                                  //             child: Padding(
-                                  //               padding: const EdgeInsets.all(3.0),
-                                  //               child: Image.asset(
-                                  //                   "assets/images/zine_logo.png"),
-                                  //             ),
-                                  //           ),
+                                      : File(chats[currIndx]
+                                                  .sender!
+                                                  .dp
+                                                  .toString())
+                                              .existsSync()
+                                          ? chatRoomViewModel.showProfileImage(
+                                              chats[currIndx]
+                                                  .sender!
+                                                  .dp
+                                                  .toString(),
+                                              radius: 50.0)
+                                          : chatRoomViewModel.customUserName(
+                                              chats[currIndx]
+                                                  .sender!
+                                                  .name
+                                                  .toString()), //
 
                                   subtitle: group
                                       ? null
@@ -402,14 +418,14 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                     chats[chats.length -
                                                             index -
                                                             1]
-                                                        .sentFrom
+                                                        .sender
                                                         ?.id
                                                 ? Alignment.bottomLeft
                                                 : Alignment.bottomRight,
                                             child: group
                                                 ? const Text("")
                                                 : Text(
-                                                    "${chats[currIndx].sentFrom?.name}     ${getChatTime(chats[currIndx].timestamp!)}",
+                                                    "${chats[currIndx].sender!.name}     ${getChatTime(chats[currIndx].timestamp!)}",
                                                     style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.w400,
@@ -422,8 +438,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                         ),
                                   title: Wrap(
                                     crossAxisAlignment: WrapCrossAlignment.end,
-                                    alignment: userVm.getUserInfo.id ==
-                                            chats[currIndx].sentFrom?.id
+                                    alignment: isUser
                                         ? WrapAlignment.end
                                         : WrapAlignment.start,
                                     direction: Axis.horizontal,
@@ -435,10 +450,10 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                   chats[chats.length -
                                                           index -
                                                           1]
-                                                      .sentFrom
+                                                      .sender
                                                       ?.id
-                                              ? const Color(0xff68a5ca)
-                                              : const Color(0xff0C72B0),
+                                              ? userColor
+                                              : otherColor,
                                           borderRadius: BorderRadius.only(
                                               topLeft:
                                                   const Radius.circular(15.0),
@@ -449,7 +464,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                       chats[chats.length -
                                                               index -
                                                               1]
-                                                          .sentFrom
+                                                          .sender
                                                           ?.id
                                                   ? const Radius.circular(0.0)
                                                   : const Radius.circular(15.0),
@@ -458,7 +473,7 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                                       chats[chats.length -
                                                               index -
                                                               1]
-                                                          .sentFrom
+                                                          .sender
                                                           ?.id
                                                   ? const Radius.circular(15.0)
                                                   : const Radius.circular(0.0)),
@@ -470,19 +485,34 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                           padding: const EdgeInsets.all(10.0),
                                           child: SelectableLinkify(
                                             text: chats[currIndx]
+                                                .text!
                                                 .content
                                                 .toString(),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.w400,
                                               fontSize: 18.0,
-                                              color: Colors.white,
+                                              color: userVm.getUserInfo.id ==
+                                                      chats[chats.length -
+                                                              index -
+                                                              1]
+                                                          .sender
+                                                          ?.id
+                                                  ? userSelectedTextColor
+                                                  : otherSelectedTextColor,
                                             ),
                                             onOpen: (link) =>
                                                 dashVm.launchUrl(link.url),
-                                            linkStyle: const TextStyle(
+                                            linkStyle: TextStyle(
                                               fontWeight: FontWeight.w400,
                                               fontSize: 18.0,
-                                              color: Colors.white70,
+                                              color: userVm.getUserInfo.id ==
+                                                      chats[chats.length -
+                                                              index -
+                                                              1]
+                                                          .sender
+                                                          ?.id
+                                                  ? userSelectedTextColor
+                                                  : otherSelectedTextColor,
                                             ),
                                           ),
                                         ),
@@ -492,41 +522,39 @@ Widget chatV(BuildContext context, Stream<List<MessageModel>> messageStream,
                                 ),
                               ),
                             ),
-                          ]);
-              },
-            ),
-          ),
-        );
-      } else if (snapshot.hasError) {
-        return Center(child: Text('$snapshot.error'));
-      } else {
-        return const SizedBox();
-      }
-
-      // print(chats);
-      // print(MessageModel.store());
-    },
-  );
-}
-
-Widget buildProfilePicture(String dp, String name, {double size = 20}) {
-  double width = size * 2.0;
-  return Container(
-    clipBehavior: Clip.hardEdge,
-    constraints: BoxConstraints(
-        minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
-    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.grey),
-    child: CachedNetworkImage(
-      imageUrl: dp,
-      fit: BoxFit.cover,
-      errorWidget: (_, __, ___) => Center(
-          child: Text(
-        name.substring(0, 1).toUpperCase(),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: size,
+                          ]),
+                    );
+            } else if (chats[currIndx].type == MessageType.poll &&
+                chats[currIndx].poll != null) {
+              return KeyedSubtree(
+                key: chatRoomViewModel.messageKeys[chats[currIndx].id!],
+                child: PollTile(
+                  group: group,
+                  chatVm: chatRoomViewModel,
+                  message: chats[currIndx],
+                  isUser: chats[currIndx].sender!.id == userVm.getUserInfo.id,
+                  onVote: (optionId) => chatRoomViewModel.sendPollResponse(
+                      chats[currIndx].id!, optionId),
+                ),
+              );
+            } else if (chats[currIndx].type == MessageType.file &&
+                chats[currIndx].file != null) {
+              return FileTile(
+                chatRoomViewModel: chatRoomViewModel,
+                group: group,
+                message: chats[currIndx],
+                isUser: isUser,
+              );
+            } else {
+              return Container();
+            }
+            // else{ return Container();}
+          },
         ),
-      )),
-    ),
-  );
+      ),
+    );
+  }
+
+  // print(chats);
+  // print(MessageModel.store());
 }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:zineapp2023/models/task_instance.dart';
@@ -143,7 +142,12 @@ class TaskVm extends ChangeNotifier {
         message, taskInstances[curr].instanceId!);
 
     currCheckpoints.add(Checkpoint(
-        content: message, remark: false, id: 0, timestamp: DateTime.now()));
+        sentFrom: userProv.getUserInfo.name,
+        sentFromId: userProv.getUserInfo.id,
+        content: message,
+        remark: userProv.getUserInfo.type == 'admin', //TODO: change to admin
+        id: 0,
+        timestamp: DateTime.now()));
     print("Added into curr");
     notifyListeners();
   }
@@ -152,7 +156,12 @@ class TaskVm extends ChangeNotifier {
     await taskInstanceRepo.addLinks(
         heading, link, taskInstances[curr].instanceId!);
 
-    currLinks.add(Link(link, id: 0, timestamp: DateTime.now(), type: heading));
+    currLinks.add(Link(link,
+        id: 0,
+        timestamp: DateTime.now(),
+        type: heading,
+        sentFrom: userProv.getUserInfo.name,
+        sentFromId: userProv.getUserInfo.id));
     notifyListeners();
   }
 }

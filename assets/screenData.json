@@ -1,6 +1,33 @@
 {
 	"achievement": [
 		{
+			"title": "Lunar Rover",
+			"type": "competition",
+			"description": "A lunar rover designed for the IRoC-U 2024 challenge by ISRO. Equipped with a stereo camera and Nvidia Jetson Xavier NX, it uses Visual SLAM for autonomous navigation and ROS2-based software for control. It can navigate cratered terrains and collect samples via a robotic arm.",
+			"date": "July 2024"
+		},
+		{
+			"title": "Research Paper",
+			"type": "paper",
+			"description": "Al-Enhanced Diagnosis: Pediatric Chest X-Ray Classification for Bronchiolitis and Pneumonia presented at 7th International Conference on Image Information Processing ICIIP.",
+			"date": "Nov 2023"
+		},{
+			"title": "Research Paper",
+			"type": "paper",
+			"description": "Design Development and Analysis of 3-DOF Robotic Arm presented at 9th IEEE India International Conference on Power Electronics, IICPE 2023",
+			"date": "Nov 2023"
+		},{
+			"title": "Maze Solver",
+			"type": "competition",
+			"description": "1st position in a autonomous bot competition hosted by NIT Jaipur Sphinx. Designed an autonomous line follower robot to traverse a given maze using the most optimized path",
+			"date": "Nov 2023"
+		},{
+			"title": "Research Paper",
+			"type": "paper",
+			"description": "GAT-DNet: High Fidelity Graph Attention Network for Distribution Optimal Power Flow Pursuit presented at 9th IEEE India International Conference on Power Electronics, IICPE 2023",
+			"date": "Nov 2023"
+		},
+		{
 			"title": "Meshmerize",
 			"type": "competition",
 			"description": "1st position in a autonomous bot competition hosted by IIT Bombay Techfest. Designed an autonomous line follower robot to traverse a given maze, and then traverse it using the most optimized path.",
@@ -237,9 +264,71 @@
 		{
 			"name": "Hand Gesture Recognition",
 			"description": "Some special people are usually deprived of normal communication with other people in the society. It has been observed that they find it really difficult at times to interact with normal people with their gestures , as only a very few of those are recognized by most people. Since people with hearing impairment cannot talk like normal people so they have to depend on some sort of visual communication in most of the time. Visual-gestural language is their primary means of expression which involves various hand gestures , facial expressions like eyebrow movement and lip-mouth movement. What we aim to achieve ? The idea is to make computers to understand human language and develop a user friendly human computer interfaces (HCI). Making a computer understand speech, facial expressions and human gestures are some steps towards it thereby making a translation system that can successfully convert this visual gestural language into digital English text or speech."
+		},
+		{
+			"name": "ISRO Lunar Rover",
+			"description": "It is a lunar rover designed as per the requirements of the IRoC-U 2024 challenge by ISRO. The rover can autonomously navigate through a surface containing craters and obstacles, and can also perform autonomous sample collection via the robotic arm. The rover is equipped with a stereo-camera for navigation and an Nvidia Jetson Xavier NX for processing. The navigation is done using Visual SLAM, and the software was developed using ROS2."
 		}
 	],
 	"alumini": [
+		[
+			{
+				"name": "Abhinav Kumar",
+				"image": "abhinav",
+				"email": "2020UEE1476@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "www.linkedin.com/in/abhinav-kumar-5b2097205/"
+			},
+			{
+				"name": "Ashok Saini",
+				"image": "ashok",
+				"email": "2020UEE1992@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "www.linkedin.com/in/ashok-kumar-saini-505b9b202/"
+			},
+			{
+				"name": "Divyansh Garg",
+				"image": "divyansh",
+				"email": "2020kUEC2018@iiitkota.ac.in",
+				"branch": "Electronics and Communication",
+				"linkedin": "www.linkedin.com/in/dggrx/"
+			},
+			{
+				"name": "Mahak Garg",
+				"image": "mahak",
+				"email": "2020UEE1312@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "www.linkedin.com/in/mahak-garg-825213212/"
+			},
+			{
+				"name": "Nishant Garg",
+				"image": "nishant",
+				"email": "2020UCP1869@mnit.ac.in",
+				"branch": "Computer Science and Engineering",
+				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
+			},
+			{
+				"name": "Pranjali Srivastava",
+				"image": "pranjali",
+				"email": "2020UME1941@mnit.ac.in",
+				"branch": "Mechanical Enginnering",
+				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
+			},
+			{
+				"name": "Sudeshna Sonkar",
+				"image": "sudeshna",
+				"email": "2020UME1225@mnit.ac.in",
+				"branch": "Mechanical Enginnering",
+				"linkedin": "www.linkedin.com/in/sudeshna-sonkar-56b481209"
+			},
+			{
+				"name": "Vinamra Vashistha",
+				"image": "vinamra",
+				"email": "2020kUCP1046@iiitkota.ac.in",
+				"branch": "Computer Science and Engineering",
+				"linkedin": "www.linkedin.com/in/vinamra-vashishth-721785201"
+			}
+		],
 		[
 			{
 				"name": "Apoorv Raj",
@@ -330,6 +419,71 @@
 		}
 	],
 	"team": [
+		[
+			{
+				"name": "Abhinav Garg",
+				"image": "abhinavG",
+				"email": "2023UCP1706@mnit.ac.in",
+				"branch": "Computer Science and Engineering",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Abhinav Thapliyal",
+				"image": "abhinavT",
+				"email": "2023UCH1219@mnit.ac.in",
+				"branch": "Chemical Engineering",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Aditi Srivastava",
+				"image": "aditi",
+				"email": "2023UAR1097@mnit.ac.in",
+				"branch": "Architecture and Planning",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Aviral Jain",
+				"image": "aviral",
+				"email": "2023UEC1078@mnit.ac.in",
+				"branch": "Electronics and Communication",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Mayank Garg",
+				"image": "mayank",
+				"email": "2023UAI1797@mnit.ac.in",
+				"branch": "Artificial Intelligence and Data Science",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Omkesh Dwivedi",
+				"image": "omkesh",
+				"email": "2023UEC2036@mnit.ac.in",
+				"branch": "Electronics and Communication ",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Roshan Nama",
+				"image": "roshan",
+				"email": "2023UME1768@mnit.ac.in",
+				"branch": "Mechanical Enginnering",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Vedika Malpani",
+				"image": "vedika",
+				"email": "2023UEC1417@mnit.ac.in",
+				"branch": "Electronics and Communication ",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Yug Agarwal",
+				"image": "yugA",
+				"email": "2023UEE1378@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "To be added"
+			}
+		],
 		[
 			{
 				"name": "Aditya Wadje",
@@ -438,64 +592,7 @@
 				"branch": "Electronics and Communication",
 				"linkedin": "www.linkedin.com/in/rupesh-yadav-634879229"
 			}
-		],
-		[
-			{
-				"name": "Abhinav Kumar",
-				"image": "abhinav",
-				"email": "2020UEE1476@mnit.ac.in",
-				"branch": "Electrical Engineering",
-				"linkedin": "www.linkedin.com/in/abhinav-kumar-5b2097205/"
-			},
-			{
-				"name": "Ashok Saini",
-				"image": "ashok",
-				"email": "2020UEE1992@mnit.ac.in",
-				"branch": "Electrical Engineering",
-				"linkedin": "www.linkedin.com/in/ashok-kumar-saini-505b9b202/"
-			},
-			{
-				"name": "Divyansh Garg",
-				"image": "divyansh",
-				"email": "2020kUEC2018@iiitkota.ac.in",
-				"branch": "Electronics and Communication",
-				"linkedin": "www.linkedin.com/in/dggrx/"
-			},
-			{
-				"name": "Mahak Garg",
-				"image": "mahak",
-				"email": "2020UEE1312@mnit.ac.in",
-				"branch": "Electrical Engineering",
-				"linkedin": "www.linkedin.com/in/mahak-garg-825213212/"
-			},
-			{
-				"name": "Nishant Garg",
-				"image": "nishant",
-				"email": "2020UCP1869@mnit.ac.in",
-				"branch": "Computer Science and Engineering",
-				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
-			},
-			{
-				"name": "Pranjali Srivastava",
-				"image": "pranjali",
-				"email": "2020UME1941@mnit.ac.in",
-				"branch": "Mechanical Enginnering",
-				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
-			},
-			{
-				"name": "Sudeshna Sonkar",
-				"image": "sudeshna",
-				"email": "2020UME1225@mnit.ac.in",
-				"branch": "Mechanical Enginnering",
-				"linkedin": "www.linkedin.com/in/sudeshna-sonkar-56b481209"
-			},
-			{
-				"name": "Vinamra Vashistha",
-				"image": "vinamra",
-				"email": "2020kUCP1046@iiitkota.ac.in",
-				"branch": "Computer Science and Engineering",
-				"linkedin": "www.linkedin.com/in/vinamra-vashishth-721785201"
-			}
 		]
+
 	]
 }

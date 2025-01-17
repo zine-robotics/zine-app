@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -55,15 +57,6 @@ class LoginAuthViewModel with ChangeNotifier {
     _password = "";
   }
 
-  Future<void> postDetailsToFirestore(UserModel userModel) async {
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
-    await firebaseFirestore
-        .collection("users")
-        .doc(userModel.uid)
-        .set(userModel.toJson());
-  }
-
   Future<void> loginApi(BuildContext context) async {
     Map data = {
       'email': _email.trim(),
@@ -75,14 +68,21 @@ class LoginAuthViewModel with ChangeNotifier {
     try {
       String pushToken =
           await userProvider.getFirebaseMessagingToken() ?? 'null';
-      var value = await myRepo.signInWithEmailAndPassword(
-          email: data['email'],
-          password: data['password'],
-          pushToken: pushToken);
+      var value = await myRepo
+          .signInWithEmailAndPassword(
+              email: data['email'],
+              password: data['password'],
+              pushToken: pushToken)
+          .timeout(
+        const Duration(minutes: 1), // Set timeout duration to 1 minute
+        onTimeout: () {
+          throw TimeoutException('Sign-in request timed out after 1 minute.');
+        },
+      );
       print(value);
-      userProvider.updateUserInfo(value!);
-
+      print("pushTOken:${pushToken}");
       setLoading(false);
+      userProvider.updateUserInfo(value!);
 
       clearValues();
 
@@ -90,6 +90,14 @@ class LoginAuthViewModel with ChangeNotifier {
               rootNavigator: true)
           .pushAndRemoveUntil(
               Routes.homeScreen(), (Route<dynamic> route) => false);
+    } on TimeoutException catch (e) {
+      // Handle timeout error
+      setLoading(false);
+      print('Timeout occurred: ${e.message}');
+      Fluttertoast.showToast(
+          msg: 'Sign-in request timed out. Please try again.',
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.red);
     } on AuthException catch (e) {
       switch (e.code) {
         //TODO: ENSURE THAT ERRORS ARE BEING caught here
@@ -112,12 +120,6 @@ class LoginAuthViewModel with ChangeNotifier {
           errorText = "Please Try Again Later";
           break;
         case "operation-not-allowed":
-          errorText = "Signing in with Email and Password is not enabled";
-          break;
-        case "quota-exceeded":
-          errorText = "Quota Exceeded. Please contact Team Zine.";
-          break;
-        case "timeout":
           errorText = "Please try again later";
           break;
         case "error-sending-email":
@@ -130,13 +132,10 @@ class LoginAuthViewModel with ChangeNotifier {
           errorText = "Please verify yourself (check your email)";
           break;
         default:
-          if (kDebugMode) {
-            print(
-                "Errors are probably not being proccessed probably. Check login_auth_vm.dart");
-          }
-          errorText = "An undefined Error occured";
+          errorText = e.code;
         // print("error:${e.toString()}");
-      }
+      } //     errorText = "Signing in with Email and Password is not enabled";
+
       setLoading(false);
 
       Fluttertoast.showToast(

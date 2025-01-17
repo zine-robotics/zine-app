@@ -15,7 +15,9 @@ class TaskScreen extends StatefulWidget {
   @override
   State<TaskScreen> createState() => _TaskScreenState();
 }
+
 String _selectedFilter = "All Task";
+
 class _TaskScreenState extends State<TaskScreen> {
   @override
   void initState() {
@@ -31,10 +33,14 @@ class _TaskScreenState extends State<TaskScreen> {
     if (_selectedFilter == "All Task") {
       return tasks;
     }
-    List<UserTaskInstance> filter=tasks.where((instance) => instance.status == _selectedFilter).toList();
+    List<UserTaskInstance> filter =
+        tasks.where((instance) => instance.status == _selectedFilter).toList();
     print("filter task instance name:${filter.length}");
-    return tasks.where((instance) => instance.status == _selectedFilter).toList();
+    return tasks
+        .where((instance) => instance.status == _selectedFilter)
+        .toList();
   }
+
   @override
   void dispose() {
     _selectedFilter = 'All Task';
@@ -148,7 +154,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   const SizedBox(
                     height: 15.0,
                   ),
-                   TabBar(
+                  TabBar(
                       padding: const EdgeInsets.all(8.0),
                       indicatorWeight: 0.1,
                       labelColor: blurBlue,
@@ -167,11 +173,12 @@ class _TaskScreenState extends State<TaskScreen> {
                                 child: Text("$_selectedFilter"),
                               ),
                               Align(
-                                alignment: Alignment.centerRight, // Align the button to the right
+                                alignment: Alignment
+                                    .centerRight, // Align the button to the right
                                 child: PopupMenuButton<String>(
                                   onSelected: (String value) {
                                     setState(() {
-                                    _selectedFilter = value;
+                                      _selectedFilter = value;
                                     });
 
                                     print(value);
@@ -181,7 +188,8 @@ class _TaskScreenState extends State<TaskScreen> {
                                       const PopupMenuItem<String>(
                                         value: 'All Task',
                                         child: Text('All Task'),
-                                      ),const PopupMenuItem<String>(
+                                      ),
+                                      const PopupMenuItem<String>(
                                         value: 'Assigned',
                                         child: Text('Assigned'),
                                       ),
@@ -190,8 +198,8 @@ class _TaskScreenState extends State<TaskScreen> {
                                         child: Text('Not Started'),
                                       ),
                                       const PopupMenuItem<String>(
-                                        value: 'in-review',
-                                        child: Text('in-review'),
+                                        value: 'In Review',
+                                        child: Text('In Review'),
                                       ),
                                       const PopupMenuItem<String>(
                                         value: 'Completed',
@@ -199,13 +207,13 @@ class _TaskScreenState extends State<TaskScreen> {
                                       ),
                                     ];
                                   },
-                                  child: const Icon(Icons.sort, size: 24.0), // Dropdown button icon
+                                  child: const Icon(Icons.sort,
+                                      size: 24.0), // Dropdown button icon
                                 ),
                               ),
                             ],
                           ),
                         )
-
 
                         // Text("All Task"),
                         // Text("Review"),
@@ -219,7 +227,7 @@ class _TaskScreenState extends State<TaskScreen> {
                           child: Column(
                             children: [
                               if (tasks.isEmpty)
-                                 const Column(
+                                const Column(
                                   children: [
                                     SizedBox(
                                       height: 130.0,
