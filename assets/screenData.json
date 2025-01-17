@@ -273,6 +273,64 @@
 	"alumini": [
 		[
 			{
+				"name": "Abhinav Kumar",
+				"image": "abhinav",
+				"email": "2020UEE1476@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "www.linkedin.com/in/abhinav-kumar-5b2097205/"
+			},
+			{
+				"name": "Ashok Saini",
+				"image": "ashok",
+				"email": "2020UEE1992@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "www.linkedin.com/in/ashok-kumar-saini-505b9b202/"
+			},
+			{
+				"name": "Divyansh Garg",
+				"image": "divyansh",
+				"email": "2020kUEC2018@iiitkota.ac.in",
+				"branch": "Electronics and Communication",
+				"linkedin": "www.linkedin.com/in/dggrx/"
+			},
+			{
+				"name": "Mahak Garg",
+				"image": "mahak",
+				"email": "2020UEE1312@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "www.linkedin.com/in/mahak-garg-825213212/"
+			},
+			{
+				"name": "Nishant Garg",
+				"image": "nishant",
+				"email": "2020UCP1869@mnit.ac.in",
+				"branch": "Computer Science and Engineering",
+				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
+			},
+			{
+				"name": "Pranjali Srivastava",
+				"image": "pranjali",
+				"email": "2020UME1941@mnit.ac.in",
+				"branch": "Mechanical Enginnering",
+				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
+			},
+			{
+				"name": "Sudeshna Sonkar",
+				"image": "sudeshna",
+				"email": "2020UME1225@mnit.ac.in",
+				"branch": "Mechanical Enginnering",
+				"linkedin": "www.linkedin.com/in/sudeshna-sonkar-56b481209"
+			},
+			{
+				"name": "Vinamra Vashistha",
+				"image": "vinamra",
+				"email": "2020kUCP1046@iiitkota.ac.in",
+				"branch": "Computer Science and Engineering",
+				"linkedin": "www.linkedin.com/in/vinamra-vashishth-721785201"
+			}
+		],
+		[
+			{
 				"name": "Apoorv Raj",
 				"image": "apoorv",
 				"email": "2019UME1219@mnit.ac.in",
@@ -361,6 +419,71 @@
 		}
 	],
 	"team": [
+		[
+			{
+				"name": "Abhinav Garg",
+				"image": "abhinavG",
+				"email": "2023UCP1706@mnit.ac.in",
+				"branch": "Computer Science and Engineering",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Abhinav Thapliyal",
+				"image": "abhinavT",
+				"email": "2023UCH1219@mnit.ac.in",
+				"branch": "Chemical Engineering",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Aditi Srivastava",
+				"image": "aditi",
+				"email": "2023UAR1097@mnit.ac.in",
+				"branch": "Architecture and Planning",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Aviral Jain",
+				"image": "aviral",
+				"email": "2023UEC1078@mnit.ac.in",
+				"branch": "Electronics and Communication",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Mayank Garg",
+				"image": "mayank",
+				"email": "2023UAI1797@mnit.ac.in",
+				"branch": "Artificial Intelligence and Data Science",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Omkesh Dwivedi",
+				"image": "omkesh",
+				"email": "2023UEC2036@mnit.ac.in",
+				"branch": "Electronics and Communication ",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Roshan Nama",
+				"image": "roshan",
+				"email": "2023UME1768@mnit.ac.in",
+				"branch": "Mechanical Enginnering",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Vedika Malpani",
+				"image": "vedika",
+				"email": "2023UEC1417@mnit.ac.in",
+				"branch": "Electronics and Communication ",
+				"linkedin": "To be added"
+			},
+			{
+				"name": "Yug Agarwal",
+				"image": "yugA",
+				"email": "2023UEE1378@mnit.ac.in",
+				"branch": "Electrical Engineering",
+				"linkedin": "To be added"
+			}
+		],
 		[
 			{
 				"name": "Aditya Wadje",
@@ -469,64 +592,7 @@
 				"branch": "Electronics and Communication",
 				"linkedin": "www.linkedin.com/in/rupesh-yadav-634879229"
 			}
-		],
-		[
-			{
-				"name": "Abhinav Kumar",
-				"image": "abhinav",
-				"email": "2020UEE1476@mnit.ac.in",
-				"branch": "Electrical Engineering",
-				"linkedin": "www.linkedin.com/in/abhinav-kumar-5b2097205/"
-			},
-			{
-				"name": "Ashok Saini",
-				"image": "ashok",
-				"email": "2020UEE1992@mnit.ac.in",
-				"branch": "Electrical Engineering",
-				"linkedin": "www.linkedin.com/in/ashok-kumar-saini-505b9b202/"
-			},
-			{
-				"name": "Divyansh Garg",
-				"image": "divyansh",
-				"email": "2020kUEC2018@iiitkota.ac.in",
-				"branch": "Electronics and Communication",
-				"linkedin": "www.linkedin.com/in/dggrx/"
-			},
-			{
-				"name": "Mahak Garg",
-				"image": "mahak",
-				"email": "2020UEE1312@mnit.ac.in",
-				"branch": "Electrical Engineering",
-				"linkedin": "www.linkedin.com/in/mahak-garg-825213212/"
-			},
-			{
-				"name": "Nishant Garg",
-				"image": "nishant",
-				"email": "2020UCP1869@mnit.ac.in",
-				"branch": "Computer Science and Engineering",
-				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
-			},
-			{
-				"name": "Pranjali Srivastava",
-				"image": "pranjali",
-				"email": "2020UME1941@mnit.ac.in",
-				"branch": "Mechanical Enginnering",
-				"linkedin": "www.linkedin.com/in/nishant-garg-968205208/"
-			},
-			{
-				"name": "Sudeshna Sonkar",
-				"image": "sudeshna",
-				"email": "2020UME1225@mnit.ac.in",
-				"branch": "Mechanical Enginnering",
-				"linkedin": "www.linkedin.com/in/sudeshna-sonkar-56b481209"
-			},
-			{
-				"name": "Vinamra Vashistha",
-				"image": "vinamra",
-				"email": "2020kUCP1046@iiitkota.ac.in",
-				"branch": "Computer Science and Engineering",
-				"linkedin": "www.linkedin.com/in/vinamra-vashishth-721785201"
-			}
 		]
+
 	]
 }
