@@ -1,6 +1,33 @@
 {
 	"achievement": [
 		{
+			"title": "Lunar Rover",
+			"type": "competition",
+			"description": "A lunar rover designed for the IRoC-U 2024 challenge by ISRO. Equipped with a stereo camera and Nvidia Jetson Xavier NX, it uses Visual SLAM for autonomous navigation and ROS2-based software for control. It can navigate cratered terrains and collect samples via a robotic arm.",
+			"date": "July 2024"
+		},
+		{
+			"title": "Research Paper",
+			"type": "paper",
+			"description": "Al-Enhanced Diagnosis: Pediatric Chest X-Ray Classification for Bronchiolitis and Pneumonia presented at 7th International Conference on Image Information Processing ICIIP.",
+			"date": "Nov 2023"
+		},{
+			"title": "Research Paper",
+			"type": "paper",
+			"description": "Design Development and Analysis of 3-DOF Robotic Arm presented at 9th IEEE India International Conference on Power Electronics, IICPE 2023",
+			"date": "Nov 2023"
+		},{
+			"title": "Maze Solver",
+			"type": "competition",
+			"description": "1st position in a autonomous bot competition hosted by NIT Jaipur Sphinx. Designed an autonomous line follower robot to traverse a given maze using the most optimized path",
+			"date": "Nov 2023"
+		},{
+			"title": "Research Paper",
+			"type": "paper",
+			"description": "GAT-DNet: High Fidelity Graph Attention Network for Distribution Optimal Power Flow Pursuit presented at 9th IEEE India International Conference on Power Electronics, IICPE 2023",
+			"date": "Nov 2023"
+		},
+		{
 			"title": "Meshmerize",
 			"type": "competition",
 			"description": "1st position in a autonomous bot competition hosted by IIT Bombay Techfest. Designed an autonomous line follower robot to traverse a given maze, and then traverse it using the most optimized path.",
@@ -237,6 +264,10 @@
 		{
 			"name": "Hand Gesture Recognition",
 			"description": "Some special people are usually deprived of normal communication with other people in the society. It has been observed that they find it really difficult at times to interact with normal people with their gestures , as only a very few of those are recognized by most people. Since people with hearing impairment cannot talk like normal people so they have to depend on some sort of visual communication in most of the time. Visual-gestural language is their primary means of expression which involves various hand gestures , facial expressions like eyebrow movement and lip-mouth movement. What we aim to achieve ? The idea is to make computers to understand human language and develop a user friendly human computer interfaces (HCI). Making a computer understand speech, facial expressions and human gestures are some steps towards it thereby making a translation system that can successfully convert this visual gestural language into digital English text or speech."
+		},
+		{
+			"name": "ISRO Lunar Rover",
+			"description": "It is a lunar rover designed as per the requirements of the IRoC-U 2024 challenge by ISRO. The rover can autonomously navigate through a surface containing craters and obstacles, and can also perform autonomous sample collection via the robotic arm. The rover is equipped with a stereo-camera for navigation and an Nvidia Jetson Xavier NX for processing. The navigation is done using Visual SLAM, and the software was developed using ROS2."
 		}
 	],
 	"alumini": [
