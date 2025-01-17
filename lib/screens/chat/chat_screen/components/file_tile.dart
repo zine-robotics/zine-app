@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
@@ -10,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:open_file/open_file.dart';
+
 String DOWNLOAD_PATH = '/storage/emulated/0/Download';
 
 const Color userColor = Color.fromARGB(255, 104, 181, 228);
@@ -58,14 +60,22 @@ class _FileTileState extends State<FileTile> {
     });
 
     try {
-      // final downloadsPath = Directory(DOWNLOAD_PATH);
-      final downloadsPath= await getExternalStorageDirectory();
-      if (downloadsPath == null) {
-        throw Exception('External storage directory not available.');
+      // Request permission for Android 13+ to save in public directories
+
+      // Get directory
+      Directory? directory;
+
+      directory =
+          await getApplicationDocumentsDirectory(); // iOS or fallback for app-specific storage
+
+      if (!directory.existsSync()) {
+        directory.createSync(recursive: true);
       }
-      final filePath = '${downloadsPath.path}/$fileName';
+
+      final filePath = '${directory.path}/$fileName';
+
       final response = await http.get(Uri.parse(url));
-      print("downloaded path is:${filePath}");
+
       if (response.statusCode == 200) {
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
@@ -93,14 +103,7 @@ class _FileTileState extends State<FileTile> {
                 const Duration(seconds: 1), // Sets the duration to 3 seconds
           ),
         );
-        final result = await OpenFile.open(filePath);
-
-        // Check the result of the file open operation
-        if (result.type != ResultType.done) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to open the file.')),
-          );
-        }
+        await OpenFile.open(filePath);
       } else {
         throw Exception('Failed to download file.');
       }
@@ -120,7 +123,7 @@ class _FileTileState extends State<FileTile> {
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.black.withOpacity(0.9),
+          backgroundColor: const Color.fromARGB(99, 0, 0, 0).withOpacity(0.9),
           insetPadding: const EdgeInsets.all(10),
           child: Stack(
             alignment: Alignment.centerLeft,
@@ -138,7 +141,8 @@ class _FileTileState extends State<FileTile> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.black, // Black background
+                    color:
+                        const Color.fromARGB(91, 0, 0, 0), // Black background
                     borderRadius: BorderRadius.circular(20), // Rounded corners
                   ),
                   child: Row(
@@ -210,21 +214,21 @@ class _FileTileState extends State<FileTile> {
           constraints: const BoxConstraints(maxHeight: 250),
           child: Container(
             decoration: BoxDecoration(
-            border: Border.all(
-            color: widget.isUser? userColor:otherColor,
-            width: 5.0,
-            ),
+              border: Border.all(
+                color: widget.isUser ? userColor : otherColor,
+                width: 3.0,
+              ),
               borderRadius: widget.isUser
                   ? const BorderRadius.only(
-                topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
-                bottomLeft: Radius.circular(15),
-              )
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15),
+                      bottomLeft: Radius.circular(15),
+                    )
                   : const BorderRadius.only(
-                topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
-                bottomRight: Radius.circular(15),
-              ),
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15),
+                      bottomRight: Radius.circular(15),
+                    ),
             ),
             child: ClipRRect(
               borderRadius: widget.isUser

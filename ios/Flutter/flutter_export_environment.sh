@@ -1,7 +1,12 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
+<<<<<<< HEAD
 export "FLUTTER_ROOT=C:\flutter"
 export "FLUTTER_APPLICATION_PATH=D:\Zine\zine24\zine_app_2023"
+=======
+export "FLUTTER_ROOT=C:\Users\EED\dev\flutter"
+export "FLUTTER_APPLICATION_PATH=D:\Mashaal\zine_app_2023"
+>>>>>>> 306f54894c1dfab6e8ec32c18ca1c836460fccfc
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib\main.dart"
 export "FLUTTER_BUILD_DIR=build"
