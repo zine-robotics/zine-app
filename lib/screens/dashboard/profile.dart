@@ -89,10 +89,7 @@ class ProfileScreen extends StatelessWidget {
                       elevation: 0,
                       child: Container(
                         decoration: BoxDecoration(
-                          gradient: (currUser.registered != null &&
-                                  currUser.registered as bool)
-                              ? mainGrad
-                              : secondaryGrad,
+                          gradient: mainGrad,
                           borderRadius: const BorderRadius.all(
                             Radius.circular(20.0),
                           ),
@@ -110,11 +107,8 @@ class ProfileScreen extends StatelessWidget {
                                 children: [
                                   SizedBox(
                                     height: 65.0,
-                                    child: (currUser.registered != null &&
-                                            currUser.registered as bool)
-                                        ? Image.asset(
-                                            "assets/images/card_image.png")
-                                        : null,
+                                    child: Image.asset(
+                                        "assets/images/card_image.png"),
                                   ),
                                   InkWell(
                                       onTap: () {
@@ -168,46 +162,20 @@ class ProfileScreen extends StatelessWidget {
                 Container(
                   color: Colors.white,
                   width: MediaQuery.of(context).size.width,
-                  child: Padding(
+                  child: const Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 30.0, vertical: 20.0),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "WORKSHOP",
+                        Text(
+                          "DEZINE.CREATE.INNOVATE",
                           style: TextStyle(
                             color: textDarkBlue,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20.0,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18.0,
                           ),
                         ),
-                        const Text(
-                          " : ",
-                          style: TextStyle(
-                            color: greyText,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20.0,
-                          ),
-                        ),
-                        (currUser.registered != null &&
-                                currUser.registered as bool)
-                            ? const Text(
-                                'REGISTERED',
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20.0,
-                                ),
-                              )
-                            : const Text(
-                                'NOT REGISTERED',
-                                style: TextStyle(
-                                  color: greyText,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20.0,
-                                ),
-                              )
                       ],
                     ),
                   ),

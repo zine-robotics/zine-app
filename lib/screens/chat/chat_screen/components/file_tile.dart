@@ -61,25 +61,12 @@ class _FileTileState extends State<FileTile> {
 
     try {
       // Request permission for Android 13+ to save in public directories
-      if (Platform.isAndroid) {
-        final status = await Permission.manageExternalStorage.request();
-        if (!status.isGranted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Storage permission denied.")),
-          );
-          return;
-        }
-      }
 
       // Get directory
       Directory? directory;
-      if (Platform.isAndroid) {
-        directory =
-            Directory('/storage/emulated/0/Download'); // Public Download folder
-      } else {
-        directory =
-            await getApplicationDocumentsDirectory(); // iOS or fallback for app-specific storage
-      }
+
+      directory =
+          await getApplicationDocumentsDirectory(); // iOS or fallback for app-specific storage
 
       if (!directory.existsSync()) {
         directory.createSync(recursive: true);
