@@ -8,13 +8,13 @@ import 'package:http/http.dart' as http;
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/models/newUser.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/repo/chat_repo.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 import '/common/data_store.dart';
 import '../../../models/user.dart';
 
+final logger = customLogger();
+
 class AuthRepo {
-  // final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
-  // final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
   AppDb db;
   late DataStore store;
 

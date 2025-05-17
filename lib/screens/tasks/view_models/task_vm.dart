@@ -5,8 +5,11 @@ import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/tasks/repo/task_instance_repo.dart';
 import 'package:zineapp2023/screens/tasks/repo/task_repo.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 
 import '../../../models/userTask.dart';
+
+final logger = customLogger();
 
 class TaskVm extends ChangeNotifier {
   final TaskRepo taskRepo;
@@ -54,8 +57,9 @@ class TaskVm extends ChangeNotifier {
 
     try {
       taskInstances = await taskInstanceRepo.getTaskInstances();
-      // print("all task instance${taskInstances.length}");
+      logger.i('Task instances fetched successfully');
     } catch (e) {
+      logger.e(e);
       _isError = true;
     }
     _isLoading = false;
@@ -67,24 +71,14 @@ class TaskVm extends ChangeNotifier {
     int instanceId = taskInstances[curr].instanceId!;
     try {
       _currCheckpoints = await taskInstanceRepo.getCheckpoints(instanceId);
-      print("Final checkpointst $_currCheckpoints");
+      logger.i('Checkpoints fetched successfully');
     } catch (e) {
-      if (kDebugMode) print("Get Checkpoint Error");
       _isCheckpointError = true;
+      logger.e(e);
     }
     _isCheckpointLoading = false;
     notifyListeners();
   }
-  //   print("uid from function :$uid");
-  //   if (uid != null) {
-  //     _tasks = await taskRepo.getTasks(uid);
-  //     print("check for _tasks:$_tasks");
-  //     if (_tasks!.length != prevLen) {
-  //       print("notifier triggered");
-  //       notifyListeners();
-  //       prevLen = _tasks!.length;
-  //     }
-  //   }
 
   UserTaskInstance getCurr() {
     return taskInstances[curr];
@@ -99,39 +93,16 @@ class TaskVm extends ChangeNotifier {
     return null;
   }
 
-  // UserTask? findLatest() {
-  //   UserTask? ans;
-  //   if (tasks!.isNotEmpty) ans = tasks![0];
-  //   for (UserTask userTask in tasks!) {
-  //     var one = getDMY(userTask.template!.dueDate!),
-  //         two = getDMY(ans!.template!.dueDate!);
-  //     if (one[2] < two[2]) {
-  //       ans = userTask;
-  //     } else if (one[2] == two[2]) {
-  //       if (one[1] < two[1]) {
-  //         ans = userTask;
-  //       } else if (one[1] == two[1]) {
-  //         if (one[0] < two[0]) {
-  //           ans = userTask;
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   // print("findLatest() -> latest task is: $ans");
-  //   return ans;
-  // }
-
   void getLinks() async {
     _isLinkLoading = true;
 
     int instanceId = taskInstances[curr].instanceId!;
     try {
       _currLinks = await taskInstanceRepo.getLinks(instanceId);
-      print("Final linksdsad $_currLinks");
+      logger.i('Links fetched successfully');
     } catch (e) {
-      if (kDebugMode) print("Get Links Error");
       _isLinkError = true;
+      logger.e(e);
     }
     _isLinkLoading = false;
     notifyListeners();
@@ -148,7 +119,7 @@ class TaskVm extends ChangeNotifier {
         remark: userProv.getUserInfo.type == 'admin', //TODO: change to admin
         id: 0,
         timestamp: DateTime.now()));
-    print("Added into curr");
+    logger.i('Checkpoint added successfully');
     notifyListeners();
   }
 
@@ -162,6 +133,7 @@ class TaskVm extends ChangeNotifier {
         type: heading,
         sentFrom: userProv.getUserInfo.name,
         sentFromId: userProv.getUserInfo.id));
+    logger.i('Link added successfully');
     notifyListeners();
   }
 }
