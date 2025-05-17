@@ -3,14 +3,14 @@ import 'package:drift/native.dart'; // Using SQLite as the database provider
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/models/newUser.dart';
 import 'package:http/http.dart' as http;
-import '../models/user.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 
 part 'database.g.dart';
 
 /// Run this in Terminal after deleting the .g file : `dart run build_runner watch` for dev and `dart run build_runner build`
+final logger = customLogger();
 
 @DataClassName('Room')
 class RoomsTable extends Table {
@@ -23,19 +23,20 @@ class RoomsTable extends Table {
   IntColumn get lastMessageTimestamp => integer().nullable()();
   IntColumn get unreadMessages => integer().nullable()();
   IntColumn get userLastSeen => integer().nullable()();
-  BoolColumn get isSynced => boolean().withDefault(Constant(false))();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  @override
   Set<Column> get primaryKey => {id};
 }
 
 @DataClassName('UserDB')
 class UsersTable extends Table {
   IntColumn get id => integer()();
-  TextColumn get name => text().withDefault(Constant('Anonymous'))();
+  TextColumn get name => text().withDefault(const Constant('Anonymous'))();
   TextColumn get email => text().nullable()();
   TextColumn get type => text().nullable()();
   TextColumn get pushToken => text().nullable()();
-  BoolColumn get registered => boolean().withDefault(Constant(false))();
-  TextColumn get dp => text().withDefault(Constant(''))();
+  BoolColumn get registered => boolean().withDefault(const Constant(false))();
+  TextColumn get dp => text().withDefault(const Constant(''))();
   BoolColumn get emailVerified => boolean().nullable()();
   @override
   Set<Column> get primaryKey => {id};
@@ -44,11 +45,11 @@ class UsersTable extends Table {
 @DataClassName('RoomMemberDB')
 class RoomMemberTable extends Table {
   IntColumn get id => integer()();
-  TextColumn get name => text().withDefault(Constant('Anonymous'))();
+  TextColumn get name => text().withDefault(const Constant('Anonymous'))();
   TextColumn get email => text().nullable()();
   TextColumn get role => text().nullable()();
-  BoolColumn get registered => boolean().withDefault(Constant(false))();
-  TextColumn get dpUrl => text().withDefault(Constant(''))();
+  BoolColumn get registered => boolean().withDefault(const Constant(false))();
+  TextColumn get dpUrl => text().withDefault(const Constant(''))();
   BoolColumn get emailVerified => boolean().nullable()();
   @override
   Set<Column> get primaryKey => {id};
@@ -75,7 +76,7 @@ class MessagesTable extends Table {
   IntColumn get pollId =>
       integer().nullable().customConstraint('REFERENCES poll_table(id)')();
   IntColumn get timestamp => integer().nullable()();
-  BoolColumn get isSynced => boolean().withDefault(Constant(false))();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
   IntColumn get roomId =>
       integer().nullable().customConstraint('REFERENCES rooms_table(id)')();
   IntColumn get sentFromId =>
@@ -104,8 +105,8 @@ class PollOptionTable extends Table {
   IntColumn get id => integer()();
   TextColumn get value => text()();
   IntColumn get numVotes => integer()();
-  BoolColumn get isVoted => boolean().withDefault(Constant(false))();
-  BoolColumn get voterId => boolean().withDefault(Constant(false))();
+  BoolColumn get isVoted => boolean().withDefault(const Constant(false))();
+  BoolColumn get voterId => boolean().withDefault(const Constant(false))();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -117,6 +118,7 @@ class FileTable extends Table {
   TextColumn get filePath => text().nullable()();
   TextColumn get description => text().nullable()();
   TextColumn get name => text()();
+  @override
   Set<Column> get primaryKey => {id};
 }
 
@@ -132,37 +134,33 @@ class FileTable extends Table {
 ])
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
-  static LazyDatabase? _lazyDatabase;
   @override
   int get schemaVersion => 1;
 
-  static Future<void> deleteUserLocalDb(AppDb Db) async {
-    print("inside the deleteUserLocalDb");
+  static Future<void> deleteUserLocalDb(AppDb db) async {
     try {
-      await Db.batch((batch) {
-        batch.deleteAll(Db.roomsTable);
-        batch.deleteAll(Db.messagesTable);
-        batch.deleteAll(Db.usersTable);
-        batch.deleteAll(Db.fileTable);
-        batch.deleteAll(Db.pollTable);
-        batch.deleteAll(Db.pollOptionTable);
-        batch.deleteAll(Db.roomMemberTable);
+      await db.batch((batch) {
+        batch.deleteAll(db.roomsTable);
+        batch.deleteAll(db.messagesTable);
+        batch.deleteAll(db.usersTable);
+        batch.deleteAll(db.fileTable);
+        batch.deleteAll(db.pollTable);
+        batch.deleteAll(db.pollOptionTable);
+        batch.deleteAll(db.roomMemberTable);
       });
-      print("All tables cleared successfully.");
+      logger.d("Local DB Cleared");
     } catch (e) {
-      print("Error clearing tables: $e");
+      logger.e("Error clearing tables: $e");
     }
   }
 
   static LazyDatabase _openConnection() {
-    print("Initializing LazyDatabase connection...");
+    logger.d("Initializing LazyDatabase connection...");
     return LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();
-      // print("Database folder path: ${dbFolder.path}");
       final file = File(p.join(dbFolder.path, 'app.db'));
       if (await file.exists()) {
-        // await file.delete();
-        print("Old database present.");
+        logger.i("Old database present.");
       }
       return NativeDatabase(file);
     });
@@ -171,13 +169,12 @@ class AppDb extends _$AppDb {
   Future<void> initializeIsSyncedColumn() async {
     try {
       await customStatement('UPDATE rooms_table SET isSynced = FALSE');
-      // print("All rooms updated to unsynced (isSynced = FALSE).");
+      logger.d("All rooms updated to unsynced (isSynced = FALSE).");
     } catch (e) {
-      print("Error initializing isSynced column: $e");
+      logger.e("Error initializing isSynced column: $e");
     }
   }
 
-// Insert function for adding a room
   Future<int> insertRoomToDB(RoomsTableCompanion room) async {
     try {
       final existingRoom = await (select(roomsTable)
@@ -185,76 +182,71 @@ class AppDb extends _$AppDb {
           .getSingleOrNull();
       int insertedId;
       if (existingRoom != null) {
-        // Room exists, it's being updated
         insertedId = await into(roomsTable).insert(room,
-            mode: InsertMode.replace); // Replace existing room data
-        // print('Room updated successfully with ID: $insertedId');
+            mode: InsertMode.replace);
+        logger.d('Room updated successfully with ID: $insertedId');
       } else {
-        // Room doesn't exist, it's being inserted
         insertedId = -1;
         await into(roomsTable)
-            .insert(room, mode: InsertMode.insert); // Insert new room
-        // print('Room inserted successfully with ID: ${room.id}');
+            .insert(room, mode: InsertMode.insert);
+        logger.d('Room inserted successfully with ID: ${room.id}');
       }
       return insertedId;
     } catch (e) {
-      print('Error inserting room: $e');
-      return -1; // Return failure code if insertion fails
+      logger.e('Error inserting room');
+      return -1;
     }
   }
 
-  // Function to get all rooms from the database
   Future<List<Room>> getAllRoomsDB() async {
     try {
       final rooms = await select(roomsTable).get();
       if (rooms.isNotEmpty) {
-        // print('Successfully fetched ${rooms.length} rooms');
+        logger.d('Successfully fetched ${rooms.length} rooms');
       } else {
-        // print('No rooms found in the database');
+        logger.d('No rooms found in the database');
       }
-      return rooms; // Returning the list of rooms
+      return rooms;
     } catch (e) {
-      // print('Error fetching rooms: $e');
-      return []; // Return an empty list in case of error
+      logger.e('Error fetching rooms: $e');
+      return [];
     }
   }
 
   Future<List<Room>> getAllProjectsDB() async {
     try {
       final rooms = await select(roomsTable).get();
-      // Filter rooms based on the type being 'project'
       final projects =
           rooms.where((room) => room.type != 'announcement').toList();
 
       if (projects.isNotEmpty) {
-        // print('Successfully fetched ${projects.length} projects');
+        logger.d('Successfully fetched ${projects.length} projects');
       } else {
-        // print('No projects found in the database');
+        logger.d('No projects found in the database');
       }
 
-      return projects; // Returning the filtered list of projects
+      return projects;
     } catch (e) {
-      // print('Error fetching projects: $e');
-      return []; // Return an empty list in case of error
+      logger.e('Error fetching projects: $e');
+      return [];
     }
   }
 
   Future<List<Room>> getAllAnnouncementsDB() async {
     try {
       final rooms = await select(roomsTable).get();
-      // Filter rooms based on the type being 'announcement'
       final announcements =
           rooms.where((room) => room.type == 'announcement').toList();
-      print("number of announcement is ${announcements.length}");
+      logger.d("Number of announcements is ${announcements.length}");
       if (announcements.isNotEmpty) {
-        // print('Successfully fetched ${announcements.length} announcements');
+        logger.d('Successfully fetched ${announcements.length} announcements');
       } else {
-        // print('No announcements found in the database');
+        logger.d('No announcements found in the database');
       }
 
       return announcements;
     } catch (e) {
-      // print('Error fetching announcements: $e');
+      logger.e('Error fetching announcements: $e');
       return [];
     }
   }
@@ -266,17 +258,17 @@ class AppDb extends _$AppDb {
           .get();
       if (unsyncedRooms.isNotEmpty) {
         for (var room in unsyncedRooms) {
-          // print("Deleting unsynced room with ID: ${room.id}");
+          logger.d("Deleting unsynced room with ID: ${room.id}");
         }
         await (delete(roomsTable)..where((t) => t.isSynced.equals(false))).go();
-        // print("Successfully deleted unsynced rooms");
+        logger.d("Successfully deleted unsynced rooms");
         return -1;
       } else {
-        // print("No unsynced rooms found to delete.");
-        return 0; // No rows were deleted
+        logger.d("No unsynced rooms found to delete.");
+        return 0;
       }
     } catch (e) {
-      print("Error in deleting unsynced rooms: $e");
+      logger.e("Error in deleting unsynced rooms: $e");
       return 0;
     }
   }
@@ -302,7 +294,7 @@ class AppDb extends _$AppDb {
       userData.dp != null ? await file.writeAsBytes(imageBytes) : '';
       return filePath;
     } catch (e) {
-      print("error in creating userDp path:$e");
+      logger.e("Error in creating userDp path: $e");
       return '';
     }
   }
@@ -318,17 +310,17 @@ class AppDb extends _$AppDb {
       dp: Value(filePath),
       registered:
           Value(userData.registered != null ? userData.registered! : false),
-      emailVerified: Value(userData.registered), // Adjust based on your data
+      emailVerified: Value(userData.registered),
       pushToken: Value(
-          userData.pushToken != null ? userData.pushToken! : null), // Example
+          userData.pushToken),
     );
     try {
       final insertedId = await into(usersTable)
           .insert(userCompanion, mode: InsertMode.replace);
-      // print('User upserted successfully with ID: ${userCompanion.id.value}');
+      logger.d('User upserted successfully with ID: ${userCompanion.id.value}');
       return insertedId;
     } catch (e) {
-      print('Error in upserting user: $e');
+      logger.e('Error in upserting user: $e');
       return -1;
     }
   }
@@ -339,18 +331,17 @@ class AppDb extends _$AppDb {
             ..where((t) => t.email.equals(emailId)))
           .getSingleOrNull();
       if (user != null) {
-        print("user found :${user.name}");
+        logger.d("User found: ${user.name}");
       } else {
-        print("user not found");
+        logger.d("User not found");
       }
       return user;
     } catch (e) {
-      print("ERROR:getUserDetailsFromLocalDb :${e}");
+      logger.e("Error: getUserDetailsFromLocalDb: $e");
       return null;
     }
   }
 
-  /// Fetch a RoomMemberDB object by ID
   Future<RoomMemberDB?> fetchRoomMemberById(int memberId) async {
     return (select(roomMemberTable)..where((tbl) => tbl.id.equals(memberId)))
         .getSingleOrNull();
@@ -359,7 +350,6 @@ class AppDb extends _$AppDb {
   Future<void> saveRoomMemberMapping(int roomId, List<int> memberIds) async {
     try {
       await batch((batch) {
-        // Prepare the batch insert for multiple members
         for (final memberId in memberIds) {
           batch.insert(
             roomMemberMappingTable,
@@ -367,13 +357,13 @@ class AppDb extends _$AppDb {
               roomId: roomId,
               memberId: memberId,
             ),
-            mode: InsertMode.insertOrIgnore, // Avoid duplicates
+            mode: InsertMode.insertOrIgnore,
           );
         }
       });
-      print("Room member mappings saved successfully for room ID: $roomId");
+      logger.d("Room member mappings saved successfully for room ID: $roomId");
     } catch (e) {
-      print("Error saving room member mappings: $e");
+      logger.e("Error saving room member mappings: $e");
     }
   }
 
@@ -390,7 +380,6 @@ class AppDb extends _$AppDb {
 
       final results = await query.get();
 
-      // Map the results to a Map<int, RoomMemberModel>
       final roomMembersMap = {
         for (var row in results)
           row.readTable(roomMemberTable).id.toString(): RoomMemberModel(
@@ -404,7 +393,7 @@ class AppDb extends _$AppDb {
 
       return roomMembersMap;
     } catch (e) {
-      print("Error fetching room members by room ID: $e");
+      logger.e("Error fetching room members by room ID: $e");
       return {};
     }
   }
