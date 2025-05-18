@@ -67,11 +67,11 @@ class Channel extends StatelessWidget {
                         // ):CachedNetworkImageProvider("assets/images/zine_logo.png"),
                         // backgroundImage:
                         //     const AssetImage("assets/images/zine_logo.png"),
-                      ):CircleAvatar(
+                      ):const CircleAvatar(
                           backgroundColor: Colors.white,
                           radius: 20,
                           backgroundImage:AssetImage("assets/images/zine_logo.png")),
-                      SizedBox(
+                      const SizedBox(
                         width: 10,
                       ),
                       roomDetail.name != null

@@ -7,7 +7,7 @@ import 'package:zineapp2023/screens/explore/public_events/view_models/public_eve
 import 'package:zineapp2023/theme/color.dart';
 
 class EventsScreen extends StatefulWidget {
-  EventsScreen({super.key});
+  const EventsScreen({super.key});
 
   @override
   State<EventsScreen> createState() => _EventsScreenState();

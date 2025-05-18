@@ -135,7 +135,7 @@ class _TaskScreenState extends State<TaskScreen> {
                             ),
                           ),
                         )
-                      : SizedBox(
+                      : const SizedBox(
                           height: 220,
                           child: RecentTask(),
                         ),

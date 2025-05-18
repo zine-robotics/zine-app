@@ -62,8 +62,8 @@ class _HomeState extends State<Home> {
             // Adjust the margin as needed
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                const BoxShadow(
+              boxShadow: const [
+                BoxShadow(
                   blurRadius: 42.0,
                   color: backgroundGrey,
                 ),

@@ -280,7 +280,7 @@ class _DashboardState extends State<Dashboard> {
                                               ),
                                             ),
                                       eventVm.tempEvents.length != 0
-                                          ? Spacer()
+                                          ? const Spacer()
                                           : Container(),
 
                                       recentEvent != null
@@ -294,7 +294,7 @@ class _DashboardState extends State<Dashboard> {
                                             )
                                           : Container(),
                                       eventVm.tempEvents.length != 0
-                                          ? Spacer()
+                                          ? const Spacer()
                                           : Container(),
 
                                       // const SizedBox(

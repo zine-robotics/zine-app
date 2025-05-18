@@ -1,13 +1,13 @@
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:http/http.dart' as http;
 import 'package:zineapp2023/models/newTask.dart';
 import 'package:zineapp2023/models/task_instance.dart';
 import 'package:zineapp2023/providers/user_info.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/repo/chat_repo.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
+
+final logger = customLogger();
 
 class TaskInstanceRepo {
   final UserProv userProv;
@@ -24,8 +24,8 @@ class TaskInstanceRepo {
           'Authorization': 'Bearer $_uid',
           ...BackendProperties.getHeaders()
         });
-    print("Called get Tasks");
-    // print(res.body);
+    logger.i('Retrieving task instances for user: $_uid');
+    logger.d('Response: ${res.body}');
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
@@ -58,8 +58,9 @@ class TaskInstanceRepo {
 
     if (res.statusCode == 200 && res.body.isNotEmpty) {
       Map<String, dynamic> resBody = jsonDecode(res.body);
-      // logger.i(resBody);
+      logger.i('Retrieving checkpoints for instance: $instanceId');
       var checkPointJson = resBody['checkpoints'] as List;
+      logger.d('Response: ${res.body}');
       return checkPointJson
           .map((checkpoint) => Checkpoint.fromJson(checkpoint))
           .toList();
@@ -70,7 +71,7 @@ class TaskInstanceRepo {
 
   Future<void> addCheckpoints(String message, int instanceId) async {
     try {
-      print("user id:${userProv.getUserInfo.uid}");
+      logger.i('Adding checkpoint for instance: $instanceId');
       Response res =
           await http.post(BackendProperties.addCheckpointUri(instanceId),
               body: jsonEncode({
@@ -85,12 +86,12 @@ class TaskInstanceRepo {
           });
 
       if (res.statusCode == 200) {
-        if (kDebugMode) print(res.body);
+        logger.i('Checkpoint added successfully');
       } else {
-        if (kDebugMode) print("Add checkpoint reponse error ${res.body}");
+        logger.e("Add checkpoint reponse error with response body ${res.body}");
       }
     } catch (e) {
-      if (kDebugMode) print("Add checkpoint error");
+      logger.e("Add checkpoint error: $e");
     }
   }
 
@@ -127,12 +128,12 @@ class TaskInstanceRepo {
           });
 
       if (res.statusCode == 200) {
-        if (kDebugMode) print(res.body);
+        logger.i("Link added successfully");
       } else {
-        if (kDebugMode) print("Add link reponse error ${res.body}");
+        logger.e("Add link response error with response body ${res.body}");
       }
     } catch (e) {
-      if (kDebugMode) print("Add link error");
+      logger.e("Add link error: $e");
     }
   }
 }

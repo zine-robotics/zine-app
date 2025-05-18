@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 
 class eventContainer extends StatelessWidget {
   final String text1, text2;
-  eventContainer({required this.text1, required this.text2});
+  const eventContainer({required this.text1, required this.text2});
 
   @override
   Widget build(BuildContext context) {

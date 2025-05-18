@@ -1,13 +1,7 @@
 import 'dart:io';
-import 'dart:math';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:zineapp2023/components/profile_picture.dart';
-import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/theme/color.dart';
-import 'package:zineapp2023/screens/chat/chat_screen/chat_room.dart';
 
 import '../../../models/newUser.dart';
 import '../chat_screen/view_model/chat_room_view_model.dart';
@@ -26,9 +20,6 @@ class ChatDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ChatRoomViewModel chatVm =
-        Provider.of<ChatRoomViewModel>(context, listen: true);
-    print("image in active member is :${image}");
     return Consumer<ChatRoomViewModel>(builder: (context, chatVm, _) {
       return Scaffold(
         backgroundColor: backgroundGrey,
@@ -116,7 +107,7 @@ class ChatDescription extends StatelessWidget {
                   builder:
                       (context, AsyncSnapshot<List<RoomMemberModel>> snapshot) {
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text("No members found."));
+                      return const Center(child: Text("No members found."));
                     }
 
                     final sortedRoomMembers = snapshot.data!;
@@ -182,31 +173,31 @@ class ChatDescription extends StatelessWidget {
                                 ),
                                 const Spacer(),
                                 if (roomMember.isActive) ...[
-                                  Icon(
+                                  const Icon(
                                     Icons.circle_rounded,
                                     color: Colors.green,
                                     size: 15,
                                   ),
                                   const SizedBox(width: 5),
-                                  Text(
+                                  const Text(
                                     "Online",
                                     style:
                                         TextStyle(fontWeight: FontWeight.w500),
                                   ),
-                                  SizedBox(width: 10,)
+                                  const SizedBox(width: 10,)
                                 ] else ...[
-                                  Icon(
+                                  const Icon(
                                     Icons.circle_rounded,
                                     color: Colors.grey,
                                     size: 15,
                                   ),
                                   const SizedBox(width: 5),
-                                  Text(
+                                  const Text(
                                     "Offline",
                                     style:
                                         TextStyle(fontWeight: FontWeight.w500),
                                   ),
-                                  SizedBox(width: 10,)
+                                  const SizedBox(width: 10,)
                                 ],
                                 // const SizedBox(width: 20),
                               ],

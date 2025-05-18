@@ -209,7 +209,7 @@ class DeleteThis extends StatelessWidget {
           children: [
             Text(
               startTime.day.toString(),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 35,
                 fontWeight: FontWeight.bold,
                 color:Colors.white ,

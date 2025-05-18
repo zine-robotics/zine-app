@@ -53,7 +53,7 @@ class _PollCreatorScreenState extends State<PollCreatorScreen> {
                 ),
               ),
             ),
-            body: PollCard());
+            body: const PollCard());
       },
     );
   }

@@ -88,9 +88,9 @@ class ProfileScreen extends StatelessWidget {
                           horizontal: 28.0, vertical: 52.0),
                       elevation: 0,
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           gradient: mainGrad,
-                          borderRadius: const BorderRadius.all(
+                          borderRadius: BorderRadius.all(
                             Radius.circular(20.0),
                           ),
                         ),
@@ -116,7 +116,7 @@ class ProfileScreen extends StatelessWidget {
                                         Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (context) =>
-                                              DpChangeScreen(),
+                                              const DpChangeScreen(),
                                         ));
                                       },
                                       child: Hero(tag: "profilePic", child: dp))
@@ -163,9 +163,9 @@ class ProfileScreen extends StatelessWidget {
                   color: Colors.white,
                   width: MediaQuery.of(context).size.width,
                   child: const Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                         horizontal: 30.0, vertical: 20.0),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(

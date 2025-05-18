@@ -13,7 +13,7 @@ import 'package:zineapp2023/theme/color.dart';
 
 //NEEDS TO BE REVIEWD (Priority High)
 class TaskDesc extends StatefulWidget {
-  TaskDesc({super.key});
+  const TaskDesc({super.key});
 
   @override
   State<TaskDesc> createState() => _TaskDescState();
@@ -452,7 +452,7 @@ class _TaskDescState extends State<TaskDesc> {
                                       fontSize: 13, color: Colors.blue),
                                 ),
                                 onTap: () => launch(link.link.toString())),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             )
                           ],

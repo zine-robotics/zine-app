@@ -491,7 +491,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     try {
       for (Rooms room in allRooms!) {
         final roomCompanion = RoomsTableCompanion(
-            id: room.id != null ? drift.Value(room.id!) : drift.Value.absent(),
+            id: room.id != null ? drift.Value(room.id!) : const drift.Value.absent(),
             name: drift.Value(room.name),
             description: drift.Value(room.description),
             type: drift.Value(room.type),
@@ -501,7 +501,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             lastMessageTimestamp: drift.Value(room.lastMessageTimestamp),
             unreadMessages: drift.Value(room.unreadMessages),
             userLastSeen: drift.Value(room.userLastSeen),
-            isSynced: drift.Value(true));
+            isSynced: const drift.Value(true));
         _apiRoomData?.add(roomCompanion);
         await db.insertRoomToDB(roomCompanion);
         fetchRoomMembersAndStoreInDB(db, room.id.toString());
@@ -658,8 +658,8 @@ class ChatRoomViewModel extends ChangeNotifier {
                 numVotes: drift.Value(option.numVotes),
                 voterId: option.voterIds != null &&
                         option.voterIds!.contains(userProv.getUserInfo.id)
-                    ? drift.Value(true)
-                    : drift.Value(false),
+                    ? const drift.Value(true)
+                    : const drift.Value(false),
               );
 
               await db
@@ -708,25 +708,25 @@ class ChatRoomViewModel extends ChangeNotifier {
           final messageCompanion = MessagesTableCompanion(
             id: message.id != null
                 ? drift.Value(message.id!)
-                : drift.Value.absent(),
+                : const drift.Value.absent(),
             type: drift.Value(message.type.toString().split('.').last),
             timestamp: drift.Value(message.timestamp!.millisecondsSinceEpoch),
             sentFromId: message.sender?.id != null
                 ? drift.Value(message.sender!.id!)
-                : drift.Value.absent(),
+                : const drift.Value.absent(),
             replyToId: message.replyToId != null
                 ? drift.Value(message.replyToId)
-                : drift.Value.absent(),
-            isSynced: drift.Value(true),
+                : const drift.Value.absent(),
+            isSynced: const drift.Value(true),
             textData: message.type == MessageType.text && message.text != null
                 ? drift.Value(message.text!.content)
-                : drift.Value.absent(),
+                : const drift.Value.absent(),
             pollId: message.type == MessageType.poll && message.id != null
                 ? drift.Value(message.id!)
-                : drift.Value.absent(),
+                : const drift.Value.absent(),
             fileId: message.type == MessageType.file && message.id != null
                 ? drift.Value(message.id!)
-                : drift.Value.absent(),
+                : const drift.Value.absent(),
             roomId: drift.Value(int.parse(messageRoomId.toString())),
           );
 
@@ -996,7 +996,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       );
     } catch (e) {
       logger.e("Error displaying profile image: $e");
-      return ClipOval(
+      return const ClipOval(
         child: Icon(
           Icons.person,
           size: 40,

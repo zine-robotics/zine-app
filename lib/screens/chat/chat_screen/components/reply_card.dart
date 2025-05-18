@@ -19,7 +19,7 @@ class ReplyCard extends StatelessWidget {
             child: Text(
               "Replying to ${chatVm.selectedReplyMessage.sender!.name}",
               textAlign: TextAlign.left,
-              style: TextStyle(
+              style: const TextStyle(
                   color: greyText, fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
