@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/providers/user_info.dart';
@@ -119,7 +117,7 @@ class Channel extends StatelessWidget {
                           )
                         ],
                       ),
-                      roomDetail?.unreadMessages != null
+                      roomDetail.unreadMessages != null
                           ? roomDetail.unreadMessages! == 0
                               ? Container(
                                   decoration: BoxDecoration(
@@ -132,7 +130,7 @@ class Channel extends StatelessWidget {
                                   child: Align(
                                     alignment: AlignmentDirectional.centerEnd,
                                     child: Text(
-                                      roomDetail?.lastMessageTimestamp != null
+                                      roomDetail.lastMessageTimestamp != null
                                           ? getLastSeenFormat(
                                               roomDetail.lastMessageTimestamp!)
                                           : "",

@@ -1,11 +1,8 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 
-import '../../../../providers/user_info.dart';
 
 // User Messages (Right side)
 const Color userColor =
@@ -43,10 +40,10 @@ class PollTile extends StatefulWidget {
     required this.isUser,
     required this.onVote,
     required this.group,
-    Key? key,
+    super.key,
     required this.message,
     this.leading,
-  }) : super(key: key);
+  });
 
   @override
   State<PollTile> createState() => _PollTileState();

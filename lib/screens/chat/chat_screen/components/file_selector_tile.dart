@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as img; // Add `image` package in pubspec.yaml
+// Add `image` package in pubspec.yaml
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/theme/color.dart';
 

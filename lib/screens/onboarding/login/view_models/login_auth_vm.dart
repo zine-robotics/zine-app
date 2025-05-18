@@ -1,14 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../providers/user_info.dart';
 import '../../../../common/navigator.dart';
 import '../../../../common/routing.dart';
-import '../../../../models/user.dart';
 import '../../repo/auth_repo.dart';
 
 class LoginAuthViewModel with ChangeNotifier {
@@ -80,7 +77,7 @@ class LoginAuthViewModel with ChangeNotifier {
         },
       );
       print(value);
-      print("pushTOken:${pushToken}");
+      print("pushTOken:$pushToken");
       setLoading(false);
       userProvider.updateUserInfo(value!);
 

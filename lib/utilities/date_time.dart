@@ -42,7 +42,7 @@ String getChatTime(DateTime dateTime) {
 
 String getChatDate(DateTime dateTime) {
 
-  return '${months[dateTime.month - 1]}';
+  return months[dateTime.month - 1];
 }
 
 String validShowDate(DateTime timeStamp) {
@@ -76,7 +76,7 @@ String getTime(Timestamp timeStamp) {
 }
 
 String getDate(Timestamp timeStamp) {
-  return '${months[timeStamp.toDate().month - 1]}';
+  return months[timeStamp.toDate().month - 1];
 }
 
 String getDay(Timestamp timeStamp) {
@@ -100,5 +100,5 @@ String getDDMMYY2(Timestamp timeStamp) {
 }
 
 String getDDate(DateTime dt) {
-  return '${new DateFormat("yyyy-MM-dd").format(dt)}';
+  return DateFormat("yyyy-MM-dd").format(dt);
 }

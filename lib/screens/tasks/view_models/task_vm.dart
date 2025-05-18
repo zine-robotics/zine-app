@@ -7,7 +7,6 @@ import 'package:zineapp2023/screens/tasks/repo/task_instance_repo.dart';
 import 'package:zineapp2023/screens/tasks/repo/task_repo.dart';
 import 'package:zineapp2023/utilities/custom_logger.dart';
 
-import '../../../models/userTask.dart';
 
 final logger = customLogger();
 

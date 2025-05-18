@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:zineapp2023/database/database.dart';
 import 'package:zineapp2023/models/user.dart';
 import '../common/data_store.dart';
@@ -47,7 +46,7 @@ class UserProv extends ChangeNotifier {
         }
       });
       return token;
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       if (kDebugMode) print('Error in getFirebaseMessagingToken');
       return null;
     }

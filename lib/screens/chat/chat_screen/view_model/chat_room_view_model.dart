@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/drift.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,7 +44,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   //===================================================NEWER CODE====================================================//
   final chatP = ChatRepo();
-  Map<String, dynamic> _subscriptions = {};
+  final Map<String, dynamic> _subscriptions = {};
 
   dynamic allData;
   dynamic replyTo;
@@ -63,8 +62,8 @@ class ChatRoomViewModel extends ChangeNotifier {
   //-------------------------------------------------message fetching using http--------------------//
   List<MessageModel> messages = [];
   Map<String, RoomMemberModel> currentRoomMembers = {};
-  bool _isLoaded = false; //It should be true at
-  bool _isError = false;
+  final bool _isLoaded = false; //It should be true at
+  final bool _isError = false;
   bool _isNewRoomData = false; //track new Room data
   bool loadingAPIMessages = false;
   Set<String> activeRoomSubscriptions = {};
@@ -252,7 +251,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
-  void sendMessage(String user_message, String roomName) async {
+  void sendMessage(String userMessage, String roomName) async {
     // int? roomId=roomNameToId[roomName];
     if (!_client.connected) {
       logger.e("Not connected to the WebSocket server.");
@@ -263,7 +262,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       "type": "text",
       "sentFrom": userProv.getUserInfo.id!,
       "roomId": int.parse(currRoomId),
-      "text": {"content": user_message.trim()},
+      "text": {"content": userMessage.trim()},
       "replyTo": replyTo,
     };
 
@@ -326,9 +325,9 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   //-----------------------------------------------------Update LastSeen to Room------------------------------------//
-  dynamic updateSeen(String email_id, String room_id, DateTime userLastSeen,
+  dynamic updateSeen(String emailId, String roomId, DateTime userLastSeen,
       DateTime lastMessageTimestamp, int unreadMessages) async {
-    Uri url = BackendProperties.updateLastSeenUri(email_id, room_id);
+    Uri url = BackendProperties.updateLastSeenUri(emailId, roomId);
     String uid = userProv.getUserInfo.uid!;
     // print("inside teh updateSeen for email:$email_id and roomid:$room_id");
     try {
@@ -349,7 +348,7 @@ class ChatRoomViewModel extends ChangeNotifier {
         body: jsonEncode(jsonData),
       );
       if (response.statusCode == 200) {
-        logger.t("Seen for room: $room_id updated");
+        logger.t("Seen for room: $roomId updated");
       } else {
         logger.e("Error occurred during PUT operation");
       }
@@ -369,7 +368,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
 //------------------------------------------------------INFO about Active member-----------------------------//
-  List<RoomMemberModel>? _activeMembers = [];
+  final List<RoomMemberModel> _activeMembers = [];
   List<RoomMemberModel>? get activeMembers => _activeMembers;
 
   //------------------------------------------------------------chat text value-------------------------------------------//
@@ -405,7 +404,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       List<RoomMemberModel>? allRoomMembers =
           await chatP.fetchTotalActiveMember(roomId);
       // logger.d("check totalactivemember:${allRoomMembers.length} ");
-      if (allRoomMembers != null && allRoomMembers.isNotEmpty) {
+      if (allRoomMembers.isNotEmpty) {
         List<int> memberIds = [];
         await db.batch((batch) async {
           for (RoomMemberModel roomMember in allRoomMembers) {
@@ -712,7 +711,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             type: drift.Value(message.type.toString().split('.').last),
             timestamp: drift.Value(message.timestamp!.millisecondsSinceEpoch),
             sentFromId: message.sender?.id != null
-                ? drift.Value(message.sender!.id!)
+                ? drift.Value(message.sender!.id)
                 : const drift.Value.absent(),
             replyToId: message.replyToId != null
                 ? drift.Value(message.replyToId)
@@ -750,7 +749,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       List<MessageResponseModel>? allMessages =
           roomID != null ? await chatP.getChatMessages(roomID) : [];
       loadingAPIMessages = false;
-      if (allMessages!.isEmpty) {
+      if (allMessages.isEmpty) {
         return;
       }
       logger.d("Fetched Messages from API");
@@ -798,7 +797,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       for (var option in pollOptions) {
         pollOptionMap.putIfAbsent(option.pollId, () => []).add(
               PollOption(
-                id: option.id!,
+                id: option.id,
                 value: option.value,
                 numVotes: option.numVotes,
                 voterIds:
@@ -888,7 +887,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     } catch (e) {
       logger.e("Error in stage1:messagePIPELINE: $e");
     } finally {
-      messages = List.from(messages!);
+      messages = List.from(messages);
       notifyListeners();
     }
 

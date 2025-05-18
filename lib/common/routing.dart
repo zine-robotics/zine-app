@@ -87,11 +87,11 @@ class Routes {
 
   static Route publicEvents() {
     print("hi");
-    return cupertinoRoute(RouteName.publicEvents, (ctx) => EventsScreen());
+    return cupertinoRoute(RouteName.publicEvents, (ctx) => const EventsScreen());
   }
 
   static Route taskDesc() =>
-      cupertinoRoute(RouteName.taskDesc, (ctx) => TaskDesc());
+      cupertinoRoute(RouteName.taskDesc, (ctx) => const TaskDesc());
 
   static Route workshopTimeline() => cupertinoRoute(
       RouteName.wokrshopTimeline, (ctx) => const WorkshopScreen());

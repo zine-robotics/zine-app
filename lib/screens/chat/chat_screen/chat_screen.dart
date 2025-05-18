@@ -76,7 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               // name: "Announcements",
                               // roomId: "452",
                               // roomDetail: [name:"Announcements",roomId:"452"],
-                              roomDetail: announcementDetails![0],
+                              roomDetail: announcementDetails[0],
                             )
                           : Container(),
 

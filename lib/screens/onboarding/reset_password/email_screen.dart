@@ -180,12 +180,12 @@ class EmailScreen extends StatelessWidget {
                                     }
                                   },
                                   style: ButtonStyle(
-                                    padding: MaterialStateProperty.all(
+                                    padding: WidgetStateProperty.all(
                                         const EdgeInsets.symmetric(
                                             vertical: 15.0, horizontal: 50.0)),
                                     backgroundColor:
-                                        MaterialStateProperty.all(textColor),
-                                    shape: MaterialStateProperty.all<
+                                        WidgetStateProperty.all(textColor),
+                                    shape: WidgetStateProperty.all<
                                         RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
                                         borderRadius:

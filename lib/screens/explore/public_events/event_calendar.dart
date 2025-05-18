@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:zineapp2023/screens/explore/public_events/view_models/public_events_vm.dart';
 import 'package:zineapp2023/theme/color.dart';

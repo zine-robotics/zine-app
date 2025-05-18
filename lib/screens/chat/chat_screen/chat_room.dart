@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +25,7 @@ class ChatRoom extends StatefulWidget {
   // final String? roomId;
   Rooms? roomDetail;
 
-  ChatRoom({Key? key, this.roomDetail, this.email}) : super(key: key);
+  ChatRoom({super.key, this.roomDetail, this.email});
 
   @override
   State<ChatRoom> createState() => _ChatRoomState();
@@ -64,14 +63,14 @@ class _ChatRoomState extends State<ChatRoom> {
 
     _focusNode = FocusNode(
       onKeyEvent: (FocusNode node, KeyEvent evt) {
-        bool is_enter = evt.logicalKey == LogicalKeyboardKey.enter;
+        bool isEnter = evt.logicalKey == LogicalKeyboardKey.enter;
 
-        bool is_shift = HardwareKeyboard.instance.logicalKeysPressed
+        bool isShift = HardwareKeyboard.instance.logicalKeysPressed
                 .contains(LogicalKeyboardKey.shiftLeft) ||
             HardwareKeyboard.instance.logicalKeysPressed
                 .contains(LogicalKeyboardKey.shiftRight);
 
-        if (!is_shift && is_enter) {
+        if (!isShift && isEnter) {
           if (evt is KeyDownEvent) {
             _sendMessage();
           }
@@ -180,7 +179,7 @@ class _ChatRoomState extends State<ChatRoom> {
                       return ChatDescription(
                           roomName: roomName,
                           image: image,
-                          data: listOfUsers != null ? listOfUsers : []);
+                          data: listOfUsers ?? []);
                     }));
                   }
                 },

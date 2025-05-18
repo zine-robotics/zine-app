@@ -36,18 +36,18 @@ class Events {
     // startDateTime = json['startDateTime'];
     // endDateTime = json['endDateTime'];
     recruitment = json['recruitment'] != null
-        ? new Recruitment.fromJson(json['recruitment'])
+        ? Recruitment.fromJson(json['recruitment'])
         : null;
     eventDp = json['dpUrl'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['description'] = this.description;
-    data['type'] = this.type;
-    data['name'] = this.name;
-    data['venue'] = this.venue;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['description'] = description;
+    data['type'] = type;
+    data['name'] = name;
+    data['venue'] = venue;
     if (startDateTime != null) {
       data['startDateTime'] = startDateTime
           ?.toIso8601String(); // Convert DateTime to ISO 8601 string
@@ -58,8 +58,8 @@ class Events {
     }
     // data['startDateTime'] = this.startDateTime;
     // data['endDateTime'] = this.endDateTime;
-    if (this.recruitment != null) {
-      data['recruitment'] = this.recruitment!.toJson();
+    if (recruitment != null) {
+      data['recruitment'] = recruitment!.toJson();
     }
     return data;
   }
@@ -81,11 +81,11 @@ class Recruitment {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['title'] = this.title;
-    data['stage'] = this.stage;
-    data['description'] = this.description;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['title'] = title;
+    data['stage'] = stage;
+    data['description'] = description;
     return data;
   }
 }
@@ -105,10 +105,10 @@ class LastSeen {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['lastMessageTimestamp'] = this.lastMessageTimestamp;
-    data['unreadMessages'] = this.unreadMessages;
-    data['userLastSeen'] = this.userLastSeen;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['lastMessageTimestamp'] = lastMessageTimestamp;
+    data['unreadMessages'] = unreadMessages;
+    data['userLastSeen'] = userLastSeen;
     return data;
   }
 }

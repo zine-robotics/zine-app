@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 
-import 'message_response_model.dart';
 import 'message_update.dart';
 
 //This model is used for internal messages

@@ -4,7 +4,6 @@ import "package:flutter/material.dart";
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/components/gradient.dart';
-import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
@@ -16,7 +15,7 @@ import 'package:zineapp2023/utilities/string_formatters.dart';
 import '../../common/routing.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -266,9 +265,9 @@ class ProfileScreen extends StatelessWidget {
                     },
                     style: ButtonStyle(
                       padding:
-                          MaterialStateProperty.all(const EdgeInsets.all(20.0)),
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          WidgetStateProperty.all(const EdgeInsets.all(20.0)),
+                      backgroundColor: WidgetStateProperty.all(Colors.white),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28.0),
                         ),

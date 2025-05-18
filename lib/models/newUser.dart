@@ -35,16 +35,16 @@ class NewUserModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['type'] = this.type;
-    data['pushToken'] = this.pushToken;
-    data['registered'] = this.registered;
-    data['dp'] = this.dp;
-    data['imagePath'] = this.imagePath;
-    data['emailVerified'] = this.emailVerified;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['email'] = email;
+    data['type'] = type;
+    data['pushToken'] = pushToken;
+    data['registered'] = registered;
+    data['dp'] = dp;
+    data['imagePath'] = imagePath;
+    data['emailVerified'] = emailVerified;
     return data;
   }
 }
@@ -70,7 +70,7 @@ class RoomMemberModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['name'] = name;
     data['email'] = email;
     data['role'] = role;

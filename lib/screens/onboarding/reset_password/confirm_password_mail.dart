@@ -76,9 +76,9 @@ class PasswordResetConfirm extends StatelessWidget {
                   },
                   style: ButtonStyle(
                     padding:
-                    MaterialStateProperty.all(const EdgeInsets.all(20.0)),
-                    backgroundColor: MaterialStateProperty.all(textColor),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    WidgetStateProperty.all(const EdgeInsets.all(20.0)),
+                    backgroundColor: WidgetStateProperty.all(textColor),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28.0),
                       ),

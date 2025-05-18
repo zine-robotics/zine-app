@@ -7,8 +7,7 @@ import 'package:zineapp2023/utilities/date_time.dart';
 class EventCard extends StatefulWidget {
   final Events tempEvent;
   final selectedDate;
-  const EventCard({Key? key, this.selectedDate, required this.tempEvent})
-      : super(key: key);
+  const EventCard({super.key, this.selectedDate, required this.tempEvent});
 
   @override
   _EventCardState createState() => _EventCardState();
@@ -150,7 +149,7 @@ class _EventCardState extends State<EventCard> {
               children: [
                 Row(
                   children: [
-                    Container(
+                    SizedBox(
                       width: MediaQuery.of(context).size.width * 0.30,
                       child: Column(
                         children: [
@@ -180,7 +179,7 @@ class _EventCardState extends State<EventCard> {
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: MediaQuery.of(context).size.width * 0.6,
                       child: Column(
                         children: [

@@ -65,7 +65,7 @@ class AuthRepo {
             throw AuthException(code: 'backend-not-responding');
           } else {
             userToken = (resBody['jwt'] as String);
-            print("userToken:${userToken}");
+            print("userToken:$userToken");
             return getUserbyId(userToken);
           }
           break;

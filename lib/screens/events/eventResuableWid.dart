@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 
 class eventContainer extends StatelessWidget {
   final String text1, text2;
-  const eventContainer({required this.text1, required this.text2});
+  const eventContainer({super.key, required this.text1, required this.text2});
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +19,13 @@ class eventContainer extends StatelessWidget {
       child: Stack(
         children: [
           Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: 60,
+            decoration: const BoxDecoration(
+                color: Colors.white //Color.fromARGB(255, 12, 113, 176)
+                ,
+                borderRadius: BorderRadius.horizontal(
+                    left: Radius.circular(15), right: Radius.circular(15))),
             child: Row(
               children: [
                 const SizedBox(
@@ -38,13 +45,6 @@ class eventContainer extends StatelessWidget {
                 ),
               ],
             ),
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: 60,
-            decoration: const BoxDecoration(
-                color: Colors.white //Color.fromARGB(255, 12, 113, 176)
-                ,
-                borderRadius: BorderRadius.horizontal(
-                    left: Radius.circular(15), right: Radius.circular(15))),
           ),
           Container(
               width: 40,

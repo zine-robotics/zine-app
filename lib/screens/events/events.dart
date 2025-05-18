@@ -7,7 +7,7 @@ import 'package:zineapp2023/theme/color.dart';
 
 class Events extends StatelessWidget {
   final selectedDate;
-  const Events({Key? key, this.selectedDate}) : super(key: key);
+  const Events({super.key, this.selectedDate});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class Events extends StatelessWidget {
             ),
           ),
           title: Text(
-            eventsVm.tempEvents.length != 0 ? "EVENT" : "Past Events",
+            eventsVm.tempEvents.isNotEmpty ? "EVENT" : "Past Events",
             style: const TextStyle(
               height: 0.9,
               letterSpacing: 0.3,

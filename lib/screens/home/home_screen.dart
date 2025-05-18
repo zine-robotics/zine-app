@@ -47,11 +47,11 @@ class _HomeState extends State<Home> {
           //     (index){
           //   homeVm.onItemTapped(index);
           // },
-          children: <Widget>[
-            const ChatHome(),
-            const Explore(),
+          children: const <Widget>[
+            ChatHome(),
+            Explore(),
             EventsScreen(),
-            const Dashboard(),
+            Dashboard(),
           ],
         ),
         extendBody: false,

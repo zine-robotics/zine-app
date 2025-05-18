@@ -14,7 +14,7 @@ extension StringExtension on String {
 
 String truncateStatus(String? userString) {
   if (userString != null && userString.length > 18) {
-    return userString.substring(0, 18) + '...';
+    return '${userString.substring(0, 18)}...';
   }
   return userString ?? '';
 }

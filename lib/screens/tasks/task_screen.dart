@@ -10,7 +10,7 @@ import 'recent_task.dart';
 import '../../theme/color.dart';
 
 class TaskScreen extends StatefulWidget {
-  const TaskScreen({Key? key}) : super(key: key);
+  const TaskScreen({super.key});
 
   @override
   State<TaskScreen> createState() => _TaskScreenState();
@@ -50,10 +50,11 @@ class _TaskScreenState extends State<TaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<UserProv, TaskVm>(builder: (context, userProv, taskVm, _) {
-      if (taskVm.isLoading)
+      if (taskVm.isLoading) {
         return const Center(
           child: CircularProgressIndicator(),
         );
+      }
       // List<UserTask>? tasks = userProv.getUserInfo.tasks;
 
       // taskVm.taskInstances = tasks;
@@ -79,7 +80,7 @@ class _TaskScreenState extends State<TaskScreen> {
               padding: const EdgeInsets.all(18.0),
               child: Stack(
                 children: [
-                  tasks.length == 0
+                  tasks.isEmpty
                       ? SizedBox(
                           height: 220.0,
                           child: Transform.rotate(
@@ -112,7 +113,7 @@ class _TaskScreenState extends State<TaskScreen> {
                             ),
                           ),
                         ),
-                  tasks.length == 0
+                  tasks.isEmpty
                       ? const Card(
                           shape: RoundedRectangleBorder(
                               borderRadius:
@@ -170,7 +171,7 @@ class _TaskScreenState extends State<TaskScreen> {
                             children: [
                               Align(
                                 alignment: Alignment.center, // Center the text
-                                child: Text("$_selectedFilter"),
+                                child: Text(_selectedFilter),
                               ),
                               Align(
                                 alignment: Alignment

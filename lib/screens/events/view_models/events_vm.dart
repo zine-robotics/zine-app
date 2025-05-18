@@ -13,7 +13,7 @@ class EventsVm extends ChangeNotifier {
     try {
       _tempEvents = await eventRepo.fetchEvents();
       _tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
-      print("sorted Events:${_tempEvents}");
+      print("sorted Events:$_tempEvents");
     } catch (e) {
       print('Error fetching events: $e');
     } finally {
@@ -23,7 +23,7 @@ class EventsVm extends ChangeNotifier {
 
   //====================================OLDER CODE=========================================//
 
-  List<Events> _events = [];
+  final List<Events> _events = [];
   dynamic prev = 0;
   bool isLoading = false;
 

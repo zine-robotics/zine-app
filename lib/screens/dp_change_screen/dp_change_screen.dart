@@ -70,7 +70,7 @@ class DpChangeScreen extends StatelessWidget {
           ),
           body: Center(
               child: Expanded(
-                  child: Container(
+                  child: SizedBox(
                       width: double.infinity,
                       child: Hero(tag: "profilePic", child: dp)))));
     });

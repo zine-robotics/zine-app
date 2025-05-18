@@ -12,7 +12,6 @@ import 'package:zineapp2023/screens/explore/coming_soon.dart';
 import '../../../theme/color.dart';
 import '../../components/gradient.dart';
 import '../../models/user.dart';
-import 'coming_soon.dart';
 
 class WorkshopScreen extends StatelessWidget {
   const WorkshopScreen({super.key});
@@ -38,11 +37,11 @@ class WorkshopScreen extends StatelessWidget {
                                   .launchUrl(BackendProperties.recruitmentUri);
                             },
                             style: ButtonStyle(
-                              padding: MaterialStateProperty.all(
+                              padding: WidgetStateProperty.all(
                                   const EdgeInsets.all(20.0)),
                               backgroundColor:
-                                  MaterialStateProperty.all(textColor),
-                              shape: MaterialStateProperty.all<
+                                  WidgetStateProperty.all(textColor),
+                              shape: WidgetStateProperty.all<
                                   RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(28.0),

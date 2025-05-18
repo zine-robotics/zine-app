@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
@@ -199,9 +197,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                             const EdgeInsets
                                                                 .all(12.0),
                                                         child: Text(
-                                                          repliedMessage !=
-                                                                      null &&
-                                                                  repliedMessage
+                                                          repliedMessage
                                                                           .type ==
                                                                       MessageType
                                                                           .text
