@@ -135,6 +135,7 @@ class RoomId {
 }
 
 // Helper method to handle parsing integers
+// ignore: unused_element
 int? _parseInt(dynamic value) {
   if (value is int) {
     return value;
@@ -145,6 +146,7 @@ int? _parseInt(dynamic value) {
 }
 
 // Helper method to handle parsing timestamps
+// ignore: unused_element
 int? _parseTimestamp(dynamic value) {
   if (value is int) {
     return value;
@@ -268,7 +270,6 @@ class PollOption {
 
   @override
   String toString() {
-    // TODO: implement toString
     return 'PollOption: id: $id, value: $value, numVotes: $numVotes';
   }
 }

@@ -96,7 +96,9 @@ class _EventTileState extends State<EventTile> {
               },
               child: Card(
                 margin: const EdgeInsets.fromLTRB(5, 10, 10, 5),
-                color: isEventPast? greyText.withOpacity(0.2): Colors.white,
+                color: isEventPast
+                    ? greyText.withValues(alpha: 0.2)
+                    : Colors.white,
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -212,7 +214,7 @@ class DeleteThis extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 35,
                 fontWeight: FontWeight.bold,
-                color:Colors.white ,
+                color: Colors.white,
               ),
             ),
             Text(

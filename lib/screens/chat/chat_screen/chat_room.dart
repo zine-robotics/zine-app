@@ -21,21 +21,19 @@ import 'chat_view.dart';
 
 class ChatRoom extends StatefulWidget {
   // final dynamic roomName;
-  String? email;
+  final String? email;
   // final String? roomId;
-  Rooms? roomDetail;
+  final Rooms? roomDetail;
 
-  ChatRoom({super.key, this.roomDetail, this.email});
+  const ChatRoom({super.key, this.roomDetail, this.email});
 
   @override
   State<ChatRoom> createState() => _ChatRoomState();
 }
 
 class _ChatRoomState extends State<ChatRoom> {
-  final ScrollController _scrollController = ScrollController();
 
   // Store the last known scroll position
-  double? _lastScrollOffset;
 
   late ChatRoomViewModel chatRoomView;
   late final FocusNode _focusNode;
@@ -45,11 +43,6 @@ class _ChatRoomState extends State<ChatRoom> {
     super.initState();
 
     _saveRoomNameToPreferences();
-    _scrollController.addListener(() {
-      if (_scrollController.hasClients) {
-        _lastScrollOffset = _scrollController.offset;
-      }
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       chatRoomView = Provider.of<ChatRoomViewModel>(context, listen: false);
       var db = Provider.of<AppDb>(context, listen: false);
@@ -127,16 +120,7 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
-        // if (_lastScrollOffset != null && _scrollController.hasClients) {
-        //   // Defer the scroll to the next frame
-        //   WidgetsBinding.instance.addPostFrameCallback((_) {
-        //     if (_scrollController.hasClients &&
-        //         _lastScrollOffset! <=
-        //             _scrollController.position.maxScrollExtent) {
-        //       _scrollController.jumpTo(_lastScrollOffset!);
-        //     }
-        //   });
-        // }
+
         final roomName = widget.roomDetail!.name.toString();
         final image = widget.roomDetail!.dpUrl.toString();
         // chatVm.room = widget.roomDetail!.id.toString();
@@ -234,7 +218,7 @@ class _ChatRoomState extends State<ChatRoom> {
                                   : Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: Colors.blue.withOpacity(
+                                        color: Colors.blue.withValues(alpha:
                                             0.1), // Subtle background color
                                         borderRadius: BorderRadius.circular(10),
                                       ),

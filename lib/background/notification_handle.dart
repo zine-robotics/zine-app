@@ -4,10 +4,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/common/navigator.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 import '../../../database/database.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
+
+final logger = customLogger();
 
 //------------------------------local notification plugin setup-----------------------------------//
 Future<void> initializeNotifications() async {
@@ -21,12 +24,13 @@ Future<void> initializeNotifications() async {
 }
 
 //--------------------------------backend Message Listener----------------------------------------//
+// ignore: unused_element
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
 
-  print("Handling a background message: ${message.messageId}");
+  logger.d("Handling a background message: ${message.messageId}");
 }
 
 //--------------------------------show foreground notification------------------------------------//
@@ -52,7 +56,7 @@ Future<void> _showNotification({String? title, String? body}) async {
 //-------------------------------------listen notification by FCM--------------------------//
 void setupForegroundMessageListener() {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    print(
+    logger.t(
         "message data:${message.data}  message notification data:${message.notification?.body}");
     if (message.notification != null) {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -64,8 +68,8 @@ void setupForegroundMessageListener() {
       var db = Provider.of<AppDb>(
           NavigationService.navigatorKey.currentContext!,
           listen: false);
-      print("message roomID:${message.data['roomId']}");
-      print("chatRoomView.roomId:${chatRoomView.currRoomId}");
+      logger.d("message roomID:${message.data['roomId']}");
+      logger.d("chatRoomView.roomId:${chatRoomView.currRoomId}");
       chatRoomView.fetchAllRoomDataFromApiAndSyncWithDB(db);
       if (message.data['roomId'] != chatRoomView.currRoomId) {
         await _showNotification(
@@ -73,7 +77,6 @@ void setupForegroundMessageListener() {
           body: message.notification!.body,
         );
       }
-      print("object");
 
       // Provider.of<ChatRoomViewModel>(
       //   NavigationService.navigatorKey.currentContext!,

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:zineapp2023/backend_properties.dart';
@@ -25,7 +24,7 @@ class AuthRepo {
         BackendProperties.resetUri
             .replace(queryParameters: {'email': email.toString()}),
         headers: BackendProperties.getHeaders());
-    print("res:${res.statusCode}");
+    logger.d("res:${res.statusCode}");
     if (res.statusCode == 200) {
       return true;
     } else {
@@ -35,7 +34,6 @@ class AuthRepo {
 
   // Future<void> updateToken()
   // {
-  //   //TODO: Implement this
 
   // }
 
@@ -54,9 +52,7 @@ class AuthRepo {
           });
       resBody = jsonDecode(res.body);
       logger.i(resBody);
-      if (kDebugMode) {
-        print("Reponse Code ${resBody['failureReason']}");
-      }
+        logger.t("Reponse Code ${resBody['failureReason']}");
 
       String userToken = "";
       switch (res.statusCode) {
@@ -65,20 +61,19 @@ class AuthRepo {
             throw AuthException(code: 'backend-not-responding');
           } else {
             userToken = (resBody['jwt'] as String);
-            print("userToken:$userToken");
+            logger.d("userToken:$userToken");
             return getUserbyId(userToken);
           }
-          break;
 
         default:
-          print("${resBody['failureReason']}");
+          logger.e("${resBody['failureReason']}");
           throw AuthException(code: resBody['failureReason']);
       }
     } on SocketException {
-      if (kDebugMode) print('no-connect');
+      logger.e('no-connect');
       throw AuthException(code: 'no-connect');
     } catch (e) {
-      print("Error in SignInWithEmailAndPassword");
+      logger.e("Error in SignInWithEmailAndPassword");
       throw AuthException(code: resBody['failureReason']);
     }
   }
@@ -96,7 +91,7 @@ class AuthRepo {
       });
 
       if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
-      print('User Body ${res.body}');
+      logger.d('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
       NewUserModel userData = NewUserModel.fromJson(user);
       await db.upsertUserDB(userData);
@@ -116,7 +111,7 @@ class AuthRepo {
     } on TimeoutException {
       throw AuthException(code: 'no-connect');
     } catch (e) {
-      if (kDebugMode) print("Non TimeoutException Error in GetUserByID");
+      logger.e("Non TimeoutException Error in GetUserByID $e");
       throw AuthException(code: 'unknown');
     }
   }
@@ -148,10 +143,10 @@ class AuthRepo {
           throw AuthException(code: resBody['message']);
       }
     } on SocketException {
-      print("Exception in createUserWithEmailAndPassword");
+      logger.e("SocketException in createUserWithEmailAndPassword");
       throw AuthException(code: 'no-connect');
     } catch (e) {
-      print("Exception in createUserWithEmailAndPassword");
+      logger.e("Exception in createUserWithEmailAndPassword $e");
       throw AuthException(code: resBody['message']);
     }
   }

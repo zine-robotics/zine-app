@@ -1,15 +1,16 @@
+// ignore_for_file: file_names
+
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zineapp2023/models/newTask.dart';
 import 'package:zineapp2023/models/task_instance.dart';
-import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 
 import 'package:zineapp2023/screens/tasks/view_models/task_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 
 //NEEDS TO BE REVIEWD (Priority High)
 class TaskDesc extends StatefulWidget {
@@ -19,16 +20,17 @@ class TaskDesc extends StatefulWidget {
   State<TaskDesc> createState() => _TaskDescState();
 }
 
+final logger = customLogger();
+
 final messageC = TextEditingController();
 final headingC = TextEditingController();
 final linkC = TextEditingController();
-bool LinkValidate = false;
-bool CheckpointValidate = false;
+// bool LinkValidate = false;
+// bool CheckpointValidate = false;
 
 class _TaskDescState extends State<TaskDesc> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     TaskVm tvm = Provider.of<TaskVm>(context, listen: false);
     tvm.getCurrCheckpoints();
@@ -75,7 +77,7 @@ class _TaskDescState extends State<TaskDesc> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          curr.task != null ? curr.task.title.toString() : "",
+                           curr.task.title.toString() ,
                           style: const TextStyle(
                             fontFamily: "Poppins-ExtraBold",
                             color: Colors.white,
@@ -148,9 +150,7 @@ class _TaskDescState extends State<TaskDesc> {
                               ),
                             ),
                             Text(
-                              curr.task != null
-                                  ? "${DateFormat(DateFormat.MONTH_DAY).format(curr.task.dueDate!)}\n${DateFormat.y().format(curr.task.dueDate!)}"
-                                  : "",
+                                   "${DateFormat(DateFormat.MONTH_DAY).format(curr.task.dueDate!)}\n${DateFormat.y().format(curr.task.dueDate!)}",
                               textAlign: TextAlign.right,
                               style: const TextStyle(
                                 height: 1.4,
@@ -225,9 +225,6 @@ class _TaskDescState extends State<TaskDesc> {
     //print("chekpoint element are:${cheklist.toString()}");
     final taskVm = Provider.of<TaskVm>(context, listen: false);
 
-    final dashVm = Provider.of<DashboardVm>(context, listen: false);
-    UserProv userProv = Provider.of<UserProv>(context, listen: false);
-    String userName = userProv.getUserInfo.name!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
@@ -379,8 +376,7 @@ class _TaskDescState extends State<TaskDesc> {
   Widget linksWidget(BuildContext context) {
     TaskVm taskVm = Provider.of<TaskVm>(context, listen: true);
     List<Link> links = taskVm.currLinks;
-    UserProv userProv = Provider.of<UserProv>(context, listen: false);
-    print(links);
+    logger.t("Loaded Links: $links");
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
@@ -451,7 +447,7 @@ class _TaskDescState extends State<TaskDesc> {
                                   style: const TextStyle(
                                       fontSize: 13, color: Colors.blue),
                                 ),
-                                onTap: () => launch(link.link.toString())),
+                                onTap: () => launchUrl(link.link)),
                             const SizedBox(
                               height: 10,
                             )
@@ -476,7 +472,7 @@ class _TaskDescState extends State<TaskDesc> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
+                          color: Colors.grey.withValues( alpha: 0.5),
                           spreadRadius: 2,
                           blurRadius: 5,
                           offset: const Offset(0, 3),
@@ -581,12 +577,7 @@ class _TaskDescState extends State<TaskDesc> {
     return Consumer2<TaskVm, DashboardVm>(
       builder: (context, taskVm, dashVm, _) {
         List<Checkpoint> checkpoints = taskVm.currCheckpoints;
-        List<Link> links = taskVm.currLinks;
-        UserNewTask curr = taskVm.getCurr().task;
-        print("taskDesc is rebuilt");
-        UserTaskInstance? latest = taskVm.findLatest();
-        Uri latestLink = latest!.task.psLink!;
-        print("checking messageC data:${messageC.text.toString()}");
+        logger.d("messageC data:${messageC.text.toString()}");
         return Scaffold(
           backgroundColor: backgroundGrey,
           extendBody: true,

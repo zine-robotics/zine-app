@@ -68,7 +68,7 @@ class $RoomsTableTable extends RoomsTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_synced" IN (0, 1))'),
-      defaultValue: Constant(false));
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1094,7 +1094,7 @@ class $RoomMemberTableTable extends RoomMemberTable
       'name', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: Constant('Anonymous'));
+      defaultValue: const Constant('Anonymous'));
   static const VerificationMeta _emailMeta = const VerificationMeta('email');
   @override
   late final GeneratedColumn<String> email = GeneratedColumn<String>(
@@ -1114,14 +1114,14 @@ class $RoomMemberTableTable extends RoomMemberTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("registered" IN (0, 1))'),
-      defaultValue: Constant(false));
+      defaultValue: const Constant(false));
   static const VerificationMeta _dpUrlMeta = const VerificationMeta('dpUrl');
   @override
   late final GeneratedColumn<String> dpUrl = GeneratedColumn<String>(
       'dp_url', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: Constant(''));
+      defaultValue: const Constant(''));
   static const VerificationMeta _emailVerifiedMeta =
       const VerificationMeta('emailVerified');
   @override
@@ -1505,7 +1505,7 @@ class $MessagesTableTable extends MessagesTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_synced" IN (0, 1))'),
-      defaultValue: Constant(false));
+      defaultValue: const Constant(false));
   static const VerificationMeta _roomIdMeta = const VerificationMeta('roomId');
   @override
   late final GeneratedColumn<int> roomId = GeneratedColumn<int>(
@@ -1976,7 +1976,7 @@ class $UsersTableTable extends UsersTable
       'name', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: Constant('Anonymous'));
+      defaultValue: const Constant('Anonymous'));
   static const VerificationMeta _emailMeta = const VerificationMeta('email');
   @override
   late final GeneratedColumn<String> email = GeneratedColumn<String>(
@@ -2002,14 +2002,14 @@ class $UsersTableTable extends UsersTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("registered" IN (0, 1))'),
-      defaultValue: Constant(false));
+      defaultValue: const Constant(false));
   static const VerificationMeta _dpMeta = const VerificationMeta('dp');
   @override
   late final GeneratedColumn<String> dp = GeneratedColumn<String>(
       'dp', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: Constant(''));
+      defaultValue: const Constant(''));
   static const VerificationMeta _emailVerifiedMeta =
       const VerificationMeta('emailVerified');
   @override
@@ -2411,7 +2411,7 @@ class $PollOptionTableTable extends PollOptionTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_voted" IN (0, 1))'),
-      defaultValue: Constant(false));
+      defaultValue: const Constant(false));
   static const VerificationMeta _voterIdMeta =
       const VerificationMeta('voterId');
   @override
@@ -2421,7 +2421,7 @@ class $PollOptionTableTable extends PollOptionTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("voter_id" IN (0, 1))'),
-      defaultValue: Constant(false));
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns =>
       [pollId, id, value, numVotes, isVoted, voterId];
@@ -2972,7 +2972,7 @@ final class $$RoomsTableTableReferences
 
   $$MessagesTableTableProcessedTableManager get messagesTableRefs {
     final manager = $$MessagesTableTableTableManager($_db, $_db.messagesTable)
-        .filter((f) => f.roomId.id($_item.id));
+        .filter((f) => f.roomId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_messagesTableRefsTable($_db));
     return ProcessedTableManager(
@@ -2990,7 +2990,7 @@ final class $$RoomsTableTableReferences
       get roomMemberMappingTableRefs {
     final manager = $$RoomMemberMappingTableTableTableManager(
             $_db, $_db.roomMemberMappingTable)
-        .filter((f) => f.roomId.id($_item.id));
+        .filter((f) => f.roomId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache =
         $_typedResult.readTableOrNull(_roomMemberMappingTableRefsTable($_db));
@@ -3301,7 +3301,8 @@ class $$RoomsTableTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (messagesTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<Room, $RoomsTableTable,
+                            MessageDB>(
                         currentTable: table,
                         referencedTable: $$RoomsTableTableReferences
                             ._messagesTableRefsTable(db),
@@ -3313,7 +3314,8 @@ class $$RoomsTableTableTableManager extends RootTableManager<
                             referencedItems.where((e) => e.roomId == item.id),
                         typedResults: items),
                   if (roomMemberMappingTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<Room, $RoomsTableTable,
+                            RoomMemberMapping>(
                         currentTable: table,
                         referencedTable: $$RoomsTableTableReferences
                             ._roomMemberMappingTableRefsTable(db),
@@ -3371,7 +3373,7 @@ final class $$FileTableTableReferences
 
   $$MessagesTableTableProcessedTableManager get messagesTableRefs {
     final manager = $$MessagesTableTableTableManager($_db, $_db.messagesTable)
-        .filter((f) => f.fileId.id($_item.id));
+        .filter((f) => f.fileId.id.sqlEquals($_itemColumn<int>('id') ?? 99999));
 
     final cache = $_typedResult.readTableOrNull(_messagesTableRefsTable($_db));
     return ProcessedTableManager(
@@ -3562,7 +3564,8 @@ class $$FileTableTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (messagesTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<FileDB, $FileTableTable,
+                            MessageDB>(
                         currentTable: table,
                         referencedTable: $$FileTableTableReferences
                             ._messagesTableRefsTable(db),
@@ -3617,7 +3620,7 @@ final class $$PollTableTableReferences
 
   $$MessagesTableTableProcessedTableManager get messagesTableRefs {
     final manager = $$MessagesTableTableTableManager($_db, $_db.messagesTable)
-        .filter((f) => f.pollId.id($_item.id));
+        .filter((f) => f.pollId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_messagesTableRefsTable($_db));
     return ProcessedTableManager(
@@ -3633,7 +3636,7 @@ final class $$PollTableTableReferences
   $$PollOptionTableTableProcessedTableManager get pollOptionTableRefs {
     final manager =
         $$PollOptionTableTableTableManager($_db, $_db.pollOptionTable)
-            .filter((f) => f.pollId.id($_item.id));
+            .filter((f) => f.pollId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache =
         $_typedResult.readTableOrNull(_pollOptionTableRefsTable($_db));
@@ -3857,7 +3860,8 @@ class $$PollTableTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (messagesTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<PollDB, $PollTableTable,
+                            MessageDB>(
                         currentTable: table,
                         referencedTable: $$PollTableTableReferences
                             ._messagesTableRefsTable(db),
@@ -3869,7 +3873,8 @@ class $$PollTableTableTableManager extends RootTableManager<
                             referencedItems.where((e) => e.pollId == item.id),
                         typedResults: items),
                   if (pollOptionTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<PollDB, $PollTableTable,
+                            PollOptionDB>(
                         currentTable: table,
                         referencedTable: $$PollTableTableReferences
                             ._pollOptionTableRefsTable(db),
@@ -3933,7 +3938,7 @@ final class $$RoomMemberTableTableReferences
 
   $$MessagesTableTableProcessedTableManager get messagesTableRefs {
     final manager = $$MessagesTableTableTableManager($_db, $_db.messagesTable)
-        .filter((f) => f.sentFromId.id($_item.id));
+        .filter((f) => f.sentFromId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_messagesTableRefsTable($_db));
     return ProcessedTableManager(
@@ -3951,7 +3956,7 @@ final class $$RoomMemberTableTableReferences
       get roomMemberMappingTableRefs {
     final manager = $$RoomMemberMappingTableTableTableManager(
             $_db, $_db.roomMemberMappingTable)
-        .filter((f) => f.memberId.id($_item.id));
+        .filter((f) => f.memberId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache =
         $_typedResult.readTableOrNull(_roomMemberMappingTableRefsTable($_db));
@@ -4219,7 +4224,8 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (messagesTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<RoomMemberDB,
+                            $RoomMemberTableTable, MessageDB>(
                         currentTable: table,
                         referencedTable: $$RoomMemberTableTableReferences
                             ._messagesTableRefsTable(db),
@@ -4231,7 +4237,8 @@ class $$RoomMemberTableTableTableManager extends RootTableManager<
                                 .where((e) => e.sentFromId == item.id),
                         typedResults: items),
                   if (roomMemberMappingTableRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<RoomMemberDB,
+                            $RoomMemberTableTable, RoomMemberMapping>(
                         currentTable: table,
                         referencedTable: $$RoomMemberTableTableReferences
                             ._roomMemberMappingTableRefsTable(db),
@@ -4298,9 +4305,10 @@ final class $$MessagesTableTableReferences
       $_aliasNameGenerator(db.messagesTable.fileId, db.fileTable.id));
 
   $$FileTableTableProcessedTableManager? get fileId {
-    if ($_item.fileId == null) return null;
+    final $_column = $_itemColumn<int>('file_id');
+    if ($_column == null) return null;
     final manager = $$FileTableTableTableManager($_db, $_db.fileTable)
-        .filter((f) => f.id($_item.fileId!));
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_fileIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -4311,9 +4319,10 @@ final class $$MessagesTableTableReferences
       $_aliasNameGenerator(db.messagesTable.pollId, db.pollTable.id));
 
   $$PollTableTableProcessedTableManager? get pollId {
-    if ($_item.pollId == null) return null;
+    final $_column = $_itemColumn<int>('poll_id');
+    if ($_column == null) return null;
     final manager = $$PollTableTableTableManager($_db, $_db.pollTable)
-        .filter((f) => f.id($_item.pollId!));
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_pollIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -4324,9 +4333,10 @@ final class $$MessagesTableTableReferences
       $_aliasNameGenerator(db.messagesTable.roomId, db.roomsTable.id));
 
   $$RoomsTableTableProcessedTableManager? get roomId {
-    if ($_item.roomId == null) return null;
+    final $_column = $_itemColumn<int>('room_id');
+    if ($_column == null) return null;
     final manager = $$RoomsTableTableTableManager($_db, $_db.roomsTable)
-        .filter((f) => f.id($_item.roomId!));
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_roomIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -4338,9 +4348,11 @@ final class $$MessagesTableTableReferences
           db.messagesTable.sentFromId, db.roomMemberTable.id));
 
   $$RoomMemberTableTableProcessedTableManager get sentFromId {
+    final $_column = $_itemColumn<int>('sent_from_id')!;
+
     final manager =
         $$RoomMemberTableTableTableManager($_db, $_db.roomMemberTable)
-            .filter((f) => f.id($_item.sentFromId));
+            .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_sentFromIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -5067,8 +5079,10 @@ final class $$PollOptionTableTableReferences
       $_aliasNameGenerator(db.pollOptionTable.pollId, db.pollTable.id));
 
   $$PollTableTableProcessedTableManager get pollId {
+    final $_column = $_itemColumn<int>('poll_id')!;
+
     final manager = $$PollTableTableTableManager($_db, $_db.pollTable)
-        .filter((f) => f.id($_item.pollId));
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_pollIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -5343,8 +5357,10 @@ final class $$RoomMemberMappingTableTableReferences extends BaseReferences<
       $_aliasNameGenerator(db.roomMemberMappingTable.roomId, db.roomsTable.id));
 
   $$RoomsTableTableProcessedTableManager get roomId {
+    final $_column = $_itemColumn<int>('room_id')!;
+
     final manager = $$RoomsTableTableTableManager($_db, $_db.roomsTable)
-        .filter((f) => f.id($_item.roomId));
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_roomIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -5356,9 +5372,11 @@ final class $$RoomMemberMappingTableTableReferences extends BaseReferences<
           db.roomMemberMappingTable.memberId, db.roomMemberTable.id));
 
   $$RoomMemberTableTableProcessedTableManager get memberId {
+    final $_column = $_itemColumn<int>('member_id')!;
+
     final manager =
         $$RoomMemberTableTableTableManager($_db, $_db.roomMemberTable)
-            .filter((f) => f.id($_item.memberId));
+            .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_memberIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(

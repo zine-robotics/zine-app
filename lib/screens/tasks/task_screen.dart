@@ -21,7 +21,6 @@ String _selectedFilter = "All Task";
 class _TaskScreenState extends State<TaskScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var tasksVM = Provider.of<TaskVm>(context, listen: false);
@@ -35,10 +34,7 @@ class _TaskScreenState extends State<TaskScreen> {
     }
     List<UserTaskInstance> filter =
         tasks.where((instance) => instance.status == _selectedFilter).toList();
-    print("filter task instance name:${filter.length}");
-    return tasks
-        .where((instance) => instance.status == _selectedFilter)
-        .toList();
+    return filter;
   }
 
   @override
@@ -182,7 +178,6 @@ class _TaskScreenState extends State<TaskScreen> {
                                       _selectedFilter = value;
                                     });
 
-                                    print(value);
                                   },
                                   itemBuilder: (BuildContext context) {
                                     return [

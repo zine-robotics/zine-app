@@ -1,6 +1,9 @@
 import "package:flutter/material.dart";
 import 'package:zineapp2023/models/events.dart';
 import 'package:zineapp2023/screens/events/repo/events_repo.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
+
+final logger = customLogger();
 
 class EventsVm extends ChangeNotifier {
   //====================================NEWER CODE=========================================//
@@ -9,13 +12,14 @@ class EventsVm extends ChangeNotifier {
   List<Events> get tempEvents => _tempEvents;
 
   Future<void> tempGetAllEvent() async {
-    print("inside the getallevents");
+    logger.i("Fetching events");
     try {
       _tempEvents = await eventRepo.fetchEvents();
       _tempEvents.sort((a, b) => b.startDateTime!.compareTo(a.startDateTime!));
-      print("sorted Events:$_tempEvents");
+      logger.i("Fetched events successfully");
+      logger.d("Fetched events: ${_tempEvents.length}");
     } catch (e) {
-      print('Error fetching events: $e');
+      logger.e('Error fetching events: $e');
     } finally {
       notifyListeners();
     }
@@ -23,7 +27,6 @@ class EventsVm extends ChangeNotifier {
 
   //====================================OLDER CODE=========================================//
 
-  final List<Events> _events = [];
   dynamic prev = 0;
   bool isLoading = false;
 

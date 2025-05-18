@@ -1,6 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 import 'firebase_options.dart';
+
+final logger = customLogger();
 
 Future<void> initializeFirebase() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -17,6 +20,5 @@ Future<void> initializeFirebase() async {
 }
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling a background message: ${message.messageId}');
-  // You can process the message and take actions here
+  logger.d('Handling a background message: ${message.messageId}');
 }

@@ -32,10 +32,7 @@ class _TeamTileState extends State<TeamTile> {
 
   @override
   Widget build(BuildContext context) {
-    double availableHeight = MediaQuery.of(context).size.height -
-        (kBottomNavigationBarHeight + kToolbarHeight);
 
-    const duration = Duration(milliseconds: 500);
     return Consumer<DashboardVm>(builder: (context, dashboardVm, _) {
       return Card(
         shape: const RoundedRectangleBorder(

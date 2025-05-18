@@ -29,10 +29,10 @@ class PublicEventsVM extends ChangeNotifier {
       _events = tempEvents;
       for (var event in _events) {
         DateTime eventDate = event.startDateTime!;
-        print("Event Date: ${eventDate.toString()}");
+        logger.d("Event Date: ${eventDate.toString()}");
       }
     } catch (e) {
-      print("Error $e");
+      logger.e('Error fetching events: $e');
       _isError = true;
     }
 

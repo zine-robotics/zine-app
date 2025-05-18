@@ -110,7 +110,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   // }
 
   void subscribeToActiveMember(String currRoomID, AppDb db) {
-    final subscription = _client.subscribe(
+     _client.subscribe(
         destination: "/room/$currRoomID/active-users",
         // headers: BackendProperties.getHeaders(),
         headers: {"roomId": currRoomID},
@@ -483,7 +483,6 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   //-----------------------------------------------------------save RoomDetails to local DB-------------------------------------------//
   static List<RoomsTableCompanion>? _apiRoomData;
-  List<Room>? _toDeleteRoomData;
 
   Future<List<Rooms>?> saveRoomsToLocalDb(
       List<Rooms>? allRooms, AppDb db) async {
@@ -668,7 +667,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           }
 
           // Handle file data
-          if (message.file?.uri != null && message.file?.uri != "") {
+          if (message.file?.uri != null && message.file?.uri.toString() != "") {
             try {
               // Save the file locally (async operation)
               saveFileToLocalStorage(message.file!.uri.toString(),
@@ -742,12 +741,12 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   //--------------------------------------------------fetchAllMessage-----------------------------------------------//
 
+  // ignore: non_constant_identifier_names
   Future<void> fetchAllMessagesFromAPI_andStoreInDB(
       AppDb db, String roomID) async {
     try {
       loadingAPIMessages = true;
-      List<MessageResponseModel>? allMessages =
-          roomID != null ? await chatP.getChatMessages(roomID) : [];
+      List<MessageResponseModel>? allMessages = await chatP.getChatMessages(roomID) ;
       loadingAPIMessages = false;
       if (allMessages.isEmpty) {
         return;
@@ -1025,7 +1024,7 @@ class ChatRoomViewModel extends ChangeNotifier {
         child: Container(
           width: 50,
           height: 50,
-          color: _generateBackgroundColor(name).withOpacity(0.8),
+          color: _generateBackgroundColor(name).withValues(alpha: 0.8),
           child: Center(
             child: Text(
               name.substring(0, 1).toUpperCase(),
@@ -1093,7 +1092,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       "poll": {
         'title': title,
         'pollOptions': options,
-        'description': description ?? ''
+        'description': description
       },
       "timestamp": DateTime.now()
           .millisecondsSinceEpoch, // or DateTime.now().toIso8601String()
@@ -1288,10 +1287,9 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   void addRouteListener(
       BuildContext context, var room, var user, UserProv userProv) {
-    ModalRoute.of(context)?.addScopedWillPopCallback(() {
-      // roomLeft(room, user, userProv);
+
+    ModalRoute.of(context)?.popped.then((_) {
       updateUnreadMessagesToZero(currRoomId);
-      return Future.value(true);
     });
   }
 

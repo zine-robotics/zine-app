@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 
 import '/common/data_store.dart';
 import '/common/navigator.dart';
@@ -7,6 +8,8 @@ import '/common/routing.dart';
 import '/models/user.dart';
 import '/providers/user_info.dart';
 import '/screens/onboarding/repo/auth_repo.dart';
+
+final logger = customLogger();
 
 class SplashVM extends ChangeNotifier {
   final DataStore store;
@@ -28,7 +31,7 @@ class SplashVM extends ChangeNotifier {
     if (uid != null && logged != null && logged.toString() == 'true') {
       try {
         UserModel currUser = await authRepo.getUserbyId(uid.toString());
-        print("check currUser$currUser.");
+        logger.i('Current User: $currUser');
         userProv.updateUserInfo(currUser);
         await Navigator.of(NavigationService.navigatorKey.currentContext!,
                 rootNavigator: true)

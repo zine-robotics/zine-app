@@ -6,7 +6,7 @@ import 'package:zineapp2023/screens/events/view_models/events_vm.dart';
 import 'package:zineapp2023/theme/color.dart';
 
 class Events extends StatelessWidget {
-  final selectedDate;
+  final DateTime? selectedDate;
   const Events({super.key, this.selectedDate});
 
   @override
@@ -17,7 +17,7 @@ class Events extends StatelessWidget {
 
       var tempEvents = eventsVm.tempEvents;
       // var events = eventsVm.events;
-      print("tempevents in events:${tempEvents[0].recruitment?.id}");
+      logger.d("tempevents in events:${tempEvents[0].recruitment?.id}");
 
       return Scaffold(
         extendBody: true,
@@ -65,7 +65,7 @@ class Events extends StatelessWidget {
                           EventCard(
                             // event: events[i],
                             tempEvent: tempEvents[i],
-                            selectedDate: selectedDate,
+                            selectedDate: selectedDate!,
                           )
                       ],
                     ),

@@ -86,7 +86,6 @@ class Routes {
       cupertinoRoute(RouteName.eventName, (ctx) => const Events());
 
   static Route publicEvents() {
-    print("hi");
     return cupertinoRoute(RouteName.publicEvents, (ctx) => const EventsScreen());
   }
 

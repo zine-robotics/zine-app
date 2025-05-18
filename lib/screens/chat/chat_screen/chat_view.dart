@@ -197,10 +197,9 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                             const EdgeInsets
                                                                 .all(12.0),
                                                         child: Text(
-                                                          repliedMessage
-                                                                          .type ==
-                                                                      MessageType
-                                                                          .text
+                                                          repliedMessage.type ==
+                                                                  MessageType
+                                                                      .text
                                                               ? (repliedMessage
                                                                               .text!
                                                                               .content
@@ -339,8 +338,9 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                           style: TextStyle(
                                                               color: Colors
                                                                   .black
-                                                                  .withOpacity(
-                                                                      0.5),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.5),
                                                               fontSize: 13),
                                                         ),
                                                       ),

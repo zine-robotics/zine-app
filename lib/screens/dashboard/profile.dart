@@ -111,7 +111,6 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   InkWell(
                                       onTap: () {
-                                        print("Muh Maaro");
                                         Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (context) =>

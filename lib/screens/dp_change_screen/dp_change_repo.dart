@@ -8,6 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:path/path.dart' as path;
+import 'package:zineapp2023/utilities/custom_logger.dart';
+
+final logger = customLogger();
 
 class DPUpdateRepo {
   static Future<String?> saveFile({
@@ -101,7 +104,6 @@ class DPUpdateRepo {
 
     if (result != null) {
       var path2 = result.files.single.path!;
-      print("Got Path $path2");
       Uri? fileUri = await uploadDP(file: File(path2), uid: uid);
       if (fileUri == null) {
         Fluttertoast.showToast(
@@ -116,7 +118,7 @@ class DPUpdateRepo {
 
       if (savePath != null) {
         if (kDebugMode) {
-          print("Updating DP $savePath");
+          logger.d("Updating DP $savePath");
         }
         updateDp(savePath);
       }

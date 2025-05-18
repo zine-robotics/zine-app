@@ -59,7 +59,7 @@ Future<void> main() async {
   // ignore: unused_local_variable
 
   DataStore store = DefaultStore();
-  UserProv userProv = UserProv(dataStore: store, Db: db);
+  UserProv userProv = UserProv(dataStore: store, db: db);
   FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   runApp(MyApp(
       store: store, userProv: userProv, secureStorage: secureStorage, db: db));

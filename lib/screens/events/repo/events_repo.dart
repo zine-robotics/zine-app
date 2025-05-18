@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:zineapp2023/backend_properties.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 import '../../../models/events.dart';
 import 'package:http/http.dart' as http;
 
+final logger = customLogger();
+
 class EventsRepo {
-  //==================================================NEWER CODE=======================================//
   Future<List<Events>> fetchEvents() async {
     try {
       Uri url = BackendProperties.eventsUri;
@@ -17,11 +19,11 @@ class EventsRepo {
             eventJson.map((json) => Events.fromJson(json)).toList();
         return events;
       } else {
-        print("Failed to load messages: ${response.statusCode}");
+        logger.e("Failed to load messages: ${response.statusCode}");
         return [];
       }
     } catch (e) {
-      print("An error occurred: $e");
+      logger.e("An error occurred: $e");
       return [];
     }
   }

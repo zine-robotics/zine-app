@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 
 import '../../../../providers/user_info.dart';
 import '../../../../common/navigator.dart';
 import '../../../../common/routing.dart';
 import '../../repo/auth_repo.dart';
 
+final logger = customLogger();
 class LoginAuthViewModel with ChangeNotifier {
   final AuthRepo myRepo;
   final UserProv userProvider;
@@ -76,8 +78,6 @@ class LoginAuthViewModel with ChangeNotifier {
           throw TimeoutException('Sign-in request timed out after 1 minute.');
         },
       );
-      print(value);
-      print("pushTOken:$pushToken");
       setLoading(false);
       userProvider.updateUserInfo(value!);
 
@@ -90,14 +90,13 @@ class LoginAuthViewModel with ChangeNotifier {
     } on TimeoutException catch (e) {
       // Handle timeout error
       setLoading(false);
-      print('Timeout occurred: ${e.message}');
+      logger.e('Timeout occurred: ${e.message}');
       Fluttertoast.showToast(
           msg: 'Sign-in request timed out. Please try again.',
           toastLength: Toast.LENGTH_LONG,
           backgroundColor: Colors.red);
     } on AuthException catch (e) {
       switch (e.code) {
-        //TODO: ENSURE THAT ERRORS ARE BEING caught here
         case "no-connect":
           errorText = "Connection error. Is your internet working?";
           break;

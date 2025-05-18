@@ -30,9 +30,7 @@ class TaskCard extends StatelessWidget {
               horizontal: 18,
               vertical: 5,
             ),
-            child:
-
-            Card(
+            child: Card(
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                   Radius.circular(15.0),
@@ -71,37 +69,38 @@ class TaskCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                            SizedBox(
-                              height: 35,
-                              width: 160,
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: iconTile.withOpacity(0.4), // Use your background color
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  buildProgressBar(
-                                      curr.completionPercentage ?? 10, // Replace with your dynamic value
-                                    Colors.green.withOpacity(0.2),
-                                    iconTile,
-                                  ),
-                                      Positioned.fill(
-                                                    child: Align(
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                    truncateStatus(curr.status.toString()),
-                                                    style: TextStyle(
-                                                    color: textColor.withOpacity(0.9),
-                                                    fontSize: 15.0,
-                                                    fontWeight: FontWeight.w700),
-                                                    ),))
-
-                                ],
+                        SizedBox(
+                          height: 35,
+                          width: 160,
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: iconTile.withValues(
+                                      alpha: 0.4), // Use your background color
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                               ),
-                            ),
-
+                              buildProgressBar(
+                                curr.completionPercentage ??
+                                    10, // Replace with your dynamic value
+                                Colors.green.withValues(alpha: 0.2),
+                                iconTile,
+                              ),
+                              Positioned.fill(
+                                  child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  truncateStatus(curr.status.toString()),
+                                  style: TextStyle(
+                                      color: textColor.withValues(alpha: 0.9),
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ))
+                            ],
+                          ),
+                        ),
                         Text(
                           "${DateFormat(DateFormat.MONTH_DAY).format(curr.task.dueDate!)}\n${DateFormat.y().format(curr.task.dueDate!)}",
                           textAlign: TextAlign.right,
@@ -124,14 +123,16 @@ class TaskCard extends StatelessWidget {
     );
   }
 }
-Widget buildProgressBar(int percentage, Color fillColor, Color backgroundColor) {
+
+Widget buildProgressBar(
+    int percentage, Color fillColor, Color backgroundColor) {
   return Stack(
     children: [
       // Background container (empty part)
       Container(
         height: 40,
         decoration: BoxDecoration(
-          color: backgroundColor.withOpacity(0.1),
+          color: backgroundColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(30),
         ),
       ),
@@ -141,7 +142,7 @@ Widget buildProgressBar(int percentage, Color fillColor, Color backgroundColor) 
         child: Container(
           height: 40,
           decoration: BoxDecoration(
-            color: fillColor.withOpacity(0.7),
+            color: fillColor.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(30),
           ),
         ),

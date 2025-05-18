@@ -62,14 +62,14 @@ class ChatDescription extends StatelessWidget {
                           //   height: 50,
                           //   width: 50,
                           //   fit: BoxFit.cover,
-                          //   color: textColor.withOpacity(0.9),
+                          //   color: textColor.withValues(alpha: 0.9),
                           // )
                           : Image.asset(
                               "assets/images/zine_logo.png",
                               height: 50,
                               width: 50,
                               fit: BoxFit.cover,
-                              // color: textColor.withOpacity(0.9),
+                              // color: textColor.withValues(alpha: 0.9),
                             )),
                 ),
               ),
@@ -153,8 +153,8 @@ class ChatDescription extends StatelessWidget {
                                       roomMember.name ?? "Anonymous",
                                       style: TextStyle(
                                         fontSize: MediaQuery.of(context)
-                                                .textScaleFactor *
-                                            15,
+                                            .textScaler
+                                            .scale(15),
                                         fontWeight: FontWeight.bold,
                                         color: textDarkBlue,
                                       ),
@@ -164,8 +164,8 @@ class ChatDescription extends StatelessWidget {
                                       roomMember.email ?? "email@example.com",
                                       style: TextStyle(
                                         fontSize: MediaQuery.of(context)
-                                                .textScaleFactor *
-                                            12.5,
+                                            .textScaler
+                                            .scale(12.5),
                                         color: textDarkBlue,
                                       ),
                                     ),
@@ -184,7 +184,9 @@ class ChatDescription extends StatelessWidget {
                                     style:
                                         TextStyle(fontWeight: FontWeight.w500),
                                   ),
-                                  const SizedBox(width: 10,)
+                                  const SizedBox(
+                                    width: 10,
+                                  )
                                 ] else ...[
                                   const Icon(
                                     Icons.circle_rounded,
@@ -197,7 +199,9 @@ class ChatDescription extends StatelessWidget {
                                     style:
                                         TextStyle(fontWeight: FontWeight.w500),
                                   ),
-                                  const SizedBox(width: 10,)
+                                  const SizedBox(
+                                    width: 10,
+                                  )
                                 ],
                                 // const SizedBox(width: 20),
                               ],
@@ -228,7 +232,7 @@ class FallbackIconImage extends StatelessWidget {
     return Image.asset(
       "assets/images/zine_logo.png",
       fit: BoxFit.cover,
-      color: textColor.withOpacity(0.9),
+      color: textColor.withValues(alpha: 0.9),
     );
   }
 }

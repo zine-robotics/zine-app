@@ -9,8 +9,6 @@ class EventCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double availableHeight = MediaQuery.of(context).size.height -
-        (kBottomNavigationBarHeight + kToolbarHeight);
     return TableCalendar(
 
       calendarStyle: const CalendarStyle(

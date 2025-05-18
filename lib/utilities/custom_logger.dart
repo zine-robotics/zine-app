@@ -2,11 +2,11 @@ import 'package:logger/logger.dart';
 
 Logger customLogger() {
   return Logger(
-    printer: customPrinter(),
+    printer: CustomPrinter(),
   );
 }
 
-class customPrinter extends LogPrinter {
+class CustomPrinter extends LogPrinter {
   final PrettyPrinter _defaultPrinter = PrettyPrinter(
     methodCount: 0,
     noBoxingByDefault: true,

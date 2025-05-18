@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 import '../../../../models/rooms.dart';
 import '../../../../theme/color.dart';
 import '../../../../utilities/date_time.dart';
 
+final logger = customLogger();
+
 class ChatGroupTile extends StatelessWidget {
-  ChatGroupTile(
+  const ChatGroupTile(
       {required this.name,
       required this.chatVm,
       required this.userProv,
@@ -18,7 +21,7 @@ class ChatGroupTile extends StatelessWidget {
   final dynamic chatVm;
   final dynamic userProv;
   final String groupId;
-  Rooms roomDetails;
+  final Rooms roomDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,7 @@ class ChatGroupTile extends StatelessWidget {
     //print("image by fetching:${docData.image}");
     //print("image by fetching:${docData.image}");
 
-    print(roomDetails.dpUrl);
+    logger.d("room details: ${roomDetails.toJson()}");
     return Stack(
       children: [
         Positioned(
@@ -87,7 +90,7 @@ class ChatGroupTile extends StatelessWidget {
                                 //   height: 30,
                                 //   width: 30,
                                 //   fit: BoxFit.cover,
-                                //   color: textColor.withOpacity(0.9),
+                                //   color: textColor.withValues(alpha: 0.9),
                                 // ):
 
                                 ((roomDetails.dpUrl == null ||
@@ -99,7 +102,7 @@ class ChatGroupTile extends StatelessWidget {
                                         height: 50,
                                         width: 50,
                                         fit: BoxFit.cover,
-                                        color: textColor.withOpacity(0.9),
+                                        color: textColor.withValues(alpha: 0.9),
                                       )
                                     : ClipRRect(
                                         borderRadius: BorderRadius.circular(20),
@@ -117,7 +120,7 @@ class ChatGroupTile extends StatelessWidget {
                             //     height: 50,
                             //     width: 50,
                             //     fit: BoxFit.cover,
-                            //     color: textColor.withOpacity(0.9)),
+                            //     color: textColor.withValues(alpha: 0.9)),
                             ),
                       ),
                     ),
@@ -127,7 +130,7 @@ class ChatGroupTile extends StatelessWidget {
                                 roomDetails.lastMessageTimestamp!),
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: greyText.withOpacity(0.6)),
+                                color: greyText.withValues(alpha: 0.6)),
                           )
                         : const Text(""),
                     const SizedBox(
@@ -148,7 +151,7 @@ class ChatGroupTile extends StatelessWidget {
               style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black.withOpacity(0.6)),
+                  color: Colors.black.withValues(alpha: 0.6)),
             )
           ],
         )

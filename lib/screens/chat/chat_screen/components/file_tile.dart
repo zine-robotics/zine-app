@@ -9,7 +9,7 @@ import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_m
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
-String DOWNLOAD_PATH = '/storage/emulated/0/Download';
+const  DOWNLOAD_PATH = '/storage/emulated/0/Download';
 
 const Color userColor = Color.fromARGB(255, 104, 181, 228);
 const Color userSelectedTextColor = Color.fromARGB(255, 255, 255, 255);
@@ -119,7 +119,8 @@ class _FileTileState extends State<FileTile> {
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: const Color.fromARGB(99, 0, 0, 0).withOpacity(0.9),
+          backgroundColor:
+              const Color.fromARGB(99, 0, 0, 0).withValues(alpha: 0.9),
           insetPadding: const EdgeInsets.all(10),
           child: Stack(
             alignment: Alignment.centerLeft,

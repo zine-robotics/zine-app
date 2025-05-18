@@ -9,7 +9,6 @@ import '../../../providers/user_info.dart';
 class DashboardVm extends ChangeNotifier {
   final DataStore store;
   final UserProv userProv;
-  final List<Map<String, dynamic>> _eventsDate = [];
   final dashRepo = DashRepo();
   static const Map<String, String> routes = {
     "ALGORITHMS": "ALGO",

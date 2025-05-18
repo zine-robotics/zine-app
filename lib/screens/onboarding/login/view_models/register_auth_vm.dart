@@ -5,12 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:zineapp2023/screens/onboarding/login/verify_email.dart';
+import 'package:zineapp2023/utilities/custom_logger.dart';
 import '../../../../common/navigator.dart';
 import 'package:zineapp2023/common/data_store.dart';
 import 'package:zineapp2023/providers/user_info.dart';
-import '../../../../models/user.dart';
 import '../../repo/auth_repo.dart';
 
+final logger = customLogger();
 class RegisterAuthViewModel extends ChangeNotifier {
   final AuthRepo myRepo;
   final DataStore store;
@@ -105,18 +106,8 @@ class RegisterAuthViewModel extends ChangeNotifier {
 
       setLoading(false);
 
-      UserModel userModel = UserModel(
-          uid: "",
-          email: data['email'],
-          name: data['name'],
-          dp: data['dp'],
-          type: data['type'],
-          rooms: [],
-          tasks: [],
-          roomids: [],
-          registered: data['registered']);
 
-      print("pushed verify email screen");
+      logger.i("pushed verify email screen");
 
       await Navigator.of(NavigationService.navigatorKey.currentContext!,
               rootNavigator: true)
@@ -124,7 +115,7 @@ class RegisterAuthViewModel extends ChangeNotifier {
               CupertinoPageRoute(builder: (ctx) => const VerifyEmailScreen()));
     } on TimeoutException catch (e) {
       setLoading(false);
-      print('Timeout occurred: ${e.message}');
+      logger.e('Timeout occurred: ${e.message}');
       // Handle timeout error, e.g., show a message to the user
       Fluttertoast.showToast(
           msg: 'Request timed out. Please try again.',

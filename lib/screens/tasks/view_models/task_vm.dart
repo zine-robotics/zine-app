@@ -34,9 +34,11 @@ class TaskVm extends ChangeNotifier {
   bool _isCheckpointError = false;
   get isChcekpointError => _isCheckpointError;
 
+  // ignore: unused_field
   bool _isLinkLoading = false;
   get isLinkLoading => _isCheckpointLoading;
 
+  // ignore: unused_field
   bool _isLinkError = false;
   get isLinkError => _isCheckpointError;
 

@@ -6,11 +6,11 @@ import 'package:zineapp2023/utilities/date_time.dart';
 
 class EventCard extends StatefulWidget {
   final Events tempEvent;
-  final selectedDate;
-  const EventCard({super.key, this.selectedDate, required this.tempEvent});
+  final DateTime  selectedDate;
+  const EventCard({super.key, required this.selectedDate, required this.tempEvent});
 
   @override
-  _EventCardState createState() => _EventCardState();
+  State<EventCard> createState() => _EventCardState();
 }
 
 class _EventCardState extends State<EventCard> {
@@ -27,9 +27,8 @@ class _EventCardState extends State<EventCard> {
     DateTime? date = tempEvent.startDateTime!;
     // DateTime? tempDate = widget.tempEvent.tartDateTime!);
 
-    if (widget.selectedDate != null && !checked) {
-      print(getDDate(date));
-      print(getDDate(widget.selectedDate));
+    if (!checked) {
+
       initExp = getDDate(date) == getDDate(widget.selectedDate);
       isExpanded = initExp;
     }
@@ -40,12 +39,14 @@ class _EventCardState extends State<EventCard> {
             0
         ? false
         : true;
+    // ignore: unused_local_variable
     var textStyleC = TextStyle(
         fontSize: 15,
         color: !isOld
             ? const Color.fromARGB(255, 12, 113, 176)
             : const Color.fromARGB(255, 147, 146, 146),
         fontWeight: FontWeight.w700);
+    // ignore: unused_local_variable
     const textStyleC2 = TextStyle(
         fontSize: 15,
         color: Color.fromARGB(255, 0, 61, 99),

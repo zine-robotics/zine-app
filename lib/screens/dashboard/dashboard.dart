@@ -187,8 +187,7 @@ class _DashboardState extends State<Dashboard> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: MediaQuery.of(context)
-                                                        .textScaleFactor *
-                                                    15,
+                                                        .textScaler.scale(15),
                                                 color: const Color(0xff0C72B0)),
                                           ),
                                         ),
@@ -196,8 +195,7 @@ class _DashboardState extends State<Dashboard> {
                                           DateTime.now().day.toString(),
                                           style: TextStyle(
                                               fontSize: MediaQuery.of(context)
-                                                      .textScaleFactor *
-                                                  60,
+                                                      .textScaler.scale(60),
                                               fontWeight: FontWeight.w700,
                                               color: const Color(0xff0C72B0)),
                                           textAlign: TextAlign.center,
@@ -208,8 +206,7 @@ class _DashboardState extends State<Dashboard> {
                                               .toUpperCase(),
                                           style: TextStyle(
                                               fontSize: MediaQuery.of(context)
-                                                      .textScaleFactor *
-                                                  40,
+                                                      .textScaler.scale(40),
                                               fontWeight: FontWeight.w700,
                                               color: const Color(0xffa3d0ec)),
                                           textAlign: TextAlign.center,
@@ -267,8 +264,7 @@ class _DashboardState extends State<Dashboard> {
                                                   style: TextStyle(
                                                       fontSize: MediaQuery.of(
                                                                   context)
-                                                              .textScaleFactor *
-                                                          25,
+                                                              .textScaler.scale(25  )      ,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       color: greyText),
