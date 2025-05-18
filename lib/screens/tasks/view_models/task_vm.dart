@@ -4,18 +4,16 @@ import 'package:zineapp2023/models/task_instance.dart';
 import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/tasks/repo/task_instance_repo.dart';
-import 'package:zineapp2023/screens/tasks/repo/task_repo.dart';
 import 'package:zineapp2023/utilities/custom_logger.dart';
 
 
 final logger = customLogger();
 
 class TaskVm extends ChangeNotifier {
-  final TaskRepo taskRepo;
   final TaskInstanceRepo taskInstanceRepo;
   final UserProv userProv;
   TaskVm(
-      {required this.taskRepo,
+      {
       required this.taskInstanceRepo,
       required this.userProv});
 
