@@ -9,12 +9,18 @@ Logger customLogger() {
 class CustomPrinter extends LogPrinter {
   final PrettyPrinter _defaultPrinter = PrettyPrinter(
     methodCount: 0,
+    errorMethodCount: 0,
     noBoxingByDefault: true,
+    excludePaths: [
+      "package:zineapp2023/utilities/custom_logger.dart",
+    ], // Excluding the logger itself from logging,
     lineLength: 50,
   );
   final PrettyPrinter _errorPrinter = PrettyPrinter(
     methodCount: 2,
-    noBoxingByDefault: true,
+    excludePaths: [
+      "package:zineapp2023/utilities/custom_logger.dart",
+    ], // Excluding the logger itself from logging,
     lineLength: 50,
   );
 
