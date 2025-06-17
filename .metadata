@@ -9,6 +9,9 @@ version:
 
 project_type: app
 
+enabled_platforms:
+  - android
+
 # Tracks metadata for the flutter migrate command
 migration:
   platforms:
