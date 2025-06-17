@@ -48,11 +48,13 @@ class AuthRepo {
               {"email": email, "password": password, "pushToken": pushToken}),
           headers: {
             "Content-Type": "application/json",
-            ...BackendProperties.getHeaders()
+            // ...BackendProperties.getHeaders()
           });
+      logger.d("Response from Post");
+      logger.d(res);
       resBody = jsonDecode(res.body);
       logger.i(resBody);
-        logger.t("Reponse Code ${resBody['failureReason']}");
+      logger.t("Reponse Code ${resBody['failureReason']}");
 
       String userToken = "";
       switch (res.statusCode) {
@@ -73,8 +75,8 @@ class AuthRepo {
       logger.e('no-connect');
       throw AuthException(code: 'no-connect');
     } catch (e) {
-      logger.e("Error in SignInWithEmailAndPassword");
-      throw AuthException(code: resBody['failureReason']);
+      logger.e(e);
+      throw AuthException(code: resBody['failureReason'] ?? 'unknown');
     }
   }
 

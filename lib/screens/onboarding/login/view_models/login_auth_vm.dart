@@ -10,6 +10,7 @@ import '../../../../common/routing.dart';
 import '../../repo/auth_repo.dart';
 
 final logger = customLogger();
+
 class LoginAuthViewModel with ChangeNotifier {
   final AuthRepo myRepo;
   final UserProv userProvider;
@@ -67,17 +68,16 @@ class LoginAuthViewModel with ChangeNotifier {
     try {
       String pushToken =
           await userProvider.getFirebaseMessagingToken() ?? 'null';
-      var value = await myRepo
-          .signInWithEmailAndPassword(
-              email: data['email'],
-              password: data['password'],
-              pushToken: pushToken)
-          .timeout(
-        const Duration(minutes: 1), // Set timeout duration to 1 minute
-        onTimeout: () {
-          throw TimeoutException('Sign-in request timed out after 1 minute.');
-        },
-      );
+      var value = await myRepo.signInWithEmailAndPassword(
+          email: data['email'],
+          password: data['password'],
+          pushToken: pushToken);
+      //   . timeout(
+      // const Duration(minutes: 1), // Set timeout duration to 1 minute
+      // onTimeout: () {
+      //   throw TimeoutException('Sign-in request timed out after 1 minute.');
+      // },
+      // );
       setLoading(false);
       userProvider.updateUserInfo(value!);
 
@@ -126,6 +126,9 @@ class LoginAuthViewModel with ChangeNotifier {
           break;
         case "user_not_verified_email_resent":
           errorText = "Please verify yourself (check your email)";
+          break;
+        case "unknown":
+          errorText = "An unknown error occurred. Please try again later.";
           break;
         default:
           errorText = e.code;
