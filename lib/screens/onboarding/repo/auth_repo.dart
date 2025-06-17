@@ -149,7 +149,7 @@ class AuthRepo {
       throw AuthException(code: 'no-connect');
     } catch (e) {
       logger.e("Exception in createUserWithEmailAndPassword $e");
-      throw AuthException(code: resBody['message']);
+      throw AuthException(code: resBody['message'] ?? 'unknown');
     }
   }
 

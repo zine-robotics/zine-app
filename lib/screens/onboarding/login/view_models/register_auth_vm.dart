@@ -12,6 +12,7 @@ import 'package:zineapp2023/providers/user_info.dart';
 import '../../repo/auth_repo.dart';
 
 final logger = customLogger();
+
 class RegisterAuthViewModel extends ChangeNotifier {
   final AuthRepo myRepo;
   final DataStore store;
@@ -106,7 +107,6 @@ class RegisterAuthViewModel extends ChangeNotifier {
 
       setLoading(false);
 
-
       logger.i("pushed verify email screen");
 
       await Navigator.of(NavigationService.navigatorKey.currentContext!,
@@ -125,7 +125,7 @@ class RegisterAuthViewModel extends ChangeNotifier {
       setLoading(false);
 
       Fluttertoast.showToast(
-          msg: e.code,
+          msg: e.code, //TODO: This should be a user-friendly message
           toastLength: Toast.LENGTH_LONG,
           backgroundColor: Colors.red);
     }
